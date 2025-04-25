@@ -1,0 +1,69 @@
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import "./index.css";
+
+function CodeDetail() {
+  const { code } = useParams();
+  const [codeDetails, setCodeDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCodeDetails = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/codes/${code}`);
+        if (!response.ok) {
+          throw new Error("Code not found");
+        }
+        const data = await response.json();
+        setCodeDetails(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchCodeDetails();
+  }, [code]);
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
+
+  if (!codeDetails) {
+    return <div className="error">Code not found</div>;
+  }
+
+  const formatTimestamp = (timestamp) => {
+    return new Date(parseInt(timestamp)).toLocaleString();
+  };
+
+  return (
+    <div className="code-detail">
+      <div className="code-info">
+        <h2>Code Details</h2>
+        <p className="code-text">Code: {codeDetails.code}</p>
+        <p className="timestamp">
+          Generated: {formatTimestamp(codeDetails.timestamp)}
+        </p>
+        {codeDetails.patternType && (
+          <p className="pattern-info">Pattern: {codeDetails.patternType}</p>
+        )}
+      </div>
+      <div className="image-container">
+        <img
+          src={`http://localhost:5000${codeDetails.imageUrl}`}
+          alt="Generated Code"
+          className="full-image"
+        />
+      </div>
+    </div>
+  );
+}
+
+export default CodeDetail;

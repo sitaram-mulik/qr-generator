@@ -1,0 +1,15 @@
+{
+  "watch": [
+    "*.js",
+    "routes/",
+    "models/",
+    "controllers/",
+    "middleware/",
+    "utils/"
+  ],
+  "ext": "js,json",
+  "ignore": ["node_modules/", "storage/"],
+  "delay": "500",
+  "legacyWatch": true,
+  "polling": true
+}
