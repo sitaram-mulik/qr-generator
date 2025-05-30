@@ -8,13 +8,13 @@ import {s3, PutObjectCommand} from '../configs/s3.js';
 
 const generate = async (req, res) => {
   try {
-    const { count, campaignName = 'campaign1' } = req.body;
+    const { count, campaignName = 'Test' } = req.body;
     console.log("Request campaignName:", campaignName);
 
-    if (!count || count < 1 || count > 1000) {
+    if (!count || count < 1 || count > 100) {
       return res
         .status(400)
-        .json({ error: "Count must be between 1 and 1000" });
+        .json({ error: "Count must be between 1 and 100" });
     }
 
     const generatedAssets = [];

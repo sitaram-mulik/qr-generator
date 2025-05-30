@@ -6,51 +6,51 @@ import { sendVerificationEmail } from "../utils/email.util.js";
 import { getClientUrl } from "../utils/config.util.js";
 
 const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+  // try {
+  //   const { name, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "Email already registered" });
-    }
+  //   const existingUser = await User.findOne({ email });
+  //   if (existingUser) {
+  //     return res.status(400).json({ error: "Email already registered" });
+  //   }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = uuidv4();
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+  //   const verificationToken = uuidv4();
 
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword,
-      verificationToken,
-    });
+  //   const user = new User({
+  //     name,
+  //     email,
+  //     password: hashedPassword,
+  //     verificationToken,
+  //   });
 
-    await user.save();
+  //   await user.save();
 
-    const appUrl = getClientUrl();
-    await sendVerificationEmail(email, verificationToken, appUrl);
+  //   const appUrl = getClientUrl();
+  //   await sendVerificationEmail(email, verificationToken, appUrl);
 
-    res.json({
-      message:
-        "Registration successful. Please check your email to verify your account.",
-    });
-  } catch (error) {
-    console.error("Registration error:", error);
-    res.status(500).json({ error: "Registration failed", details: error });
-  }
+  //   res.json({
+  //     message:
+  //       "Registration successful. Please check your email to verify your account.",
+  //   });
+  // } catch (error) {
+  //   console.error("Registration error:", error);
+  //   res.status(500).json({ error: "Registration failed", details: error });
+  // }
 };
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { userName, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ userName });
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    if (!user.isVerified) {
-      return res.status(401).json({ error: "Please verify your email first" });
-    }
+    // if (!user.isVerified) {
+    //   return res.status(401).json({ error: "Please verify your email first" });
+    // }
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
@@ -58,7 +58,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id, name: user.name, email: user.email },
+      { userId: user._id, name: user.displayName, usageLimit: user.limit },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -71,8 +71,12 @@ const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
+    console.log("Login successful for user:", user);
+
     res.json({
-      user: { id: user._id, name: user.name, email: user.email },
+      id: user.userName,
+      name: user.displayName,
+      usageLimit: user.limit
     });
   } catch (error) {
     console.error("Login error:", error);

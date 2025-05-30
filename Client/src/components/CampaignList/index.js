@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './index.css';
+import {
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  CardActionArea,
+  Typography,
+  CircularProgress,
+  Alert,
+  Box,
+  Paper,
+  Chip
+} from '@mui/material';
+import FolderIcon from '@mui/icons-material/Folder';
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const CampaignList = () => {
   const [campaigns, setCampaigns] = useState([]);
-  const [codes, setCodes] = useState([]);
-  const [selectedCampaign, setSelectedCampaign] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -19,62 +30,96 @@ const CampaignList = () => {
     try {
       const response = await axios.get('/campaigns');
       setCampaigns(response.data);
+      setLoading(false);
     } catch (err) {
       setError('Failed to load campaigns');
-    }
-  };
-
-  const handleCampaignClick = async (campaignName) => {
-    navigate(`/assets?campaign=${campaignName}`);    
-    try {
-      const response = await axios.get(`/codes?campaign=${campaignName}`);
-      setCodes(response.data.codes);
-    } catch (err) {
-      setError('Failed to load codes for campaign');
-    } finally {
       setLoading(false);
     }
   };
 
-  const handleCodeClick = (code) => {
-    window.open(`/assets/code/${code}`, "_blank");
+  const handleCampaignClick = (campaignName) => {
+    navigate(`/assets?campaign=${campaignName}`);
   };
 
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
+
   return (
-    <div className="my-campaigns-container">
-      <h2>My Campaigns</h2>
-      
-      <div className="campaigns-list">
-        {campaigns.map(({name}, index) => (
-          <button
-            key={index}
-            onClick={() => handleCampaignClick(name)}
-            className={`campaign-button ${selectedCampaign === name ? 'selected' : ''}`}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
-
-      {error && <div className="error">{error}</div>}
-
-      {loading ? (
-        <div>Loading...</div>
-      ) : (
-        selectedCampaign && codes.length > 0 && (
-          <div className="codes-container">
-            <h3>Codes for {selectedCampaign}:</h3>
-            <ul>
-              {codes.map((code, index) => (
-                <li key={index} onClick={() => handleCodeClick(code.code)}>
-                  <span className="code-text">{code.code}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )
-      )}
-    </div>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h5" component="h1" gutterBottom>
+          My Campaigns
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+        {campaigns.length === 0 ? (
+          <Alert severity="info">
+            No campaigns found. Create your first campaign to get started.
+          </Alert>
+        ) : (
+          <Grid container spacing={3}>
+            {campaigns.map(({ name, _id }) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={_id}>
+                <Card 
+                  sx={{ 
+                    height: '100%',
+                    transition: 'transform 0.2s',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: 4
+                    }
+                  }}
+                >
+                  <CardActionArea 
+                    onClick={() => handleCampaignClick(name)}
+                    sx={{ height: '100%', p: 2 }}
+                  >
+                    <Box 
+                      display="flex" 
+                      flexDirection="column" 
+                      alignItems="center" 
+                      justifyContent="center"
+                      sx={{ py: 2 }}
+                    >
+                      <FolderIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+                      <Typography 
+                        variant="h6" 
+                        component="h2"
+                        align="center"
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          width: '100%',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {name}
+                      </Typography>
+                      <Chip 
+                        label="View Assets" 
+                        color="primary" 
+                        size="small"
+                        sx={{ mt: 1 }}
+                      />
+                    </Box>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Paper>
+    </Container>
   );
 };
 

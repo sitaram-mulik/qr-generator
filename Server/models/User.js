@@ -1,25 +1,22 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  name: {
+  userName: {
     type: String,
     required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
   },
   password: {
     type: String,
     required: true,
   },
-  isVerified: {
-    type: Boolean,
-    default: false,
+  displayName: {
+    type: String,
+    required: true,
   },
-  verificationToken: String,
+  limit: {
+    type: Number,
+    default: 20000
+  },
   createdAt: {
     type: Date,
     default: Date.now,

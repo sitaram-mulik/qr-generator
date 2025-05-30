@@ -42,12 +42,22 @@ import { drawPattern } from './basicShapes.util.js';
 //     .toBuffer();
 // }
 
+const getRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
 async function getPatternBuffer() {
   const width = 500;
   const height = 500;
   const canvas = createCanvas(width, height);
-  
-  drawPattern(canvas);
+
+  const shapesCount = getRandomNumber(101, 500);
+  const shapeSides = getRandomNumber(2, 100)
+  const scale = getRandomNumber(1, 5); 
+  const rotationAngle = getRandomNumber(0, 360); 
+  const shapeSize = getRandomNumber(101, 1000); 
+  const shapeBorder = getRandomNumber(1, 5);
+  drawPattern(canvas, shapesCount, shapeSides, scale, rotationAngle, shapeSize, shapeBorder);
   
   // Convert canvas to buffer
   return await sharp(canvas.toBuffer('image/png'))

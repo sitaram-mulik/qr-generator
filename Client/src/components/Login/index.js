@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Container,
   Paper,
@@ -13,9 +13,10 @@ import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
+  const location = useLocation();
+  const { addUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({
-    email: "",
+    userName: "",
     password: "",
   });
   const [error, setError] = useState("");
@@ -35,9 +36,11 @@ const Login = () => {
         formData,
         { withCredentials: true }
       );
-      if (response.data.user) {
-        setUser(response.data.user);
-        navigate("/");
+      if (response.data.id) {
+        addUser(response.data);
+        // Navigate to the page user tried to access, or home page if no previous location
+        const from = location.state?.from || "/";
+        navigate(from, { replace: true });
       }
     } catch (error) {
       setError(error.response?.data?.error || "Login failed");
@@ -58,10 +61,9 @@ const Login = () => {
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
             fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
+            label="Username"
+            name="userName"
+            value={formData.userName}
             onChange={handleChange}
             margin="normal"
             required

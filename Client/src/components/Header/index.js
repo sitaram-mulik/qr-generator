@@ -9,100 +9,181 @@ import {
   Typography,
   Button,
   Avatar,
+  useMediaQuery,
+  useTheme,
+  Box,
+  SwipeableDrawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import PersonIcon from "@mui/icons-material/Person";
+import FolderIcon from "@mui/icons-material/Folder";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const { user, setUser } = useContext(AuthContext);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, removeUser } = useContext(AuthContext);
   const navigate = useNavigate();
-  console.log("user", user);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+    if (!isMobile) {
+      setAnchorEl(event.currentTarget);
+    }
   };
 
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const handleLogin = () => {
-    navigate("/login");
+  const handleMobileMenuToggle = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  const handleMyCampaigns = () => {
-    navigate("/campaigns");
+  const handleNavigation = (path) => {
+    navigate(path);
+    handleClose();
+    setMobileMenuOpen(false);
   };
 
   const handleLogout = async () => {
     try {
       await axios.post("/api/auth/logout");
-      setUser(null);
+      removeUser();
       sessionStorage.removeItem("user");
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
       handleClose();
+      setMobileMenuOpen(false);
     }
   };
 
+  const menuItems = user
+    ? [
+        {
+          text: "Profile",
+          icon: <PersonIcon />,
+          onClick: () => handleNavigation("/profile"),
+        },
+        {
+          text: "Campaigns",
+          icon: <FolderIcon />,
+          onClick: () => handleNavigation("/campaigns"),
+        },
+        { text: "Logout", icon: <LogoutIcon />, onClick: handleLogout },
+      ]
+    : [
+        {
+          text: "Login",
+          icon: <AccountCircle />,
+          onClick: () => handleNavigation("/login"),
+        },
+      ];
+
   return (
     <AppBar position="static">
-      <Toolbar>
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        {isMobile && (
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={handleMobileMenuToggle}
+            sx={{ mr: 2, justifyContent: "flex-start" }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+
         <Typography
-          variant="h6"
+          variant={isMobile ? "h6" : "h5"}
           component={Link}
           to="/"
-          sx={{ flexGrow: 1, textDecoration: "none", color: "inherit" }}
+          sx={{
+            textDecoration: "none",
+            color: "inherit",
+            flexGrow: 1,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
         >
-          Campaign Assets Generator
+          {isMobile ? "CAG" : "Campaign Assets Generator"}
         </Typography>
-        <div>
-          {user ? (
-            <>
-              <IconButton size="large" onClick={handleMenu} color="inherit">
-                <Avatar sx={{ bgcolor: "#1565c0" }}>
+
+        {!isMobile && user?.name && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="body1" sx={{ mr: 1 }}>
+              {user.name}
+            </Typography>
+            <IconButton onClick={handleMenu} color="inherit" sx={{ p: 0.5 }}>
+              <Avatar sx={{ bgcolor: "#1565c0", width: 40, height: 40 }}>
+                {user.name.charAt(0).toUpperCase()}
+              </Avatar>
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+            >
+              {menuItems.map((item) => (
+                <MenuItem key={item.text} onClick={item.onClick}>
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+        )}
+
+        {!isMobile && !user && (
+          <Button
+            color="inherit"
+            onClick={() => handleNavigation("/login")}
+            startIcon={<AccountCircle />}
+          >
+            Login
+          </Button>
+        )}
+
+        <SwipeableDrawer
+          anchor="left"
+          open={mobileMenuOpen}
+          onOpen={handleMobileMenuToggle}
+          onClose={handleMobileMenuToggle}
+        >
+          <Box sx={{ width: 250 }} role="presentation">
+            {user && (
+              <Box sx={{ p: 2, bgcolor: "primary.main", color: "white" }}>
+                <Avatar sx={{ mb: 1, bgcolor: "#1565c0" }}>
                   {user.name.charAt(0).toUpperCase()}
                 </Avatar>
-              </IconButton>
-              <Typography variant="body1" component="span" sx={{ ml: 1 }}>
-                {user.name}
-              </Typography>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem
-                  onClick={() => {
-                    handleClose();
-                    navigate("/profile");
-                  }}
-                >
-                  My Profile
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
-            </>
-          ) : (
-            <>
-              <IconButton size="large" onClick={handleMenu} color="inherit">
-                <AccountCircle />
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                {/* <MenuItem onClick={handleLogin}>Login</MenuItem>
-                <MenuItem onClick={handleRegister}>Register</MenuItem> */}
-                <MenuItem onClick={handleMyCampaigns}>My campaigns</MenuItem>
-              </Menu>
-            </>
-          )}
-        </div>
+                <Typography variant="subtitle1">{user.name}</Typography>
+              </Box>
+            )}
+            <Divider />
+            <List>
+              {menuItems.map((item) => (
+                <ListItem button key={item.text} onClick={item.onClick}>
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </SwipeableDrawer>
       </Toolbar>
     </AppBar>
   );

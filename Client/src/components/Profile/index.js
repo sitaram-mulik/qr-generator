@@ -17,7 +17,7 @@ const Profile = () => {
               <strong>Name:</strong> {user.name}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              <strong>Email:</strong> {user.email}
+              <strong>Usage:</strong> {user.usageLimit}
             </Typography>
           </>
         ) : (
