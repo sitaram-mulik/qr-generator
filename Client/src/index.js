@@ -8,6 +8,9 @@ import axios from "axios";
 // Configure axios to send cookies with requests
 axios.defaults.withCredentials = true;
 
+// Set base URL from environment variable
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || "";
+
 // Optionally, add axios interceptors for request/response handling
 axios.interceptors.response.use(
   (response) => response,

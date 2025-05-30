@@ -1,8 +1,9 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { v4: uuidv4 } = require("uuid");
-const User = require("../models/User");
-const { sendVerificationEmail } = require("../utils/email.util");
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import User from "../models/User.js";
+import { sendVerificationEmail } from "../utils/email.util.js";
+import { getClientUrl } from "../utils/config.util.js";
 
 const register = async (req, res) => {
   try {
@@ -25,7 +26,7 @@ const register = async (req, res) => {
 
     await user.save();
 
-    const appUrl = process.env.APP_URL || "http://localhost:3000";
+    const appUrl = getClientUrl();
     await sendVerificationEmail(email, verificationToken, appUrl);
 
     res.json({
@@ -58,7 +59,7 @@ const login = async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, name: user.name, email: user.email },
-      process.env.JWT_SECRET || "your-secret-key",
+      process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
 
@@ -106,8 +107,24 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-module.exports = {
+const logout = async (req, res) => {
+  try {
+    // Clear the token cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+    res.json({ message: "Logout successful" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ error: "Logout failed" });
+  }
+};
+
+export {
   register,
   login,
   verifyEmail,
+  logout,
 };

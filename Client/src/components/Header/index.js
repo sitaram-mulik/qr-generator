@@ -31,14 +31,21 @@ const Header = () => {
     navigate("/login");
   };
 
-  const handleRegister = () => {
-    navigate("/register");
+  const handleMyCampaigns = () => {
+    navigate("/campaigns");
   };
 
-  const handleLogout = () => {
-    handleClose();
-    setUser(null);
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout");
+      setUser(null);
+      sessionStorage.removeItem("user");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      handleClose();
+    }
   };
 
   return (
@@ -50,7 +57,7 @@ const Header = () => {
           to="/"
           sx={{ flexGrow: 1, textDecoration: "none", color: "inherit" }}
         >
-          QR Generator
+          Campaign Assets Generator
         </Typography>
         <div>
           {user ? (
@@ -89,8 +96,9 @@ const Header = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleLogin}>Login</MenuItem>
-                <MenuItem onClick={handleRegister}>Register</MenuItem>
+                {/* <MenuItem onClick={handleLogin}>Login</MenuItem>
+                <MenuItem onClick={handleRegister}>Register</MenuItem> */}
+                <MenuItem onClick={handleMyCampaigns}>My campaigns</MenuItem>
               </Menu>
             </>
           )}

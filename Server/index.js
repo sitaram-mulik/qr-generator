@@ -1,17 +1,26 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
-const fs = require("fs-extra");
-const cookieParser = require("cookie-parser");
-require("dotenv").config();
+import express from "express";
+import cors from "cors";
+import path from "path";
+import fs from "fs-extra";
+import cookieParser from "cookie-parser";
+import multer from "multer";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 
-const connectDatabase = require("./utils/database.util");
-const authRoutes = require("./routes/auth.routes");
-const codeRoutes = require("./routes/code.routes");
-const { authenticateToken } = require("./middleware/auth.middleware");
+import connectDatabase from "./utils/database.util.js";
+import authRoutes from "./routes/auth.routes.js";
+import assetsRoutes from "./routes/assets.routes.js";
+import campaignRoutes from "./routes/campaign.routes.js";
+import { getClientUrl } from "./utils/config.util.js";
+
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.SERVER_PORT || 8001;
+
+// Get __dirname equivalent in ES modules
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Ensure storage directories exist
 const STORAGE_DIR = path.join(__dirname, "storage", "codes");
@@ -23,17 +32,21 @@ connectDatabase();
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: getClientUrl(),
     credentials: true,
   })
 );
 app.use(cookieParser());
 app.use(express.json());
+const upload = multer();
+
+app.use(upload.any());
 app.use("/storage", express.static(path.join(__dirname, "storage")));
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/", codeRoutes);
+app.use("/assets", assetsRoutes);
+app.use("/campaigns", campaignRoutes);
 
 // Basic route
 app.get("/", (req, res) => {

@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+import jwt from 'jsonwebtoken';
 
 const authenticateToken = (req, res, next) => {
   // Extract token from httpOnly cookie named 'token'
@@ -9,10 +9,7 @@ const authenticateToken = (req, res, next) => {
   }
 
   try {
-    const verified = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "your-secret-key"
-    );
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
     req.user = verified;
     next();
   } catch (error) {
@@ -20,6 +17,4 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-module.exports = {
-  authenticateToken,
-};
+export { authenticateToken };

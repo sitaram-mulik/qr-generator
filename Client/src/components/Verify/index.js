@@ -20,7 +20,7 @@ const Verify = () => {
     const verifyEmail = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/auth/verify/${code}`
+          `/api/auth/verify/${code}`
         );
         if (response.data.message) {
           console.log("response.data.message", response);

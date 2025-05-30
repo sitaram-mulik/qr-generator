@@ -9,10 +9,8 @@ services:
     volumes:
       - ./Client:/app
       - /app/node_modules
-    environment:
-      - FAST_REFRESH=true
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
+    env_file:
+      - .env
     networks:
       - app-network
 
@@ -20,13 +18,12 @@ services:
     build:
       context: ./Server
     ports:
-      - "5000:5000"
+      - "8001:8001"
     volumes:
       - ./Server:/usr/src/app
       - /usr/src/app/node_modules
-    environment:
-      - NODE_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/qr-generator
+    env_file:
+      - .env
     command: npm run dev
     depends_on:
       mongodb:

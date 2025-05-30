@@ -3,28 +3,47 @@ import axios from "axios";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
 
-export const codeGeneratedEvent = new Event("codesGenerated");
+// export const codeGeneratedEvent = new Event("codesGenerated");
 
-const CodeGenerator = () => {
+const CreateAssets = () => {
   const [count, setCount] = useState(1);
   const [codes, setCodes] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [patternOptions, setPatternOptions] = useState({
-    patternTypes: [],
-  });
-  const [selectedPattern, setSelectedPattern] = useState("");
+  const [patternTypes, setPatternTypes] = useState([
+    "shapes"
+  ]);
+  const [selectedPattern, setSelectedPattern] = useState("shapes");
+  const [selectedCampaign, setSelectedCampaign] = useState("");
+  const [campaigns, setCampaigns] = useState([]);
+  const [campaignName, setCampaignName] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPatternOptions();
+    fetchCampaigns();
+    // Check for campaign query parameter
+    const params = new URLSearchParams(window.location.search);
+    const campaignFromUrl = params.get('campaign');
+
   }, []);
 
-  const fetchPatternOptions = async () => {
+  const fetchCampaigns = async () => {
+
     try {
-      const response = await axios.get("http://localhost:5000/pattern-options");
-      setPatternOptions(response.data);
-      setSelectedPattern(response.data.patternTypes[0]);
+      const response = await axios.get("/campaigns");
+      setCampaigns(response.data);
+
+      const params = new URLSearchParams(window.location.search);
+      const campaignFromUrl = params.get('campaign');
+
+      if (campaignFromUrl) {
+        setSelectedCampaign(campaignFromUrl);
+      } else {
+        console.log('response.data[0] ', response.data[0]?.name)
+        setSelectedCampaign(response.data[0]?.name || "");
+      }
+
+      console.log("Fetched campaigns:", response.data);
     } catch (err) {
       setError("Failed to load pattern options");
     }
@@ -36,22 +55,22 @@ const CodeGenerator = () => {
     setCodes([]);
 
     const numberCount = parseInt(count);
-    if (numberCount < 1 || numberCount > 1000) {
+    if (numberCount < 1) {
       setError("Please enter a number between 1 and 1000");
       return;
     }
-
+    console.log("Selected Campaign:", selectedCampaign);
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://localhost:5000/generate-codes",
+        "assets/generate",
         {
           count: numberCount,
-          patternType: selectedPattern,
+          campaignName: selectedCampaign
         }
       );
       setCodes(response.data.codes);
-      window.dispatchEvent(codeGeneratedEvent);
+      // window.dispatchEvent(codeGeneratedEvent);
     } catch (err) {
       setError(err.response?.data?.error || "Failed to generate codes");
     } finally {
@@ -60,7 +79,11 @@ const CodeGenerator = () => {
   };
 
   const handleCodeClick = (code) => {
-    window.open(`/code/${code}`, "_blank");
+    window.open(`/assets/code/${code}`, "_blank");
+  };
+
+  const handleCampaignClick = () => {
+    navigate('/campaign');
   };
 
   return (
@@ -68,7 +91,7 @@ const CodeGenerator = () => {
       <h2>Generate Unique Codes</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="count">Number of codes (1-1000):</label>
+          <label htmlFor="count">Asset counts:</label>
           <input
             type="number"
             id="count"
@@ -81,23 +104,43 @@ const CodeGenerator = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="pattern">Pattern Type:</label>
+          <label htmlFor="campaign">Select campaign:</label>
+          <select
+            id="campaign"
+            value={selectedCampaign}
+            onChange={(e) => setSelectedCampaign(e.target.value)}
+            required
+          >
+            {campaigns.map(({name: c}) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <div style={{ marginTop: '8px' }}>
+            <a href="#" onClick={handleCampaignClick} style={{ color: '#1976d2', textDecoration: 'none' }}>Create new campaign</a>
+          </div>
+        </div>
+
+        {/* <div className="form-group">
+          <label htmlFor="pattern">Select campaign:</label>
           <select
             id="pattern"
             value={selectedPattern}
             onChange={(e) => setSelectedPattern(e.target.value)}
             required
+            disabled
           >
-            {patternOptions.patternTypes.map((pattern) => (
+            {patternTypes.map((pattern) => (
               <option key={pattern} value={pattern}>
                 {pattern.charAt(0).toUpperCase() + pattern.slice(1)}
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
 
         <button type="submit" disabled={loading}>
-          {loading ? "Generating..." : "Generate Codes"}
+          {loading ? "Generating..." : "Generate Assets"}
         </button>
       </form>
 
@@ -119,4 +162,4 @@ const CodeGenerator = () => {
   );
 };
 
-export default CodeGenerator;
+export default CreateAssets;

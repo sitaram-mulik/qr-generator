@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -33,9 +33,10 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    console.log('process.env ', process.env)
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${process.env.REACT_APP_API_URL}/api/auth/register`,
         formData
       );
       if (response.data) {

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./index.css";
+import axios from "../../utils/axiosInstance";
 
-function CodeDetail() {
+function AssetDetails() {
   const { code } = useParams();
   const [codeDetails, setCodeDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,12 +12,8 @@ function CodeDetail() {
   useEffect(() => {
     const fetchCodeDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/codes/${code}`);
-        if (!response.ok) {
-          throw new Error("Code not found");
-        }
-        const data = await response.json();
-        setCodeDetails(data);
+        const response = await axios.get(`/assets/codes/${code}`);
+        setCodeDetails(response.data);
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -48,16 +45,10 @@ function CodeDetail() {
       <div className="code-info">
         <h2>Code Details</h2>
         <p className="code-text">Code: {codeDetails.code}</p>
-        <p className="timestamp">
-          Generated: {formatTimestamp(codeDetails.timestamp)}
-        </p>
-        {codeDetails.patternType && (
-          <p className="pattern-info">Pattern: {codeDetails.patternType}</p>
-        )}
       </div>
       <div className="image-container">
         <img
-          src={`http://localhost:5000${codeDetails.imageUrl}`}
+          src={codeDetails.imageUrl}
           alt="Generated Code"
           className="full-image"
         />
@@ -66,4 +57,4 @@ function CodeDetail() {
   );
 }
 
-export default CodeDetail;
+export default AssetDetails;

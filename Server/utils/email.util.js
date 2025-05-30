@@ -1,18 +1,17 @@
-const nodemailer = require("nodemailer");
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
-  port: 587,
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
   auth: {
-    user: "margarita.schumm88@ethereal.email",
-    pass: "AFvcC5aNpP6T3UzE52",
+    user: process.env.EMAIL_USER || "",
+    pass: process.env.EMAIL_PASS || "",
   },
 });
 
 const sendVerificationEmail = async (email, verificationToken, appUrl) => {
   const verificationLink = `${appUrl}/verify/${verificationToken}`;
-  console.log("args", process.env.EMAIL_USER); // Log the verification link for debugging
-  console.log("args", process.env.EMAIL_PASS);
+  console.log("args", process.env);
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,
@@ -25,6 +24,6 @@ const sendVerificationEmail = async (email, verificationToken, appUrl) => {
   });
 };
 
-module.exports = {
+export {
   sendVerificationEmail,
 };
