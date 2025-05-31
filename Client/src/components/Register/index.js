@@ -36,7 +36,7 @@ const Register = () => {
     console.log('process.env ', process.env)
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/auth/register`,
+        "/auth/register",
         formData
       );
       if (response.data) {

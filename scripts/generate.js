@@ -4,4 +4,4 @@ bcrypt.hash('', 10).then(hash => {
 });
 
 
-db.user.insertOne({ userName: "cag-1", password: "", displayName: "Test User", limit: 1000, domain: "" })
+//db.users.insertOne({ userName: "cag-1", password: "test123", displayName: "Test User", limit: 1000, domain: "" });

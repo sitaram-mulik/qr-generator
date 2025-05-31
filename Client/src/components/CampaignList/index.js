@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from "../../utils/axiosInstance";
 
 const CampaignList = () => {
   const [campaigns, setCampaigns] = useState([]);

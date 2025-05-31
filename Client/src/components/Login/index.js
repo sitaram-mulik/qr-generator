@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
+import axios from "../../utils/axiosInstance";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Container,
@@ -32,7 +32,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "/api/auth/login",
+        "/auth/login",
         formData,
         { withCredentials: true }
       );

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
+import axios from "../../utils/axiosInstance";
 import {
   AppBar,
   Toolbar,
@@ -57,7 +57,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("/api/auth/logout");
+      await axios.post("/auth/logout");
       removeUser();
       sessionStorage.removeItem("user");
       navigate("/login");

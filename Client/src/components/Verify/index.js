@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import axios from "../../utils/axiosInstance";
 import {
   Container,
   Paper,
@@ -20,7 +20,7 @@ const Verify = () => {
     const verifyEmail = async () => {
       try {
         const response = await axios.get(
-          `/api/auth/verify/${code}`
+          `/auth/verify/${code}`
         );
         if (response.data.message) {
           console.log("response.data.message", response);
