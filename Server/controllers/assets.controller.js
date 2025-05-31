@@ -8,7 +8,7 @@ import {s3, PutObjectCommand} from '../configs/s3.js';
 
 const generate = async (req, res) => {
   try {
-    const { count, campaignName = 'Test' } = req.body;
+    const { count, campaignName = 'Test', domain } = req.body;
     console.log("Request campaignName:", campaignName);
 
     if (!count || count < 1 || count > 100) {
@@ -19,7 +19,7 @@ const generate = async (req, res) => {
 
     const generatedAssets = [];
     const baseDir = path.join(process.cwd(), "storage", "codes");
-    const appUrl = getClientUrl();
+    const appUrl = domain || getClientUrl();
 
     for (let i = 0; i < count; i++) {
       const timestamp = Date.now();

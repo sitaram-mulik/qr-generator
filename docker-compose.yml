@@ -9,8 +9,6 @@ services:
     volumes:
       - ./Client:/app
       - /app/node_modules
-    env_file:
-      - .env
     networks:
       - app-network
 
@@ -22,8 +20,6 @@ services:
     volumes:
       - ./Server:/usr/src/app
       - /usr/src/app/node_modules
-    env_file:
-      - .env
     command: npm run dev
     depends_on:
       mongodb:

@@ -16,7 +16,10 @@ const Profile = () => {
             <Typography variant="body1" gutterBottom>
               <strong>Name:</strong> {user.name}
             </Typography>
-            <Typography variant="body1" gutterBottom>
+            <Typography variant="body2" gutterBottom>
+              <strong>Domain:</strong> {user.domain}
+            </Typography>
+            <Typography variant="body3" gutterBottom>
               <strong>Usage:</strong> {user.usageLimit}
             </Typography>
           </>

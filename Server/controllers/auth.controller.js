@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import User from "../models/User.js";
+import User from "../models/user.js";
 import { sendVerificationEmail } from "../utils/email.util.js";
 import { getClientUrl } from "../utils/config.util.js";
 
@@ -58,7 +58,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id, name: user.displayName, usageLimit: user.limit },
+      { userId: user._id, name: user.displayName, usageLimit: user.limit, domain: user.domain },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -76,7 +76,8 @@ const login = async (req, res) => {
     res.json({
       id: user.userName,
       name: user.displayName,
-      usageLimit: user.limit
+      usageLimit: user.limit,
+      domain: user.domain
     });
   } catch (error) {
     console.error("Login error:", error);

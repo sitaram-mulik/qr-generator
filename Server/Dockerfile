@@ -7,7 +7,8 @@ RUN apk add --no-cache python3 make g++ pkgconfig cairo-dev pango-dev libjpeg-tu
 
 COPY package*.json ./
 
-RUN npm install
+# Install dependencies including devDependencies
+RUN npm install --include=dev
 
 COPY . .
 

@@ -51,12 +51,12 @@ async function getPatternBuffer() {
   const height = 500;
   const canvas = createCanvas(width, height);
 
-  const shapesCount = getRandomNumber(101, 500);
+  const shapesCount = getRandomNumber(150, 500);
   const shapeSides = getRandomNumber(2, 100)
-  const scale = getRandomNumber(1, 5); 
+  const scale = getRandomNumber(1, 10); 
   const rotationAngle = getRandomNumber(0, 360); 
-  const shapeSize = getRandomNumber(101, 1000); 
-  const shapeBorder = getRandomNumber(1, 5);
+  const shapeSize = 250; 
+  const shapeBorder = 1;
   drawPattern(canvas, shapesCount, shapeSides, scale, rotationAngle, shapeSize, shapeBorder);
   
   // Convert canvas to buffer
@@ -72,7 +72,7 @@ async function generateImage(uniqueCode, baseDir, appUrl) {
 
   try {
     const [qrBuffer, patternBuffer] = await Promise.all([
-      generateQRCodeBuffer(`${appUrl}/code/${uniqueCode}`),
+      generateQRCodeBuffer(`${appUrl}/assets/code/${uniqueCode}`),
       getPatternBuffer(),
     ]);
 

@@ -170,21 +170,12 @@ function AssetList() {
       <Grid container spacing={2}>
         {assets.map((asset) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={asset.id}>
-            <Card>
-              <CardContent>
-                <Typography variant="body1" noWrap>
-                  {asset.code}
-                </Typography>
-              </CardContent>
-              <CardActions>
                 <Button 
-                  size="small" 
+                  size="small"
                   onClick={() => window.open(`/assets/code/${asset.code}`, "_blank")}
                 >
-                  View Details
+                  {asset.code}
                 </Button>
-              </CardActions>
-            </Card>
           </Grid>
         ))}
       </Grid>

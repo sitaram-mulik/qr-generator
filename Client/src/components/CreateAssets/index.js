@@ -62,7 +62,8 @@ const CreateAssets = () => {
         "assets/generate",
         {
           count: batchSize,
-          campaignName: selectedCampaign
+          campaignName: selectedCampaign,
+          domain: user.domain
         }
       );
       return response.data.codes;
@@ -99,7 +100,7 @@ const CreateAssets = () => {
         failed: 0
       });
       
-      const batchSize = 50;
+      const batchSize = 20;
       let processedCount = 0;
       let successCount = 0;
       let failedCount = 0;
@@ -165,23 +166,7 @@ const CreateAssets = () => {
       )}
 
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="count">Asset counts:</label>
-          <input
-            type="number"
-            id="count"
-            value={count}
-            onChange={(e) => setCount(e.target.value)}
-            min="1"
-            max={usageStats?.remaining || 1000}
-            required
-          />
-          {usageStats && (
-            <small className="input-help">Max: {usageStats.remaining}</small>
-          )}
-        </div>
-
-        <div className="form-group">
+      <div className="form-group">
           <label htmlFor="campaign">Select campaign:</label>
           {campaigns.length > 0 ? (
             <>
@@ -210,6 +195,54 @@ const CreateAssets = () => {
             </div>
           )}
         </div>
+
+        <div className="form-group">
+          <label htmlFor="count">Asset counts:</label>
+          <input
+            type="number"
+            id="count"
+            value={count}
+            onChange={(e) => setCount(e.target.value)}
+            min="1"
+            max={usageStats?.remaining || 1000}
+            required
+            style={{ width: '200px' }}
+          />
+          {usageStats && (
+            <small className="input-help">Max: {usageStats.remaining}</small>
+          )}
+        </div>
+
+        <div className="form-group">
+          Generate unique code:
+          <input
+            type="checkbox"
+            id="uniqueCode"
+            checked
+            disabled
+          />
+        </div>
+
+        <div className="form-group">
+         Generate QR code:
+          <input
+            type="checkbox"
+            id="qr"
+            checked
+            disabled
+          />
+        </div>
+
+        <div className="form-group">
+          Generate unique patterned images
+          <input
+            type="checkbox"
+            id="image"
+            checked
+            disabled
+          />
+        </div>
+
 
         <button 
           type="submit" 

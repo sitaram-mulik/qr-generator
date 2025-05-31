@@ -30,12 +30,18 @@ fs.ensureDirSync(STORAGE_DIR);
 connectDatabase();
 
 // Middleware
-app.use(
-  cors({
+if (process.env.NODE_ENV === 'production') {
+  // In production, serve static files and handle client routing
+  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(cors());
+} else {
+  // In development, use CORS with specific origin
+  app.use(cors({
     origin: getClientUrl(),
     credentials: true,
-  })
-);
+  }));
+}
+
 app.use(cookieParser());
 app.use(express.json());
 const upload = multer();
@@ -48,10 +54,22 @@ app.use("/api/auth", authRoutes);
 app.use("/assets", assetsRoutes);
 app.use("/campaigns", campaignRoutes);
 
-// Basic route
-app.get("/", (req, res) => {
-  res.send("Server is running");
-});
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  // Handle client-side routing by serving index.html for all non-API routes
+  app.get('*', (req, res, next) => {
+    if (!req.path.startsWith('/api') && !req.path.startsWith('/assets') && !req.path.startsWith('/campaigns')) {
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    } else {
+      next();
+    }
+  });
+} else {
+  // Basic route for development
+  app.get("/", (req, res) => {
+    res.send("Server is running");
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

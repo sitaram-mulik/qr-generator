@@ -15,7 +15,11 @@ const userSchema = new mongoose.Schema({
   },
   limit: {
     type: Number,
-    default: 20000
+    default: 500
+  },
+  domain: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,
@@ -23,4 +27,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model("user", userSchema);
