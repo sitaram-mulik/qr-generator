@@ -25,6 +25,7 @@ function AssetList() {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSummary, setDownloadSummary] = useState(null);
+  const [campaignName, setCampaignName] = useState("");
 
   useEffect(() => {
     fetchAssets();
@@ -34,6 +35,7 @@ function AssetList() {
     try {
       const params = new URLSearchParams(window.location.search);
       const campaignFromUrl = params.get('campaign');
+      setCampaignName(campaignFromUrl || '');
       const response = await axios.get(`/assets/codes/?campaign=${campaignFromUrl || ''}`);
       setAssets(response.data);
       setLoading(false);
@@ -71,42 +73,78 @@ function AssetList() {
     return Promise.all(downloads);
   };
 
+  // const downloadAllAssets = async () => {
+  //   setIsDownloading(true);
+  //   setDownloadProgress(0);
+  //   setDownloadSummary(null);
+    
+  //   const batchSize = 10;
+  //   const batches = [];
+    
+  //   for (let i = 0; i < assets.length; i += batchSize) {
+  //     batches.push(assets.slice(i, i + batchSize));
+  //   }
+
+  //   let successCount = 0;
+  //   let failureCount = 0;
+    
+  //   for (let i = 0; i < batches.length; i++) {
+  //     const results = await downloadBatch(batches[i], i * batchSize);
+  //     const batchSuccesses = results.filter(Boolean).length;
+  //     const batchFailures = results.filter(result => !result).length;
+      
+  //     successCount += batchSuccesses;
+  //     failureCount += batchFailures;
+      
+  //     const progress = Math.round(((i + 1) * batchSize) / assets.length * 100);
+  //     setDownloadProgress(Math.min(progress, 100));
+      
+  //     await new Promise(resolve => setTimeout(resolve, 500));
+  //   }
+
+  //   setDownloadSummary({
+  //     success: successCount,
+  //     failed: failureCount,
+  //     total: assets.length
+  //   });
+  //   setIsDownloading(false);
+  // };
+
   const downloadAllAssets = async () => {
     setIsDownloading(true);
     setDownloadProgress(0);
     setDownloadSummary(null);
-    
-    const batchSize = 10;
-    const batches = [];
-    
-    for (let i = 0; i < assets.length; i += batchSize) {
-      batches.push(assets.slice(i, i + batchSize));
+    try {
+      const res = await axios(`/assets/downloadAll?campaign=${campaignName}`, {
+        responseType: 'blob',
+      });
+      const blob = res.data;
+      console.log('resresresres ', res.data instanceof Blob);
+      const downloadUrl = window.URL.createObjectURL(blob);
+  
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `${campaignName}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);      
+    } catch (error) {
+      console.error("Error downloading all assets:", error);
+      setError("Failed to download assets");  
+      setIsDownloading(false);
+      return; 
+    } finally {
+      setIsDownloading(false);
+      setDownloadProgress(100);
+      setDownloadSummary({
+        success: assets.length,
+        failed: 0,
+        total: assets.length
+      });
     }
 
-    let successCount = 0;
-    let failureCount = 0;
-    
-    for (let i = 0; i < batches.length; i++) {
-      const results = await downloadBatch(batches[i], i * batchSize);
-      const batchSuccesses = results.filter(Boolean).length;
-      const batchFailures = results.filter(result => !result).length;
-      
-      successCount += batchSuccesses;
-      failureCount += batchFailures;
-      
-      const progress = Math.round(((i + 1) * batchSize) / assets.length * 100);
-      setDownloadProgress(Math.min(progress, 100));
-      
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-
-    setDownloadSummary({
-      success: successCount,
-      failed: failureCount,
-      total: assets.length
-    });
-    setIsDownloading(false);
-  };
+  }
 
   if (loading) {
     return (
@@ -135,15 +173,14 @@ function AssetList() {
                 variant="contained"
                 startIcon={<GetAppIcon />}
                 onClick={downloadAllAssets}
-                //disabled={isDownloading}
-                disabled
+                disabled={isDownloading}
                 fullWidth
                 sx={{ mb: 2 }}
               >
                 {isDownloading ? 'Downloading...' : 'Download All Assets'}
               </Button>
 
-              {isDownloading && (
+              {/* {isDownloading && (
                 <Box sx={{ width: '100%' }}>
                   <LinearProgress 
                     variant="determinate" 
@@ -154,7 +191,7 @@ function AssetList() {
                     {downloadProgress}%
                   </Typography>
                 </Box>
-              )}
+              )} */}
 
               {downloadSummary && !isDownloading && (
                 <Alert severity={downloadSummary.failed > 0 ? "warning" : "success"} sx={{ mt: 2 }}>

@@ -4,7 +4,8 @@ import path from 'path';
 import CodeModel from '../models/code.js';
 import { generateImage } from '../utils/assets.util.js';
 import { getClientUrl } from '../utils/config.util.js';
-import {s3, PutObjectCommand} from '../configs/s3.js';
+import {s3, PutObjectCommand, GetObjectCommand} from '../configs/s3.js';
+import archiver from 'archiver';
 
 const generate = async (req, res) => {
   try {
@@ -38,7 +39,7 @@ const generate = async (req, res) => {
         // upload each image in s3
         await s3.send(new PutObjectCommand({
           Bucket: process.env.AWS_S3_BUCKET,
-          Key: `${campaignName}/${uniqueCode}`,
+          Key: `${campaignName}/${uniqueCode}.png`,
           Body: imageBuffer,
           ContentType: 'image/png',
         }));
@@ -112,9 +113,39 @@ const getCodeById = async (req, res) => {
   }
 };
 
+const downloadImages = async (req, res) => {
+  const { campaign } = req.query;
+  const query = campaign ? { campaign } : {};
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename=images.zip');
+
+  const codes = await CodeModel.find(query).sort({ createdAt: -1 });
+  const keys = codes.map(code => code.code);
+  console.log('Keys to download:', keys);
+
+  const archive = archiver('zip', { zlib: { level: 9 } });
+  archive.pipe(res);
+
+  for (const key of keys) {
+    try {
+      const command = new GetObjectCommand({ Bucket: process.env.AWS_S3_BUCKET, Key: `${campaign}/${key}.png` });
+      const data = await s3.send(command);
+      archive.append(data.Body, { name: `${key}.png` });
+    } catch (err) {
+      console.warn(`Skipping missing key: ${key}`);
+      // just continue, don't throw
+    }
+
+  }
+
+  await archive.finalize();
+
+};
+
+
 export {
   generate,
   getAllCodes,
-  // getPatternOptions,
+  downloadImages,
   getCodeById,
 };
