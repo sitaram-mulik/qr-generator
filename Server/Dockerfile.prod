@@ -8,17 +8,10 @@ RUN apk add --no-cache python3 make g++ pkgconfig cairo-dev pango-dev libjpeg-tu
 COPY package*.json ./
 
 # Install dependencies including devDependencies
-RUN npm install --include=dev
+RUN npm install
 
 COPY . .
 
-# Set environment variables for email from build args or runtime environment
-ARG EMAIL_USER
-ARG EMAIL_PASS
+EXPOSE 443
 
-ENV EMAIL_USER=$EMAIL_USER
-ENV EMAIL_PASS=$EMAIL_PASS
-
-EXPOSE 5000
-
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]

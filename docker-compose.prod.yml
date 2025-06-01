@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  server:
+    build:
+      context: ./Server
+      dockerfile: Dockerfile.prod
+      args:
+        NODE_ENV: ${NODE_ENV}
+        MONGODB_URI: ${MONGODB_URI}
+        SERVER_PORT: ${SERVER_PORT}
+        JWT_SECRET: ${JWT_SECRET}
+        AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+        AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+        AWS_REGION: ${AWS_REGION}
+        AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URI=${MONGODB_URI}
+      - SERVER_PORT=${SERVER_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+    ports:
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - ./Server:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm start
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

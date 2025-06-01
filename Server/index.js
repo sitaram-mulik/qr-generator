@@ -83,11 +83,11 @@ async function startServer() {
     
     // Start certificate monitoring
     // monitoringInterval = startCertificateMonitoring(process.env.DOMAIN);
-
+    const domain = process.env.DOMAIN;
     https.createServer({
-      key: fs.readFileSync('/etc/letsencrypt/live/yourdomain.com/privkey.pem'),
-      cert: fs.readFileSync('/etc/letsencrypt/live/yourdomain.com/cert.pem'),
-      ca: fs.readFileSync('/etc/letsencrypt/live/yourdomain.com/fullchain.pem'),
+      key: fs.readFileSync(`/etc/letsencrypt/live/${domain}/privkey.pem`),
+      cert: fs.readFileSync(`/etc/letsencrypt/live/${domain}/cert.pem`),
+      ca: fs.readFileSync(`/etc/letsencrypt/live/${domain}/fullchain.pem`)
     }, app).listen(PORT, () => {
       console.log('HTTPS server running');
     });

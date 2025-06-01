@@ -176,3 +176,13 @@
    ```bash
    tar -czf backup.tar.gz /path/to/application
    ```
+
+# To enter in Docker MongoDB container:
+```bash
+docker-compose exec mongodb bash
+```
+
+# To connect to MongoDB from the host machine, use the following command:
+```bash
+docker exec -it mongodb mongosh -u db-user -p db-pswd --authenticationDatabase admin
+```
