@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Public routes
 router.get("/codes", authenticateToken, getAllCodes);
-router.get("/codes/:code", authenticateToken, getCodeById);
+router.get("/codes/:code", getCodeById);
 router.post("/generate", authenticateToken, generate);
 
 // Protected routes (if needed in future)

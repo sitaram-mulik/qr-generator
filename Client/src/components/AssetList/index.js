@@ -135,7 +135,8 @@ function AssetList() {
                 variant="contained"
                 startIcon={<GetAppIcon />}
                 onClick={downloadAllAssets}
-                disabled={isDownloading}
+                //disabled={isDownloading}
+                disabled
                 fullWidth
                 sx={{ mb: 2 }}
               >

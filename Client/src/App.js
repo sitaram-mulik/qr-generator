@@ -81,9 +81,7 @@ function App() {
         <Route
           path="/assets/code/:code"
           element={
-            <ProtectedRoute>
               <AssetDetails />
-            </ProtectedRoute>
           }
         />
       </Routes>
