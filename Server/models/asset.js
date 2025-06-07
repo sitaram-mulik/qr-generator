@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const codeSchema = new mongoose.Schema({
+const assetSchema = new mongoose.Schema({
   code: {
     type: String,
     required: true,
@@ -14,9 +14,22 @@ const codeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  read: {
+  verified: {
     type: Boolean,
     default: false,
+  },
+  verifiedAt: {
+    type: Date
+  },
+  verifiedBy: {
+    type: String
+  },
+  downloads: {
+    type: Number,
+    default: 0,
+  },
+  downloadedAt: {
+    type: Date
   },
   createdAt: {
     type: Date,
@@ -24,4 +37,4 @@ const codeSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("code", codeSchema);
+export default mongoose.model("asset", assetSchema);

@@ -4,6 +4,7 @@ import "./index.css";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { Alert, CircularProgress, Box, LinearProgress, Typography } from "@mui/material";
+import { getTodaysDate } from "../../utils/common";
 
 const CreateAssets = () => {
   const [count, setCount] = useState(1);
@@ -20,23 +21,10 @@ const CreateAssets = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([fetchCampaigns(), fetchUsageStats()]).finally(() => {
+    fetchCampaigns().finally(() => {
       setInitialLoading(false);
     });
   }, []);
-
-  const fetchUsageStats = async () => {
-    try {
-      const response = await axios.get("/assets/codes");
-      setUsageStats({
-        used: response.data.length,
-        total: user.usageLimit,
-        remaining: user.usageLimit - response.data.length
-      });
-    } catch (err) {
-      console.error("Failed to fetch usage stats:", err);
-    }
-  };
 
   const fetchCampaigns = async () => {
     try {
@@ -130,7 +118,6 @@ const CreateAssets = () => {
       }
 
       setCodes(allGeneratedCodes);
-      await fetchUsageStats();
     } catch (err) {
       setError(err.response?.data?.error || "Failed to generate assets");
     } finally {
@@ -140,7 +127,7 @@ const CreateAssets = () => {
   };
 
   const handleCampaignClick = () => {
-    navigate('/campaign');
+    navigate('/create-campaign');
   };
 
   if (initialLoading) {
@@ -155,15 +142,6 @@ const CreateAssets = () => {
     <div className="container">
       <h2>Generate unique assets for your products</h2>
 
-      {usageStats && (
-        <div className="usage-stats">
-          <Alert severity="info" sx={{ mb: 3 }}>
-            Usage: {usageStats.used} / {usageStats.total} assets generated
-            <br />
-            Remaining: {usageStats.remaining} assets
-          </Alert>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit}>
       <div className="form-group">
@@ -281,7 +259,7 @@ const CreateAssets = () => {
           <Typography variant="body1" color="text.secondary" gutterBottom>
             Successfully generated: {codes.length} assets
           </Typography>
-          <a href={`/assets?campaign=${selectedCampaign}`}>View/download the assets</a>        
+          <a href={`/assets?campaign=${selectedCampaign}&downloaded=false&createdAfter=${getTodaysDate()}`}>View/download the assets</a>        
         </div>
       )}
     </div>

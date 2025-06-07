@@ -4,6 +4,8 @@ import axios from '../../utils/axiosInstance';
 
 const CreateCampaign = () => {
   const [name, setName] = useState('');
+  const [validTillDate, setValidTillDate] = useState('');
+  const [validTillTime, setValidTillTime] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -14,9 +16,10 @@ const CreateCampaign = () => {
     setLoading(true);
 
     try {
-      await axios.post('/campaigns/create', { name });
+
+      await axios.post('/campaigns/create', { name, validTillDate, validTillTime });
       // Navigate back to home with the campaign name in query
-      navigate(`/?campaign=${encodeURIComponent(name)}`);
+      navigate('/campaigns');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create campaign');
       setLoading(false);
@@ -34,6 +37,40 @@ const CreateCampaign = () => {
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
+            style={{
+              width: '100%',
+              padding: '8px',
+              fontSize: '16px',
+              borderRadius: '4px',
+              border: '1px solid #ccc'
+            }}
+          />
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="validTillDate" style={{ display: 'block', marginBottom: '8px' }}>Valid Till Date:</label>
+          <input
+            type="date"
+            id="validTillDate"
+            value={validTillDate}
+            onChange={(e) => setValidTillDate(e.target.value)}
+            required
+            style={{
+              width: '100%',
+              padding: '8px',
+              fontSize: '16px',
+              borderRadius: '4px',
+              border: '1px solid #ccc'
+            }}
+          />
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="validTillTime" style={{ display: 'block', marginBottom: '8px' }}>Valid Till Time:</label>
+          <input
+            type="time"
+            id="validTillTime"
+            value={validTillTime}
+            onChange={(e) => setValidTillTime(e.target.value)}
             required
             style={{
               width: '100%',

@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 // import multer from 'multer';
 import path from 'path';
-import CodeModel from '../models/code.js';
-import { generateImage } from '../utils/assets.util.js';
+import AssetModel from '../models/asset.js';
+import { buildAssetsDBQuery, generateImage } from '../utils/assets.util.js';
 import { getClientUrl } from '../utils/config.util.js';
 import {s3, PutObjectCommand, GetObjectCommand} from '../configs/s3.js';
 import archiver from 'archiver';
@@ -44,14 +44,14 @@ const generate = async (req, res) => {
           ContentType: 'image/png',
         }));
 
-        s3Url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${campaignName}/${uniqueCode}`;
+        s3Url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${campaignName}/${uniqueCode}.png`;
   
       } catch (error) {
         console.error("Error uploading to S3:", error);
         continue;
       }
       console.log("campaignName:", campaignName);
-      const savedCode = await new CodeModel({
+      const savedCode = await new AssetModel({
         code: uniqueCode,
         imagePath: s3Url,
         campaign: campaignName
@@ -70,82 +70,109 @@ const generate = async (req, res) => {
   }
 };
 
-const getAllCodes = async (req, res) => {
+const getAssets = async (req, res) => {
   try {
-    const { campaign } = req.query;
-    const query = campaign ? { campaign } : {};
-    
-    const codes = await CodeModel.find(query).sort({ createdAt: -1 });
-    res.json(codes.map((doc) => ({
-        id: doc._id,
-        code: doc.code,
-        imageUrl: doc.imagePath,
-      
-      })));
+    const query = buildAssetsDBQuery(req.query);
+    const codes = await AssetModel.find(query).sort({ createdAt: -1 }).limit(200);
+    ;
+    res.json(codes);
   } catch (error) {
     console.error("Error fetching codes:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// const getPatternOptions = async (req, res) => {
-//   res.json({
-//     patternTypes: ['shapes']
-//   });
-// };
+const getAssetsCount = async (req, res) => {
+  try {
+    const query = buildAssetsDBQuery(req.query);
+    const totalCount = await AssetModel.countDocuments(query);
+    console.log('totalCount ', totalCount)
+    res.json({
+      count: totalCount
+    });
+  } catch (error) {
+    console.error("Error fetching codes:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
-const getCodeById = async (req, res) => {
+const getAssetByCode = async (req, res) => {
   try {
     const { code } = req.params;
-    const codeData = await CodeModel.findOne({ code });
+    const codeData = await AssetModel.findOne({ code });
 
     if (!codeData) {
       return res.status(404).json({ error: "Code not found" });
     }
 
-    res.json({
-      code: codeData.code,
-      imageUrl: codeData.imagePath
-    });
+    res.json(codeData);
   } catch (error) {
     console.error("Error fetching code:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-const downloadImages = async (req, res) => {
-  const { campaign } = req.query;
-  const query = campaign ? { campaign } : {};
+const verifyProduct = async (req, res) => {
+  try {
+    const { code } = req.params;
+    const updateCode = await AssetModel.updateOne({code}, {verifiedAt: new Date(), verifiedBy: 'Me'})
+
+    if (!updateCode) {
+      return res.status(404).json({ error: "Asset not found" });
+    }
+
+    res.json(updateCode);
+  } catch (error) {
+    console.error("Error updating asset details", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const downloadAssets = async (req, res) => {
+  const query = buildAssetsDBQuery(req.query);
   res.setHeader('Content-Type', 'application/zip');
   res.setHeader('Content-Disposition', 'attachment; filename=images.zip');
 
-  const codes = await CodeModel.find(query).sort({ createdAt: -1 });
-  const keys = codes.map(code => code.code);
-  console.log('Keys to download:', keys);
+  const assets = await AssetModel.find(query).sort({ createdAt: -1 });
+  console.log('Keys to download:', assets.map(a => a.code));
 
   const archive = archiver('zip', { zlib: { level: 9 } });
   archive.pipe(res);
 
-  for (const key of keys) {
-    try {
-      const command = new GetObjectCommand({ Bucket: process.env.AWS_S3_BUCKET, Key: `${campaign}/${key}.png` });
-      const data = await s3.send(command);
-      archive.append(data.Body, { name: `${key}.png` });
-    } catch (err) {
-      console.warn(`Skipping missing key: ${key}`);
-      // just continue, don't throw
-    }
-
+  const summary = {
+    total: assets.length,
+    success: 0,
+    failure: 0,
   }
 
-  await archive.finalize();
 
+  for (const asset of assets) {
+    try {
+      const key = asset.code;
+      if(key === '1749288407152-a9c746dd-99a9-4a8e-966c-9e493e68e571') throw 'Hey';
+      const command = new GetObjectCommand({ Bucket: process.env.AWS_S3_BUCKET, Key: `${asset.campaign}/${key}.png` });
+      const data = await s3.send(command);
+      archive.append(data.Body, { name: `${key}.png` });
+      await AssetModel.updateOne({code: key}, { downloads: (asset.downloads || 0) + 1,  downloadedAt: Date.now()});
+      summary.success++;
+    } catch (err) {
+      console.log('Error while downloading asset ', err);
+      summary.failure++;
+      console.warn(`Skipping missing key: ${asset.code}`);
+    }
+  }
+
+
+  archive.append(JSON.stringify(summary), { name: 'summary.json' });
+  await archive.finalize();
 };
 
 
 export {
   generate,
-  getAllCodes,
-  downloadImages,
-  getCodeById,
+  getAssets,
+  downloadAssets,
+  getAssetByCode,
+  verifyProduct,
+  getAssetsCount
 };

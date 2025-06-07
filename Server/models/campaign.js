@@ -6,6 +6,10 @@ const campaignSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  validTill: {
+    type: Date,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now,

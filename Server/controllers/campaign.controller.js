@@ -1,14 +1,17 @@
 import CampaignModel from '../models/campaign.js';
 
 export const createCampaign = async (req, res) => {
-  const { name } = req.body;
+  const { name, validTillDate, validTillTime } = req.body;
 
-  if (!name) {
-    return res.status(400).json({ error: "Campaign name is required" });
+  if (!name || !validTillDate || !validTillTime) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
+  // Combine date and time and convert to UTC Date object
+  const validTill = new Date(`${validTillDate}T${validTillTime}Z`);
+
   // Save campaign to the databas
-  const newCampaign = new CampaignModel({ name });
+  const newCampaign = new CampaignModel({ name, validTill});
   await newCampaign.save();
 
 

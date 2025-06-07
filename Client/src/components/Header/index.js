@@ -72,14 +72,25 @@ const Header = () => {
   const menuItems = user
     ? [
         {
-          text: "Profile",
-          icon: <PersonIcon />,
-          onClick: () => handleNavigation("/profile"),
+          text: "Dashboard",
+          icon: <FolderIcon />,
+          onClick: () => handleNavigation("/"),
+        },
+        {
+          text: "Assets",
+          icon: <FolderIcon />,
+          onClick: () => handleNavigation("/assets"),
         },
         {
           text: "Campaigns",
           icon: <FolderIcon />,
           onClick: () => handleNavigation("/campaigns"),
+        },
+
+        {
+          text: "Profile",
+          icon: <PersonIcon />,
+          onClick: () => handleNavigation("/profile"),
         },
         { text: "Logout", icon: <LogoutIcon />, onClick: handleLogout },
       ]
@@ -185,6 +196,47 @@ const Header = () => {
           </Box>
         </SwipeableDrawer>
       </Toolbar>
+      {!isMobile && (
+        <Toolbar
+          component="nav"
+          variant="dense"
+          sx={{
+            justifyContent: "flex-start",
+            bgcolor: "background.paper",
+            borderTop: 1,
+            borderColor: "divider",
+            px: 2,
+            gap: 2,
+          }}
+        >
+          <Button
+            component={Link}
+            to="/"
+            color="primary"
+            sx={{ textTransform: "none", fontWeight: "bold" }}
+          >
+            Dashboard
+          </Button>
+          <Button
+            component={Link}
+            to="/assets"
+            color="primary"
+            sx={{ textTransform: "none", fontWeight: "bold" }}
+          >
+            Assets
+          </Button>
+          <Button
+            component={Link}
+            to="/campaigns"
+            color="primary"
+            sx={{ textTransform: "none", fontWeight: "bold" }}
+          >
+            Campaigns
+          </Button>
+
+
+        </Toolbar>
+      )}
     </AppBar>
   );
 };

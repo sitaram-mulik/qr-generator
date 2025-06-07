@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useReducer } from "react";
 import axios from "../../utils/axiosInstance";
 import {
   Container,
-  Grid,
   Card,
   CardContent,
   Typography,
@@ -12,138 +10,117 @@ import {
   Alert,
   Box,
   Link,
-  IconButton,
-  CardActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  CircularProgress,
+  Backdrop,
 } from "@mui/material";
 import GetAppIcon from "@mui/icons-material/GetApp";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { formatTimestamp } from "../../utils/common";
+import AssetFilters from "./AssetFilters";
+import { useNavigate, useLocation } from 'react-router-dom';
+import JSZip from "jszip";
+
+const initialFilterState = {
+  campaign: "",
+  verified: "",
+  downloaded: ""
+};
+
+function filterReducer(state, action) {
+  switch (action.type) {
+    case "SET_FILTERS":
+      return { ...state, ...action.payload };
+    default:
+      return state;
+  }
+}
 
 function AssetList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [assets, setAssets] = useState([]);
-  const [downloadProgress, setDownloadProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSummary, setDownloadSummary] = useState(null);
-  const [campaignName, setCampaignName] = useState("");
+  const [filters, dispatchFilters] = useReducer(filterReducer, initialFilterState);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    // const campaignFromUrl = params.get("campaign") || "";
+    // const verifiedFromUrl = params.get("verified") || "";
+    const paramsObj = Object.fromEntries(params.entries());
+    console.log('paramsObj ', paramsObj);
+    dispatchFilters({ type: "SET_FILTERS", payload: { ...paramsObj } });
+  }, [location.search]);
 
   useEffect(() => {
     fetchAssets();
-  }, []);
+  }, [filters]);
 
   const fetchAssets = async () => {
     try {
-      const params = new URLSearchParams(window.location.search);
-      const campaignFromUrl = params.get('campaign');
-      setCampaignName(campaignFromUrl || '');
-      const response = await axios.get(`/assets/codes/?campaign=${campaignFromUrl || ''}`);
+      const params = new URLSearchParams(location.search);
+      const response = await axios.get(`/assets?${params.toString()}`);
       setAssets(response.data);
       setLoading(false);
     } catch (err) {
-      setError("Failed to load code details");
+      setError("Failed to load code list ");
       setLoading(false);
     }
-  }
-
-  const downloadBatch = async (assetsBatch, startIndex) => {
-    const downloads = assetsBatch.map(async (asset, i) => {
-      try {
-        const res = await axios(asset.imageUrl, {
-          responseType: 'blob',
-          withCredentials: false,
-        });
-        const blob = res.data;
-        const downloadUrl = window.URL.createObjectURL(blob);
-  
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = `${asset.code}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(downloadUrl);
-        
-        return true;
-      } catch (err) {
-        console.error(`Error downloading image ${startIndex + i + 1}`, err);
-        return false;
-      }
-    });
-
-    return Promise.all(downloads);
   };
-
-  // const downloadAllAssets = async () => {
-  //   setIsDownloading(true);
-  //   setDownloadProgress(0);
-  //   setDownloadSummary(null);
-    
-  //   const batchSize = 10;
-  //   const batches = [];
-    
-  //   for (let i = 0; i < assets.length; i += batchSize) {
-  //     batches.push(assets.slice(i, i + batchSize));
-  //   }
-
-  //   let successCount = 0;
-  //   let failureCount = 0;
-    
-  //   for (let i = 0; i < batches.length; i++) {
-  //     const results = await downloadBatch(batches[i], i * batchSize);
-  //     const batchSuccesses = results.filter(Boolean).length;
-  //     const batchFailures = results.filter(result => !result).length;
-      
-  //     successCount += batchSuccesses;
-  //     failureCount += batchFailures;
-      
-  //     const progress = Math.round(((i + 1) * batchSize) / assets.length * 100);
-  //     setDownloadProgress(Math.min(progress, 100));
-      
-  //     await new Promise(resolve => setTimeout(resolve, 500));
-  //   }
-
-  //   setDownloadSummary({
-  //     success: successCount,
-  //     failed: failureCount,
-  //     total: assets.length
-  //   });
-  //   setIsDownloading(false);
-  // };
 
   const downloadAllAssets = async () => {
     setIsDownloading(true);
-    setDownloadProgress(0);
     setDownloadSummary(null);
     try {
-      const res = await axios(`/assets/downloadAll?campaign=${campaignName}`, {
-        responseType: 'blob',
+      const params = new URLSearchParams(location.search);
+      const res = await axios(`/assets/download?${params.toString()}`, {
+        responseType: "blob",
       });
       const blob = res.data;
-      console.log('resresresres ', res.data instanceof Blob);
       const downloadUrl = window.URL.createObjectURL(blob);
-  
-      const a = document.createElement('a');
+
+      const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = `${campaignName}.zip`;
+      a.download = `${filters.campaign || 'all'}-assets.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      window.URL.revokeObjectURL(downloadUrl);      
+      window.URL.revokeObjectURL(downloadUrl);
+
+      // 🔍 Read summary.txt from the ZIP
+      const zip = await JSZip.loadAsync(blob);
+      const summaryJson = await zip.file("summary.json")?.async("string");
+
+      if (summaryJson) {
+        const summary = JSON.parse(summaryJson);
+        setIsDownloading(false);
+        setDownloadSummary(summary);
+      }
     } catch (error) {
-      console.error("Error downloading all assets:", error);
-      setError("Failed to download assets");  
+      setError("Failed to download assets ", error);
       setIsDownloading(false);
-      return; 
-    } finally {
-      setIsDownloading(false);
-      setDownloadProgress(100);
-      setDownloadSummary({
-        success: assets.length,
-        failed: 0,
-        total: assets.length
-      });
+      return;
+    }
+  };
+
+  const onFilterChange = (filterName, value) => {
+    console.log('filterName ', filterName, value)
+    const params = new URLSearchParams(location.search);
+    if(typeof value === undefined || value === '') {
+      params.delete(filterName);
+    } else {
+      params.set(filterName, value);
     }
 
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
   }
 
   if (loading) {
@@ -156,77 +133,88 @@ function AssetList() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isDownloading}
+      >
+        <CircularProgress color="inherit" size={80} />
+      </Backdrop>
       <Box sx={{ mb: 4 }}>
-        <Button
-          component={Link}
-          href="/campaigns"
-          startIcon={<ArrowBackIcon />}
-          sx={{ mb: 2 }}
-        >
-          Back to Campaigns
-        </Button>
-        
-        <Card>
+        <AssetFilters
+          filters={filters}
+          onFilterChange={onFilterChange}
+        />
+
+        <Box sx={{mb: 1}}>
+            <Button variant="contained" startIcon={<GetAppIcon />} onClick={downloadAllAssets} sx={{ mb: 2 }}>
+                Download assets
+            </Button>
+        </Box>
+
+        {downloadSummary && !isDownloading && (<Card>
           <CardContent>
             <Box sx={{ mb: 2 }}>
-              <Button
-                variant="contained"
-                startIcon={<GetAppIcon />}
-                onClick={downloadAllAssets}
-                disabled={isDownloading}
-                fullWidth
-                sx={{ mb: 2 }}
-              >
-                {isDownloading ? 'Downloading...' : 'Download All Assets'}
-              </Button>
-
-              {/* {isDownloading && (
-                <Box sx={{ width: '100%' }}>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={downloadProgress} 
-                    sx={{ height: 10, borderRadius: 5 }}
-                  />
-                  <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
-                    {downloadProgress}%
-                  </Typography>
-                </Box>
-              )} */}
-
-              {downloadSummary && !isDownloading && (
+              
                 <Alert severity={downloadSummary.failed > 0 ? "warning" : "success"} sx={{ mt: 2 }}>
-                  Download complete: {downloadSummary.success} successful, 
-                  {' '}{downloadSummary.failed} failed 
-                  {' '}(Total: {downloadSummary.total})
+                  Download complete: {downloadSummary.success} successful, {downloadSummary.failure} failed (Total: {downloadSummary.total})
                 </Alert>
-              )}
+
             </Box>
           </CardContent>
         </Card>
+                      )}
       </Box>
 
-      <Grid container spacing={2}>
-        {assets.map((asset) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={asset.id}>
-                <Button 
-                  size="small"
-                  onClick={() => window.open(`/assets/code/${asset.code}`, "_blank")}
-                >
+      <TableContainer component={Box} sx={{ maxHeight: 440 }}>
+        <Table stickyHeader aria-label="assets table" size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Id</TableCell>
+              <TableCell>Campaign</TableCell>
+              <TableCell>Verified at</TableCell>
+              <TableCell>Downloads</TableCell>
+              <TableCell>Created at</TableCell>
+              <TableCell align="right">Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {assets.map((asset) => (
+              <TableRow key={asset.code} hover>
+                <TableCell component="th" scope="row">
                   {asset.code}
-                </Button>
-          </Grid>
-        ))}
-      </Grid>
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {asset.campaign}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {asset.verifiedAt ? formatTimestamp(asset.verifiedAt) : "Not verified"}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {asset.downloads}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {formatTimestamp(asset.createdAt)}
+                </TableCell>
+                <TableCell align="right">
+                  <Button size="small" variant="contained" onClick={() => window.open(`/verify/${asset.code}`, "_blank")}>
+                    Verify
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {error && (
         <Alert severity="error" sx={{ mt: 2 }}>
           {error}
         </Alert>
       )}
-      
+
       {assets.length === 0 && (
         <Alert severity="info" sx={{ mt: 2 }}>
-          No assets found for this campaign.
+          No matching assets found for this filter.
         </Alert>
       )}
     </Container>

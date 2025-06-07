@@ -9,7 +9,7 @@ import {
   Box,
 } from "@mui/material";
 
-const Verify = () => {
+const VerifyEmail = () => {
   const { code } = useParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState("verifying"); // verifying, success, error
@@ -72,4 +72,4 @@ const Verify = () => {
   );
 };
 
-export default Verify;
+export default VerifyEmail;

@@ -1,33 +1,34 @@
 import React, { useContext } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/Header";
-import Register from "./components/Register";
-import Login from "./components/Login";
-import Verify from "./components/Verify";
-import Profile from "./components/Profile";
-import ImageCreater from "./components/ImageCreater";
-import AssetDetails from "./components/AssetDetail";
-import Campaign from "./components/CreateCampaign";
-import CampaignList from "./components/CampaignList";
-import CreateAssets from "./components/CreateAssets";
-import AssetList from "./components/AssetList";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthContext } from "./context/AuthContext";
 
-function App() {
+const CreateAssets = React.lazy(() => import("./components/CreateAssets"));
+const CreateCampaign = React.lazy(() => import("./components/CreateCampaign"));
+const CampaignList = React.lazy(() => import("./components/CampaignList"));
+const AssetList = React.lazy(() => import("./components/AssetList"));
+const AssetDetails = React.lazy(() => import("./components/AssetDetail"));
+const Profile = React.lazy(() => import("./components/Profile"));
+const VerifyProduct = React.lazy(() => import("./components/VerifyProduct"));
+const Login = React.lazy(() => import("./components/Login"));
+
+function AppContent() {
   const { user } = useContext(AuthContext);
+  const location = useLocation();
+
+  const showHeader = !location.pathname.startsWith("/verify/");
 
   return (
-    <BrowserRouter>
-      <Header />
+    <>
+      {showHeader && <Header />}
       <Routes>
         {/* Public routes */}
         <Route
           path="/login"
           element={user ? <Navigate to="/" replace /> : <Login />}
         />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify/:token" element={<Verify />} />
+        <Route path="/verify/:code" element={<VerifyProduct />} />
 
         {/* Protected routes */}
         <Route
@@ -47,10 +48,10 @@ function App() {
           }
         />
         <Route
-          path="/campaign"
+          path="/create-campaign"
           element={
             <ProtectedRoute>
-              <Campaign />
+              <CreateCampaign />
             </ProtectedRoute>
           }
         />
@@ -71,20 +72,22 @@ function App() {
           }
         />
         <Route
-          path="/image-creator"
+          path="/assets/code/:code"
           element={
             <ProtectedRoute>
-              <ImageCreater />
+              <AssetDetails />
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/assets/code/:code"
-          element={
-              <AssetDetails />
-          }
-        />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

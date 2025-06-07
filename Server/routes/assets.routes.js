@@ -1,15 +1,17 @@
 import express from 'express';
-import { getAllCodes, getCodeById, generate, downloadImages } from '../controllers/assets.controller.js';
-// import { generateShapeImage, uploadPatternImage } from '../controllers/pattern.controller.js';
+import { getAssets, getAssetByCode, generate, downloadAssets, verifyProduct, getAssetsCount } from '../controllers/assets.controller.js';
 import { authenticateToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
 // Public routes
-router.get("/codes", authenticateToken, getAllCodes);
-router.get("/codes/:code", getCodeById);
+
+router.get("/", authenticateToken, getAssets);
+router.get("/verify/:code", verifyProduct);
 router.post("/generate", authenticateToken, generate);
-router.get("/downloadAll", authenticateToken, downloadImages);
+router.get("/download", authenticateToken, downloadAssets);
+router.get("/count", authenticateToken, getAssetsCount);
+router.get("/:code", authenticateToken, getAssetByCode);
 
 // Protected routes (if needed in future)
 // router.post('/protected-route', authenticateToken, protectedController);

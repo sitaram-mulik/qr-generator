@@ -13,6 +13,7 @@ import { httpsRedirect } from './middleware/https.middleware.js';
 import connectDatabase from "./utils/database.util.js";
 import authRoutes from "./routes/auth.routes.js";
 import assetsRoutes from "./routes/assets.routes.js";
+import userRoutes from "./routes/user.routes.js";
 import campaignRoutes from "./routes/campaign.routes.js";
 import { getClientUrl } from "./utils/config.util.js";
 
@@ -23,7 +24,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORAGE_DIR = path.join(__dirname, "storage", "codes");
 fs.ensureDirSync(STORAGE_DIR);
 
-let monitoringInterval;
 
 async function startServer() {
   const app = express();
@@ -67,6 +67,7 @@ async function startServer() {
   app.use("/api/auth", authRoutes);
   app.use("/api/assets", assetsRoutes);
   app.use("/api/campaigns", campaignRoutes);
+  app.use("/api/user", userRoutes);
 
   // Add security headers in production
   if (process.env.NODE_ENV === 'production') {
