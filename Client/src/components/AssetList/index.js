@@ -207,7 +207,7 @@ function AssetList() {
                   {formatTimestamp(asset.createdAt)}
                 </TableCell>
                 <TableCell align="right">
-                  <Button size="small" variant="contained" onClick={() => window.open(`/verify/${asset.code}`, "_blank")}>
+                  <Button size="small" variant="contained" onClick={() => navigate(`/verify/${asset.code}`)}>
                     Verify
                   </Button>
                 </TableCell>

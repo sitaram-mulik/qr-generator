@@ -12,16 +12,13 @@ function VerifyProduct() {
   useEffect(() => {
     const fetchCodeDetails = async () => {
       try {
-        const response = await axios.get(`/assets/${code}`);
+        const response = await axios.get(`/assets/verify/${code}`)
         const details = response.data;
-        setCodeDetails(details);
-        console.log('data ', response.data)
-        setLoading(false);
-        if(!details.verifiedAt) {
-          const verificationRes = await axios.get(`/assets/verify/${code}`);
-          console.log('verificationRes ', verificationRes);
+        console.log('details ', details);
+        if(details?.code) {
+          setCodeDetails(details);
         }
-
+        setLoading(false);
       } catch (error) {
         setError(error.message);
         setLoading(false);
@@ -39,11 +36,11 @@ function VerifyProduct() {
   return (
     <div className="code-detail">
       <div className="code-info">
-        {codeDetails?.code ? codeDetails.verifiedAt ? 
+        {!codeDetails?.code ? 
           <h1 className="error">The product is possible counterfiet</h1>
-        : <h1 className="sucess">Congratulations, Your product is valid</h1> : <h1 className="error">Sorry, we couldnt find any product associated with this QR.</h1> }
+        : <h1 className="sucess">Congratulations, Your product is valid</h1> }
       </div>
-      {codeDetails && !codeDetails.verifiedAt && <div className="image-container">
+      {codeDetails?.imagePath && <div className="image-container">
         <img
           src={codeDetails.imagePath}
           alt="Generated Code"

@@ -7,6 +7,8 @@ import { getClientUrl } from '../utils/config.util.js';
 import {s3, PutObjectCommand, GetObjectCommand} from '../configs/s3.js';
 import archiver from 'archiver';
 import { getAvailableCredits, setCreditsData } from '../utils/user.util.js'
+import {updateLocation} from '../utils/location.util.js';
+
 
 const generate = async (req, res) => {
   try {
@@ -88,7 +90,6 @@ const getAssetsCount = async (req, res) => {
   try {
     const query = buildAssetsDBQuery(req);
     const totalCount = await AssetModel.countDocuments(query);
-    console.log('totalCount ', totalCount)
     res.json({
       count: totalCount
     });
@@ -116,14 +117,19 @@ const getAssetByCode = async (req, res) => {
 
 const verifyProduct = async (req, res) => {
   try {
+
     const { code } = req.params;
-    const updateCode = await AssetModel.updateOne({code}, {verifiedAt: new Date(), verifiedBy: 'Me'})
-
-    if (!updateCode) {
-      return res.status(404).json({ error: "Asset not found" });
+    const asset = await AssetModel.findOne({code});
+    if (!asset) {
+      return res.status(404).json({ message: "Asset not found" });
     }
+    if(asset.verifiedAt) {
+      return res.status(200).json({ message: "Product already verified" });
+    }
+    await AssetModel.updateOne({code}, {verifiedAt: new Date()});
+    await updateLocation(req, asset.campaign, code, asset.userId);
 
-    res.json(updateCode);
+    res.json(asset);
   } catch (error) {
     console.error("Error updating asset details", error);
     res.status(500).json({ error: "Internal server error" });

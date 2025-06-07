@@ -14,6 +14,7 @@ import connectDatabase from "./utils/database.util.js";
 import authRoutes from "./routes/auth.routes.js";
 import assetsRoutes from "./routes/assets.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import locationRoutes from "./routes/location.route.js";
 import campaignRoutes from "./routes/campaign.routes.js";
 import { getClientUrl } from "./utils/config.util.js";
 
@@ -68,6 +69,7 @@ async function startServer() {
   app.use("/api/assets", assetsRoutes);
   app.use("/api/campaigns", campaignRoutes);
   app.use("/api/user", userRoutes);
+  app.use("/api/locations", locationRoutes);
 
   // Add security headers in production
   if (process.env.NODE_ENV === 'production') {
