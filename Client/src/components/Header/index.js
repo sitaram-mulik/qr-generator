@@ -70,35 +70,32 @@ const Header = () => {
     }
   };
 
+  const getMobileMenuItem = (id, text, path) =>
+    isMobile && {
+      id,
+      text,
+      icon: <FolderIcon />,
+      onClick: () => handleNavigation(path),
+    };
+  
   const menuItems = user
     ? [
-        {...(isMobile ? {
-          text: "Dashboard",
-          icon: <FolderIcon />,
-          onClick: () => handleNavigation("/"),
-        } : {})},
-        {...(isMobile ? {
-          text: "Generate assets",
-          icon: <FolderIcon />,
-          onClick: () => handleNavigation("/generate"),
-        } : {})},
-        {...(isMobile ? {
-          text: "My Assets",
-          icon: <FolderIcon />,
-          onClick: () => handleNavigation("/assets"),
-        } : {})},
-        {...(isMobile ? {
-          text: "My Campaigns",
-          icon: <FolderIcon />,
-          onClick: () => handleNavigation("/campaigns"),
-        } : {})},
+        getMobileMenuItem("dashboard", "Dashboard", "/"),
+        getMobileMenuItem("generate", "Generate assets", "/generate"),
+        getMobileMenuItem("assets", "My Assets", "/assets"),
+        getMobileMenuItem("campaigns", "My Campaigns", "/campaigns"),
         {
+          id: "profile",
           text: "Profile",
           icon: <PersonIcon />,
           onClick: () => handleNavigation("/profile"),
         },
-        { text: "Logout", icon: <LogoutIcon />, onClick: handleLogout },
-      ]
+        {
+          text: "Logout",
+          icon: <LogoutIcon />,
+          onClick: handleLogout,
+        },
+      ].filter(Boolean)
     : [
         {
           text: "Login",
@@ -106,7 +103,7 @@ const Header = () => {
           onClick: () => handleNavigation("/login"),
         },
       ];
-
+  
   return (
     <AppBar position="static">
       <Toolbar sx={{ justifyContent: "space-between" }}>
@@ -154,7 +151,7 @@ const Header = () => {
               transformOrigin={{ horizontal: "right", vertical: "top" }}
               anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
-              {menuItems.filter(i => i.text).map((item) => (
+              {menuItems.map((item) => (
                 <MenuItem key={item.text} onClick={item.onClick}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
@@ -192,7 +189,7 @@ const Header = () => {
             <Divider />
             <List>
               {menuItems.map((item) => (
-                <ListItem button key={item.text} onClick={item.onClick}>
+                <ListItem key={item.id} onClick={item.onClick}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
                 </ListItem>
@@ -201,7 +198,7 @@ const Header = () => {
           </Box>
         </SwipeableDrawer>
       </Toolbar>
-      {!isMobile && (
+      {!isMobile && user && (
         <Toolbar
           component="nav"
           variant="dense"
@@ -213,8 +210,7 @@ const Header = () => {
             px: 2,
             gap: 2,
           }}
-        >
-          <Button
+        ><Button
             component={Link}
             to="/"
             color={location.pathname === "/" ? "secondary" : "primary"}

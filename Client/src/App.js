@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthContext } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
 
 const CreateAssets = React.lazy(() => import("./components/CreateAssets"));
 const CreateCampaign = React.lazy(() => import("./components/CreateCampaign"));
@@ -96,7 +97,9 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </BrowserRouter>
   );
 }

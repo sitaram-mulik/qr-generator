@@ -17,6 +17,7 @@ import {
   CircularProgress,
   Backdrop,
   Alert,
+  TextField,
 } from "@mui/material";
 import ResultModal from "../Shared/ResultModal";
 import GetAppIcon from "@mui/icons-material/GetApp";
@@ -45,6 +46,7 @@ function AssetList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [assets, setAssets] = useState([]);
+  const [count, setCount] = useState([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSummary, setDownloadSummary] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -55,10 +57,7 @@ function AssetList() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    // const campaignFromUrl = params.get("campaign") || "";
-    // const verifiedFromUrl = params.get("verified") || "";
     const paramsObj = Object.fromEntries(params.entries());
-    console.log('paramsObj ', paramsObj);
     dispatchFilters({ type: "SET_FILTERS", payload: { ...paramsObj } });
   }, [location.search]);
 
@@ -70,7 +69,8 @@ function AssetList() {
     try {
       const params = new URLSearchParams(location.search);
       const response = await axios.get(`/assets?${params.toString()}`);
-      setAssets(response.data);
+      setAssets(response.data.assets);
+      setCount(response.data.count);
       setLoading(false);
     } catch (err) {
       setError("Failed to load code list ");
@@ -83,6 +83,7 @@ function AssetList() {
     setDownloadSummary(null);
     try {
       const params = new URLSearchParams(location.search);
+      params.append('count', count);
       const res = await axios(`/assets/download?${params.toString()}`, {
         responseType: "blob",
       });
@@ -115,7 +116,6 @@ function AssetList() {
   };
 
   const onFilterChange = (filterName, value) => {
-    console.log('filterName ', filterName, value)
     const params = new URLSearchParams(location.search);
     if(typeof value === undefined || value === '') {
       params.delete(filterName);
@@ -149,9 +149,17 @@ function AssetList() {
         />
 
         <Box sx={{mb: 1}}>
-            <Button variant="contained" startIcon={<GetAppIcon />} onClick={downloadAllAssets} sx={{ mb: 2, mr: 2 }}>
+
+            <Button align="right" variant="contained" startIcon={<GetAppIcon />} onClick={downloadAllAssets} sx={{ mb: 2, mr: 2 }}>
                 Download assets
-            </Button>
+            </Button> 
+            <TextField
+              label="Filtered items"
+              type="number"
+              value={count}
+              onChange={e => setCount(e.target.value)}
+
+            />
         </Box>
 
         {downloadSummary && !isDownloading && (<Card>

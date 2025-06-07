@@ -1,8 +1,8 @@
 import express from 'express';
-import { getAvailableCredits } from '../controllers/user.controller.js';
+import { getProfile } from '../controllers/user.controller.js';
 
 const router = express.Router();
 
-router.get("/credits/available", getAvailableCredits);
+router.get("/profile", getProfile);
 
 export default router;

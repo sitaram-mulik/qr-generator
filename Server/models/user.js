@@ -8,12 +8,17 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    select: false
   },
   displayName: {
     type: String,
     required: true,
   },
   credits: {
+    type: Number,
+    default: 500
+  },
+  availableCredits: {
     type: Number,
     default: 500
   },

@@ -3,9 +3,10 @@ import axios from "../../utils/axiosInstance";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { Alert, CircularProgress, Box, Typography, Backdrop } from "@mui/material";
+import { Alert, CircularProgress, Box, Typography, Backdrop, Button } from "@mui/material";
 import ResultModal from "../Shared/ResultModal";
 import { getTodaysDate } from "../../utils/common";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 const CreateAssets = () => {
   const [count, setCount] = useState(1);
@@ -178,9 +179,11 @@ const CreateAssets = () => {
           ) : (
             <div className="no-campaigns">
               <p>No campaigns found.</p>
-              <button type="button" onClick={handleCampaignClick}>
+              <Button type="button"
+              variant="contained" 
+              startIcon={<AddCircleOutlineIcon />} onClick={handleCampaignClick}>
                 Create Your First Campaign
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -232,8 +235,10 @@ const CreateAssets = () => {
           />
         </div>
 
-        <button 
+        <Button 
           type="submit" 
+          variant="contained" 
+          startIcon={<AddCircleOutlineIcon />}
           disabled={loading || !campaigns.length || (usageStats && usageStats.remaining <= 0)}
         >
           {loading ? (
@@ -244,7 +249,7 @@ const CreateAssets = () => {
           ) : (
             "Generate Assets"
           )}
-        </button>
+        </Button>
       </form>
 
       {loading && (
@@ -281,10 +286,10 @@ const CreateAssets = () => {
 
       {error && <div className="error">{error}</div>}
 
-      <ResultModal
+      {codes?.length > 0 && <ResultModal
         open={modalOpen}
         onClose={handleCloseModal}
-        title="Assets generated successfully"
+        title="Summary"
         message={`Successfully generated: ${codes.length} assets`}
         actions={[
           {
@@ -293,7 +298,7 @@ const CreateAssets = () => {
             href: `/assets?campaign=${selectedCampaign}&downloaded=false&createdAfter=${getTodaysDate()}`
           },
         ]}
-      />
+      />}
     </div>
   );
 };

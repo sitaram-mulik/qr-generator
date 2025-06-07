@@ -1,14 +1,10 @@
 import { buildAssetsDBQuery } from "../utils/assets.util.js";
-import AssetModel from '../models/asset.js';
+import UserModel from '../models/user.js';
 
-export const getAvailableCredits = async (req, res) => {
+export const getProfile = async (req, res) => {
     try {
-      const query = buildAssetsDBQuery(req.query);
-      const totalCount = await AssetModel.countDocuments(query);
-      console.log('totalCount ', totalCount)
-      res.json({
-        count: totalCount
-      });
+      const profile = await UserModel.findOne({userId: req.userId});
+      res.json(profile);
     } catch (error) {
       console.error("Error fetching codes:", error);
       res.status(500).json({ error: "Internal server error" });

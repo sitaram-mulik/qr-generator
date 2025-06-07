@@ -1,9 +1,27 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Container, Typography, Paper } from "@mui/material";
 import { AuthContext } from "../../context/AuthContext";
+import axiosInstance from "../../utils/axiosInstance";
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
+  const [profile, setProfile] = useState({});
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await axiosInstance.get('/user/profile');
+      setProfile(response.data);
+      console.log(response.data);
+    } catch (error) {
+        console.error(error);
+    }
+  };
+
+  
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -14,22 +32,25 @@ const Profile = () => {
         {user ? (
           <>
             <Typography variant="body1" gutterBottom>
-              <strong>Name:</strong> {user.name}
+              <strong>Name:</strong> {profile.displayName}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              <strong>Domain:</strong> {user.domain}
+              <strong>Username:</strong> {profile.userName}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              <strong>Total credits:</strong> {user.credits}
+              <strong>Domain:</strong> {profile.domain}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              <strong>Generated assets:</strong> {user.totalAssets}
+              <strong>Total credits:</strong> {profile.credits}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              <strong>Downloads:</strong> {user.downloads}
+              <strong>Generated assets:</strong> {profile.totalAssets}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              <strong>available credits:</strong> {user.credits - (user.downloads + user.totalAssets)}
+              <strong>Downloads:</strong> {profile.downloads}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              <strong>available credits:</strong> {profile.credits - (profile.downloads + profile.totalAssets)}
             </Typography>
           </>
         ) : (
