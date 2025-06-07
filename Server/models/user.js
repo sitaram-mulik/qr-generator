@@ -13,9 +13,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  limit: {
+  credits: {
     type: Number,
     default: 500
+  },
+  totalAssets: {
+    type: Number,
+    default: 0
+  },
+  downloads: {
+    type: Number,
+    default: 0
   },
   domain: {
     type: String,

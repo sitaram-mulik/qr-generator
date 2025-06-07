@@ -16,11 +16,20 @@ const Profile = () => {
             <Typography variant="body1" gutterBottom>
               <strong>Name:</strong> {user.name}
             </Typography>
-            <Typography variant="body2" gutterBottom>
+            <Typography variant="body1" gutterBottom>
               <strong>Domain:</strong> {user.domain}
             </Typography>
-            <Typography variant="body3" gutterBottom>
-              <strong>Usage:</strong> {user.usageLimit}
+            <Typography variant="body1" gutterBottom>
+              <strong>Total credits:</strong> {user.credits}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              <strong>Generated assets:</strong> {user.totalAssets}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              <strong>Downloads:</strong> {user.downloads}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              <strong>available credits:</strong> {user.credits - (user.downloads + user.totalAssets)}
             </Typography>
           </>
         ) : (

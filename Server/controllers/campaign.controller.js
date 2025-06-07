@@ -11,7 +11,7 @@ export const createCampaign = async (req, res) => {
   const validTill = new Date(`${validTillDate}T${validTillTime}Z`);
 
   // Save campaign to the databas
-  const newCampaign = new CampaignModel({ name, validTill});
+  const newCampaign = new CampaignModel({ name, validTill, userId: req.userId});
   await newCampaign.save();
 
 
@@ -20,7 +20,7 @@ export const createCampaign = async (req, res) => {
 
 export const getAllCampaigns = async (req, res) => {
     try {           
-        const campaigns = await CampaignModel.find().sort({ createdAt: -1 });
+        const campaigns = await CampaignModel.find({userId: req.userId}).sort({ createdAt: -1 });
         res.status(200).json(campaigns);
     }
     catch (error) {

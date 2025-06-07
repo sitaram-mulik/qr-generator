@@ -10,6 +10,11 @@ const campaignSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  userId: {
+    type: String,
+    required: true,
+    index: true
+  },
   createdAt: {
     type: Date,
     default: Date.now,

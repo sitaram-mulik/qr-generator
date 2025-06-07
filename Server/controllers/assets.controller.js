@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 // import multer from 'multer';
 import path from 'path';
 import AssetModel from '../models/asset.js';
+import UserModel from '../models/user.js';
 import { buildAssetsDBQuery, generateImage } from '../utils/assets.util.js';
 import { getClientUrl } from '../utils/config.util.js';
 import {s3, PutObjectCommand, GetObjectCommand} from '../configs/s3.js';
@@ -10,7 +11,7 @@ import archiver from 'archiver';
 const generate = async (req, res) => {
   try {
     const { count, campaignName = 'Test', domain } = req.body;
-    console.log("Request campaignName:", campaignName);
+    console.log("Request campaignName:", req.userId);
 
     if (!count || count < 1 || count > 100) {
       return res
@@ -54,7 +55,8 @@ const generate = async (req, res) => {
       const savedCode = await new AssetModel({
         code: uniqueCode,
         imagePath: s3Url,
-        campaign: campaignName
+        campaign: campaignName,
+        userId: req.userId
       }).save();
 
       generatedAssets.push({
@@ -62,6 +64,13 @@ const generate = async (req, res) => {
         imageUrl: savedCode.imagePath
       });
     }
+
+    try {
+      await UserModel.updateOne({userId: req.userId}, {$set: {totalAssets: req.user?.totalAssets || 0 + generatedAssets.length }});
+    } catch (err) {
+      console.log('Failed to update stats ', err);
+    }
+  
 
     res.json({ codes: generatedAssets });
   } catch (error) {
@@ -72,8 +81,8 @@ const generate = async (req, res) => {
 
 const getAssets = async (req, res) => {
   try {
-    const query = buildAssetsDBQuery(req.query);
-    const codes = await AssetModel.find(query).sort({ createdAt: -1 }).limit(200);
+    const query = buildAssetsDBQuery(req);
+    const codes = await AssetModel.find(query).sort({ createdAt: -1 }).limit(100);
     ;
     res.json(codes);
   } catch (error) {
@@ -84,7 +93,7 @@ const getAssets = async (req, res) => {
 
 const getAssetsCount = async (req, res) => {
   try {
-    const query = buildAssetsDBQuery(req.query);
+    const query = buildAssetsDBQuery(req);
     const totalCount = await AssetModel.countDocuments(query);
     console.log('totalCount ', totalCount)
     res.json({
@@ -129,7 +138,7 @@ const verifyProduct = async (req, res) => {
 };
 
 const downloadAssets = async (req, res) => {
-  const query = buildAssetsDBQuery(req.query);
+  const query = buildAssetsDBQuery(req);
   res.setHeader('Content-Type', 'application/zip');
   res.setHeader('Content-Disposition', 'attachment; filename=images.zip');
 
@@ -162,9 +171,34 @@ const downloadAssets = async (req, res) => {
     }
   }
 
+  try {
+    await UserModel.updateOne({userId: req.userId}, {$set: {downloads: req.user?.downloads || 0 + summary.success }});
+  } catch (err) {
+    console.log('Failed to update stats ', err);
+  }
+
 
   archive.append(JSON.stringify(summary), { name: 'summary.json' });
   await archive.finalize();
+};
+
+const getStatistics = async (req, res) => {
+  try {
+    const campaign = req.query.campaign;
+    const query = { userId: req.userId};
+    if(campaign) query.campaign = campaign;
+    const totalCount = await AssetModel.countDocuments(query);
+    const downloadedCount = await AssetModel.countDocuments({...query, downloads: { $gt: 0 } });
+    const verifiedCount = await AssetModel.countDocuments({...query, verifiedAt: { $exists: true }});
+    res.json({
+      totalCount,
+      downloadedCount,
+      verifiedCount
+    });
+  } catch (error) {
+    console.error("Error fetching codes:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 
@@ -174,5 +208,6 @@ export {
   downloadAssets,
   getAssetByCode,
   verifyProduct,
-  getAssetsCount
+  getAssetsCount,
+  getStatistics
 };

@@ -3,7 +3,8 @@ import axios from "../../utils/axiosInstance";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { Alert, CircularProgress, Box, LinearProgress, Typography } from "@mui/material";
+import { Alert, CircularProgress, Box, Typography, Backdrop } from "@mui/material";
+import ResultModal from "../Shared/ResultModal";
 import { getTodaysDate } from "../../utils/common";
 
 const CreateAssets = () => {
@@ -17,6 +18,7 @@ const CreateAssets = () => {
   const [usageStats, setUsageStats] = useState(null);
   const [batchProgress, setBatchProgress] = useState(0);
   const [processingStats, setProcessingStats] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -78,56 +80,66 @@ const CreateAssets = () => {
       return;
     }
 
-    try {
-      setLoading(true);
-      setBatchProgress(0); // Set initial progress immediately
-      setProcessingStats({ // Initialize processing stats with zeros
-        total: numberCount,
-        processed: 0,
-        success: 0,
-        failed: 0
-      });
-      
-      const batchSize = 20;
-      let processedCount = 0;
-      let successCount = 0;
-      let failedCount = 0;
-      const allGeneratedCodes = [];
+      try {
+        setLoading(true);
+        setBatchProgress(0); // Set initial progress immediately
+        setProcessingStats({ // Initialize processing stats with zeros
+          total: numberCount,
+          processed: 0,
+          success: 0,
+          failed: 0
+        });
+        
+        const batchSize = 20;
+        let processedCount = 0;
+        let successCount = 0;
+        let failedCount = 0;
+        const allGeneratedCodes = [];
 
-      while (processedCount < numberCount) {
-        const currentBatchSize = Math.min(batchSize, numberCount - processedCount);
-        try {
-          const batchCodes = await processBatch(currentBatchSize, numberCount, processedCount);
-          allGeneratedCodes.push(...batchCodes);
-          successCount += batchCodes.length;
-        } catch (err) {
-          failedCount += currentBatchSize;
-          console.error("Failed to process batch:", err);
+        while (processedCount < numberCount) {
+          const currentBatchSize = Math.min(batchSize, numberCount - processedCount);
+          try {
+            const batchCodes = await processBatch(currentBatchSize, numberCount, processedCount);
+            allGeneratedCodes.push(...batchCodes);
+            successCount += batchCodes.length;
+          } catch (err) {
+            failedCount += currentBatchSize;
+            console.error("Failed to process batch:", err);
+          }
+
+          processedCount += currentBatchSize;
+          const progress = (processedCount / numberCount) * 100;
+          setBatchProgress(progress);
+          
+          setProcessingStats({
+            total: numberCount,
+            processed: processedCount,
+            success: successCount,
+            failed: failedCount
+          });
         }
 
-        processedCount += currentBatchSize;
-        const progress = (processedCount / numberCount) * 100;
-        setBatchProgress(progress);
-        
-        setProcessingStats({
-          total: numberCount,
-          processed: processedCount,
-          success: successCount,
-          failed: failedCount
-        });
+        setCodes(allGeneratedCodes);
+        // Wait for 1.5 seconds after completion before hiding loading and showing modal
+        setTimeout(() => {
+          setLoading(false);
+          setBatchProgress(0);
+          setModalOpen(true);
+        }, 1500);
+      } catch (err) {
+        setError(err.response?.data?.error || "Failed to generate assets");
+        setLoading(false);
+        setBatchProgress(0);
       }
-
-      setCodes(allGeneratedCodes);
-    } catch (err) {
-      setError(err.response?.data?.error || "Failed to generate assets");
-    } finally {
-      setLoading(false);
-      setBatchProgress(0);
-    }
   };
 
   const handleCampaignClick = () => {
     navigate('/create-campaign');
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setCodes([]);
   };
 
   if (initialLoading) {
@@ -142,9 +154,8 @@ const CreateAssets = () => {
     <div className="container">
       <h2>Generate unique assets for your products</h2>
 
-
       <form onSubmit={handleSubmit}>
-      <div className="form-group">
+        <div className="form-group">
           <label htmlFor="campaign">Select campaign:</label>
           {campaigns.length > 0 ? (
             <>
@@ -221,7 +232,6 @@ const CreateAssets = () => {
           />
         </div>
 
-
         <button 
           type="submit" 
           disabled={loading || !campaigns.length || (usageStats && usageStats.remaining <= 0)}
@@ -238,30 +248,52 @@ const CreateAssets = () => {
       </form>
 
       {loading && (
-        <Box sx={{ width: '100%', mt: 2 }}>
-          <LinearProgress variant="determinate" value={batchProgress} />
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
+        <Backdrop
+          sx={{ color: '#1976d2', backgroundColor: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1, flexDirection: 'column' }}
+          open={loading}
+        >
+          <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+            <CircularProgress
+              variant="determinate"
+              value={100}
+              size={150}
+              thickness={5}
+              sx={{ color: '#e0e0e0', position: 'absolute', top: 0, left: 0 }}
+            />
+            <CircularProgress
+              variant="determinate"
+              value={batchProgress}
+              size={150}
+              thickness={5}
+              sx={{ color: '#1976d2' }}
+            />
+          </Box>
+          <Typography variant="h6" color="inherit" align="center" sx={{ mt: 2 }}>
             {Math.round(batchProgress)}% Complete
           </Typography>
           {processingStats && (
-            <Typography variant="body2" color="text.secondary" align="center">
+            <Typography variant="body1" color="inherit" align="center" sx={{ mt: 1 }}>
               Generated: {processingStats.success} / Failed: {processingStats.failed} / Total: {processingStats.total}
             </Typography>
           )}
-        </Box>
+        </Backdrop>
       )}
 
       {error && <div className="error">{error}</div>}
 
-      {codes.length > 0 && (
-        <div className="codes-container">
-          <h3>Assets generated successfully</h3>
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-            Successfully generated: {codes.length} assets
-          </Typography>
-          <a href={`/assets?campaign=${selectedCampaign}&downloaded=false&createdAfter=${getTodaysDate()}`}>View/download the assets</a>        
-        </div>
-      )}
+      <ResultModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        title="Assets generated successfully"
+        message={`Successfully generated: ${codes.length} assets`}
+        actions={[
+          {
+            label: "View/download the assets",
+            variant: "outlined",
+            href: `/assets?campaign=${selectedCampaign}&downloaded=false&createdAfter=${getTodaysDate()}`
+          },
+        ]}
+      />
     </div>
   );
 };

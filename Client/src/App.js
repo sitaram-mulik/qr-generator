@@ -11,6 +11,7 @@ const AssetList = React.lazy(() => import("./components/AssetList"));
 const AssetDetails = React.lazy(() => import("./components/AssetDetail"));
 const Profile = React.lazy(() => import("./components/Profile"));
 const VerifyProduct = React.lazy(() => import("./components/VerifyProduct"));
+const Dashboard = React.lazy(() => import("./components/Dashboard"));
 const Login = React.lazy(() => import("./components/Login"));
 
 function AppContent() {
@@ -32,7 +33,7 @@ function AppContent() {
 
         {/* Protected routes */}
         <Route
-          path="/"
+          path="/generate"
           element={
             <ProtectedRoute>
               <CreateAssets />
@@ -68,6 +69,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <AssetList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
             </ProtectedRoute>
           }
         />

@@ -101,10 +101,10 @@ async function generateImage(uniqueCode, baseDir, appUrl) {
   }
 }
 
-const buildAssetsDBQuery = (params) => {
-  const { campaign, verified, downloaded, createdAfter } = params; 
-  const query = {};
-  if(campaign) query.campaign = campaign
+const buildAssetsDBQuery = (req) => {
+  const { campaign, verified, downloaded, createdAfter } = req.query; 
+  const query = { userId: req.userId };
+  if(campaign) query.campaign = campaign;
   if(verified) query.verifiedAt = { $exists: verified };
   if (downloaded !== undefined) {
     if (downloaded === 'true') {

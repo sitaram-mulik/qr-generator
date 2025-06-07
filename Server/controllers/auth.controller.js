@@ -78,8 +78,10 @@ const login = async (req, res) => {
     res.json({
       id: user.userName,
       name: user.displayName,
-      usageLimit: user.limit,
-      domain: user.domain
+      credits: user.credits,
+      domain: user.domain,
+      downloads: user.downloads,
+      totalAssets: user.totalAssets
     });
   } catch (error) {
     console.error("Login error:", error);

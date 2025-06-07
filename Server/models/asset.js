@@ -13,10 +13,7 @@ const assetSchema = new mongoose.Schema({
   campaign: {
     type: String,
     required: true,
-  },
-  verified: {
-    type: Boolean,
-    default: false,
+    index: true
   },
   verifiedAt: {
     type: Date
@@ -30,6 +27,11 @@ const assetSchema = new mongoose.Schema({
   },
   downloadedAt: {
     type: Date
+  },
+  userId: {
+    type: String,
+    required: true,
+    index: true
   },
   createdAt: {
     type: Date,

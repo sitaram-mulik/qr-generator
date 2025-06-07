@@ -106,6 +106,22 @@ button:disabled {
   color: #666;
 }
 
+
 .no-campaigns button {
   margin: 0 auto;
+}
+
+/* Modal styles */
+.modal-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  max-width: 90%;
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  outline: none;
 }

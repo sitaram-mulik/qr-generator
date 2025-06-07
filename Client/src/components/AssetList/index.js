@@ -7,9 +7,7 @@ import {
   Typography,
   Button,
   LinearProgress,
-  Alert,
   Box,
-  Link,
   Table,
   TableBody,
   TableCell,
@@ -18,8 +16,11 @@ import {
   TableRow,
   CircularProgress,
   Backdrop,
+  Alert,
 } from "@mui/material";
+import ResultModal from "../Shared/ResultModal";
 import GetAppIcon from "@mui/icons-material/GetApp";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { formatTimestamp } from "../../utils/common";
 import AssetFilters from "./AssetFilters";
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -46,6 +47,7 @@ function AssetList() {
   const [assets, setAssets] = useState([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSummary, setDownloadSummary] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [filters, dispatchFilters] = useReducer(filterReducer, initialFilterState);
   const location = useLocation();
   const navigate = useNavigate();
@@ -103,6 +105,7 @@ function AssetList() {
         const summary = JSON.parse(summaryJson);
         setIsDownloading(false);
         setDownloadSummary(summary);
+        setModalOpen(true);
       }
     } catch (error) {
       setError("Failed to download assets ", error);
@@ -146,7 +149,7 @@ function AssetList() {
         />
 
         <Box sx={{mb: 1}}>
-            <Button variant="contained" startIcon={<GetAppIcon />} onClick={downloadAllAssets} sx={{ mb: 2 }}>
+            <Button variant="contained" startIcon={<GetAppIcon />} onClick={downloadAllAssets} sx={{ mb: 2, mr: 2 }}>
                 Download assets
             </Button>
         </Box>
@@ -211,6 +214,14 @@ function AssetList() {
           {error}
         </Alert>
       )}
+
+      <ResultModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Download complete"
+        message={`Download complete: ${downloadSummary?.success || 0} successful, ${downloadSummary?.failure || 0} failed (Total: ${downloadSummary?.total || 0})`}
+        actions={[]}
+      />
 
       {assets.length === 0 && (
         <Alert severity="info" sx={{ mt: 2 }}>

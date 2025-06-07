@@ -24,7 +24,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import PersonIcon from "@mui/icons-material/Person";
 import FolderIcon from "@mui/icons-material/Folder";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const Header = () => {
@@ -32,6 +32,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, removeUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -71,22 +72,26 @@ const Header = () => {
 
   const menuItems = user
     ? [
-        {
+        {...(isMobile ? {
           text: "Dashboard",
           icon: <FolderIcon />,
           onClick: () => handleNavigation("/"),
-        },
-        {
-          text: "Assets",
+        } : {})},
+        {...(isMobile ? {
+          text: "Generate assets",
+          icon: <FolderIcon />,
+          onClick: () => handleNavigation("/generate"),
+        } : {})},
+        {...(isMobile ? {
+          text: "My Assets",
           icon: <FolderIcon />,
           onClick: () => handleNavigation("/assets"),
-        },
-        {
-          text: "Campaigns",
+        } : {})},
+        {...(isMobile ? {
+          text: "My Campaigns",
           icon: <FolderIcon />,
           onClick: () => handleNavigation("/campaigns"),
-        },
-
+        } : {})},
         {
           text: "Profile",
           icon: <PersonIcon />,
@@ -149,7 +154,7 @@ const Header = () => {
               transformOrigin={{ horizontal: "right", vertical: "top" }}
               anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
-              {menuItems.map((item) => (
+              {menuItems.filter(i => i.text).map((item) => (
                 <MenuItem key={item.text} onClick={item.onClick}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
@@ -212,26 +217,38 @@ const Header = () => {
           <Button
             component={Link}
             to="/"
-            color="primary"
+            color={location.pathname === "/" ? "secondary" : "primary"}
+            variant={location.pathname === "/" ? "contained" : "text"}
             sx={{ textTransform: "none", fontWeight: "bold" }}
           >
             Dashboard
           </Button>
           <Button
             component={Link}
-            to="/assets"
-            color="primary"
+            to="/generate"
+            color={location.pathname === "/generate" ? "secondary" : "primary"}
+            variant={location.pathname === "/generate" ? "contained" : "text"}
             sx={{ textTransform: "none", fontWeight: "bold" }}
           >
-            Assets
+            Generate Assets
+          </Button>
+          <Button
+            component={Link}
+            to="/assets"
+            color={location.pathname.startsWith("/assets") ? "secondary" : "primary"}
+            variant={location.pathname.startsWith("/assets") ? "contained" : "text"}
+            sx={{ textTransform: "none", fontWeight: "bold" }}
+          >
+            My Assets
           </Button>
           <Button
             component={Link}
             to="/campaigns"
-            color="primary"
+            color={location.pathname.startsWith("/campaigns") ? "secondary" : "primary"}
+            variant={location.pathname.startsWith("/campaigns") ? "contained" : "text"}
             sx={{ textTransform: "none", fontWeight: "bold" }}
           >
-            Campaigns
+            My Campaigns
           </Button>
 
 
