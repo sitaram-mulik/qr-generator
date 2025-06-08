@@ -4,6 +4,8 @@ import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthContext } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
+import UserList from "./components/UserList";
+import UserAction from "./components/UserAction";
 
 const CreateAssets = React.lazy(() => import("./components/CreateAssets"));
 const CreateCampaign = React.lazy(() => import("./components/CreateCampaign"));
@@ -86,6 +88,22 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <AssetDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute checkSuperAdmin>
+              <UserList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users/action"
+          element={
+            <ProtectedRoute checkSuperAdmin>
+              <UserAction />
             </ProtectedRoute>
           }
         />

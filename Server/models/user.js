@@ -4,11 +4,13 @@ const userSchema = new mongoose.Schema({
   userName: {
     type: String,
     required: true,
+    unique: true
   },
   password: {
     type: String,
     required: true,
-    select: false
+    select: false,
+    unique: true
   },
   displayName: {
     type: String,
@@ -32,7 +34,11 @@ const userSchema = new mongoose.Schema({
   },
   domain: {
     type: String,
-    required: true,
+    required: true
+  },
+  isSuperAdmin: {
+    type: Boolean,
+    required: false
   },
   createdAt: {
     type: Date,

@@ -1,15 +1,20 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import Greenlock from "greenlock";
+import { getDomainName } from "../utils/user.util";
 
-export const greenlockConfig = {
-  packageRoot: process.cwd(),
-  configDir: './greenlock.d',
+const defaultDomain = getDomainName(); 
+
+const greenlock = Greenlock.create({
+  packageRoot: __dirname,
+  configDir: "./greenlock.d",
+  maintainerEmail: "helloaadityaa@gmail.com",
   cluster: false,
-  staging: process.env.NODE_ENV !== 'production',
+  staging: false,
   sites: [
     {
-      subject: process.env.DOMAIN,
-      altnames: [process.env.DOMAIN]
-    }
-  ]
-};
+      subject: defaultDomain,
+      altnames: [`app.${defaultDomain}`, `www.${defaultDomain}`],
+    },
+  ],
+});
+
+export default greenlock;

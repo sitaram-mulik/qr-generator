@@ -12,11 +12,12 @@ import {updateLocation} from '../utils/location.util.js';
 
 const generate = async (req, res) => {
   try {
-    const { count, campaignName = 'Test', domain } = req.body;
+    const { count, campaignName = 'Test' } = req.body;
+    const domain = req.user.domain;
 
     const generatedAssets = [];
     const baseDir = path.join(process.cwd(), "storage", "codes");
-    const appUrl = domain || getClientUrl();
+    const appUrl = domain ? `https://${domain}` : getClientUrl();
 
     for (let i = 0; i < count; i++) {
       const timestamp = Date.now();

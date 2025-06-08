@@ -246,6 +246,15 @@ const Header = () => {
           >
             My Campaigns
           </Button>
+          {user.isSuperAdmin && <Button
+            component={Link}
+            to="/users"
+            color={location.pathname.startsWith("/users") ? "secondary" : "primary"}
+            variant={location.pathname.startsWith("/users") ? "contained" : "text"}
+            sx={{ textTransform: "none", fontWeight: "bold" }}
+          >
+            Users
+          </Button>}
 
 
         </Toolbar>

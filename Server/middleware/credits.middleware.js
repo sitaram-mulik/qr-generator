@@ -5,7 +5,7 @@ export const checkCredits = (getCountFn) => async (req, res, next) => {
       const userId = req.user?.id || req.userId; // Adjust based on your auth logic
       const count = await getCountFn(req); // You can pass a function to get required count dynamically
   
-      const userData = await UserModel.findOne({ userId });
+      const userData = await UserModel.findById(userId);
       const availableCredits = userData.credits - (userData.totalAssets + userData.downloads);
   
       if (availableCredits < count) {

@@ -1,6 +1,7 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { checkCertificateStatus } from '../utils/certificate.util.js';
+import { getDomainName } from '../utils/user.util.js';
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.get('/status', limiter, (req, res) => {
   };
 
   if (process.env.NODE_ENV === 'production') {
-    const certStatus = checkCertificateStatus(process.env.DOMAIN);
+    const certStatus = checkCertificateStatus(getDomainName());
     status.certificate = certStatus;
   }
 

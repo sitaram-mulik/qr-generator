@@ -11,12 +11,14 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-const Register = () => {
+const UserAction = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    userName: "",
+    displayName: "",
     password: "",
+    credits: 500,
+    domain: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -33,14 +35,14 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    console.log('process.env ', process.env)
     try {
       const response = await axios.post(
-        "/auth/register",
+        "/user/create",
         formData
       );
-      if (response.data) {
+      if (response?.data) {
         setSuccess(true);
+        navigate('/users')
       }
     } catch (error) {
       setError(error.response?.data?.message || "Registration failed");
@@ -52,11 +54,7 @@ const Register = () => {
 
   return (
     <Container maxWidth="sm">
-      {!success ? (
         <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-          <Typography variant="h4" align="center" gutterBottom>
-            Register
-          </Typography>
           {error && (
             <Typography color="error" align="center" gutterBottom>
               {error}
@@ -65,9 +63,9 @@ const Register = () => {
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Name"
-              name="name"
-              value={formData.name}
+              label="UserName"
+              name="userName"
+              value={formData.userName}
               onChange={handleChange}
               margin="normal"
               required
@@ -75,10 +73,33 @@ const Register = () => {
             />
             <TextField
               fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
+              label="DisplayName"
+              name="displayName"
+              value={formData.displayName}
+              onChange={handleChange}
+              margin="normal"
+              required
+              disabled={loading}
+            />
+            <TextField
+              fullWidth
+              label="Sub domain"
+              name="domain"
+              value={formData.domain}
+              onChange={handleChange}
+              margin="normal"
+              required
+              disabled={loading}
+            />
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+              Full domain name: {`${formData.domain}.${process.env.DOMAIN || 'com'}`}
+            </Typography>
+            <TextField
+              type="number"
+              fullWidth
+              label="Credits"
+              name="credits"
+              value={formData.credits}
               onChange={handleChange}
               margin="normal"
               required
@@ -102,15 +123,12 @@ const Register = () => {
               sx={{ mt: 3 }}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} /> : "Register"}
+              {loading ? <CircularProgress size={24} /> : "Submit"}
             </Button>
           </Box>
         </Paper>
-      ) : (
-        <p>Email verification link sent.</p>
-      )}
     </Container>
   );
 };
 
-export default Register;
+export default UserAction;

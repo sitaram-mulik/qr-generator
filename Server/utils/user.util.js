@@ -11,12 +11,14 @@ export const getAvailableCredits = async (userId, res) => {
 export const setCreditsData = async (userId, {newAssetsCount, newDownloadsCount}) => {
     try {
         if(newAssetsCount) {
-            await UserModel.updateOne({userId: userId}, {$inc: { totalAssets: newAssetsCount }});
+            await UserModel.updateOne({_id: userId}, {$inc: { totalAssets: newAssetsCount }});
         }
         if(newDownloadsCount) {
-            await UserModel.updateOne({userId: userId}, {$inc: { downloads: newDownloadsCount }});
+            await UserModel.updateOne({_id: userId}, {$inc: { downloads: newDownloadsCount }});
         }
     } catch (error) {
         console.log('Failed to update stats ', err);
     }
 }
+
+export const getDomainName = () => process.env.DOMAIN;

@@ -1,43 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
 import User from "../models/user.js";
-import { sendVerificationEmail } from "../utils/email.util.js";
-import { getClientUrl } from "../utils/config.util.js";
-
-const register = async (req, res) => {
-  // try {
-  //   const { name, email, password } = req.body;
-
-  //   const existingUser = await User.findOne({ email });
-  //   if (existingUser) {
-  //     return res.status(400).json({ error: "Email already registered" });
-  //   }
-
-  //   const hashedPassword = await bcrypt.hash(password, 10);
-  //   const verificationToken = uuidv4();
-
-  //   const user = new User({
-  //     name,
-  //     email,
-  //     password: hashedPassword,
-  //     verificationToken,
-  //   });
-
-  //   await user.save();
-
-  //   const appUrl = getClientUrl();
-  //   await sendVerificationEmail(email, verificationToken, appUrl);
-
-  //   res.json({
-  //     message:
-  //       "Registration successful. Please check your email to verify your account.",
-  //   });
-  // } catch (error) {
-  //   console.error("Registration error:", error);
-  //   res.status(500).json({ error: "Registration failed", details: error });
-  // }
-};
 
 const login = async (req, res) => {
   try {
@@ -60,7 +23,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id, name: user.displayName, usageLimit: user.limit, domain: user.domain },
+      { userId: user._id, name: user.displayName, usageLimit: user.limit, domain: user.domain, isSuperAdmin: user.isSuperAdmin },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -78,41 +41,12 @@ const login = async (req, res) => {
     res.json({
       id: user.userName,
       name: user.displayName,
-      credits: user.credits,
       domain: user.domain,
-      downloads: user.downloads,
-      totalAssets: user.totalAssets
+      isSuperAdmin: user.isSuperAdmin
     });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: "Login failed" });
-  }
-};
-
-const verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.params;
-    console.log("Verification token:", token);
-    const user = await User.findOne({ verificationToken: token });
-    console.log("user:", user);
-    if (!user) {
-      return res
-        .status(400)
-        .json({ error: "Verification link is either invalid or expired" });
-    }
-
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    await user.save();
-
-    res.json({
-      message: "Email verified successfully, please login to use our services.",
-    });
-  } catch (error) {
-    console.error("Verification error:", error);
-    res
-      .status(500)
-      .json({ error: "Verification failed due to some issue", details: error });
   }
 };
 
@@ -131,9 +65,35 @@ const logout = async (req, res) => {
   }
 };
 
+// const verifyEmail = async (req, res) => {
+//   try {
+//     const { token } = req.params;
+//     console.log("Verification token:", token);
+//     const user = await User.findOne({ verificationToken: token });
+//     console.log("user:", user);
+//     if (!user) {
+//       return res
+//         .status(400)
+//         .json({ error: "Verification link is either invalid or expired" });
+//     }
+
+//     user.isVerified = true;
+//     user.verificationToken = undefined;
+//     await user.save();
+
+//     res.json({
+//       message: "Email verified successfully, please login to use our services.",
+//     });
+//   } catch (error) {
+//     console.error("Verification error:", error);
+//     res
+//       .status(500)
+//       .json({ error: "Verification failed due to some issue", details: error });
+//   }
+// };
+
+
 export {
-  register,
   login,
-  verifyEmail,
-  logout,
+  logout
 };

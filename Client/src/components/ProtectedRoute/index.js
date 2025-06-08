@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { CircularProgress, Box } from '@mui/material';
+import { CircularProgress, Box, Card, AlertTitle, Paper, Typography } from '@mui/material';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, checkSuperAdmin }) => {
   const { user, loading } = useContext(AuthContext);
   const location = useLocation();
 
@@ -23,6 +23,14 @@ const ProtectedRoute = ({ children }) => {
   // If user is authenticated and trying to access login page, redirect to home
   if (location.pathname === '/login') {
     return <Navigate to="/" replace />;
+  }
+
+  if(checkSuperAdmin && !user.isSuperAdmin) {
+    return <Paper elevation={3} sx={{p: 2, m: 2}}>
+      <Typography color="error">
+        You are not authorized to access this resource!
+      </Typography>
+    </Paper>;
   }
 
   return children;

@@ -53,8 +53,7 @@ const CreateAssets = () => {
         "assets/generate",
         {
           count: batchSize,
-          campaignName: selectedCampaign,
-          domain: user.domain
+          campaignName: selectedCampaign
         }
       );
       return response.data.codes;

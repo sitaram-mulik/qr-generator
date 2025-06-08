@@ -1,28 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {
   Container,
-  Grid,
-  Card,
-  CardContent,
-  CardActionArea,
   Typography,
   CircularProgress,
   Alert,
   Box,
   Paper,
-  Chip,
   Button,
-  LinearProgress,
-  Link,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Backdrop,
 } from '@mui/material';
-import FolderIcon from '@mui/icons-material/Folder';
 import { useNavigate } from "react-router-dom";
 import axios from "../../utils/axiosInstance";
 import GetAppIcon from "@mui/icons-material/NewLabel";
@@ -124,57 +115,6 @@ const CampaignList = () => {
             </TableBody>
           </Table>
         </TableContainer>
-
-          // <Grid container spacing={3}>
-          //   {campaigns.map(({ name, _id }) => (
-          //     <Grid item xs={12} sm={6} md={4} lg={3} key={_id}>
-          //       <Card 
-          //         sx={{ 
-          //           height: '100%',
-          //           transition: 'transform 0.2s',
-          //           '&:hover': {
-          //             transform: 'translateY(-4px)',
-          //             boxShadow: 4
-          //           }
-          //         }}
-          //       >
-          //         <CardActionArea 
-          //           onClick={() => handleCampaignClick(name)}
-          //           sx={{ height: '100%', p: 2 }}
-          //         >
-          //           <Box 
-          //             display="flex" 
-          //             flexDirection="column" 
-          //             alignItems="center" 
-          //             justifyContent="center"
-          //             sx={{ py: 2 }}
-          //           >
-          //             <FolderIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-          //             <Typography 
-          //               variant="h6" 
-          //               component="h2"
-          //               align="center"
-          //               sx={{
-          //                 overflow: 'hidden',
-          //                 textOverflow: 'ellipsis',
-          //                 width: '100%',
-          //                 whiteSpace: 'nowrap'
-          //               }}
-          //             >
-          //               {name}
-          //             </Typography>
-          //             <Chip 
-          //               label="View Assets" 
-          //               color="primary" 
-          //               size="small"
-          //               sx={{ mt: 1 }}
-          //             />
-          //           </Box>
-          //         </CardActionArea>
-          //       </Card>
-          //     </Grid>
-          //   ))}
-          // </Grid>
         )}
       </Paper>
     </Container>

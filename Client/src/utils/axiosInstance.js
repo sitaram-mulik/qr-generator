@@ -10,7 +10,12 @@ const axiosInstance = axios.create({
 import { showToast } from "./ToastService";
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.status === 200 && response.data?.message) {
+      showToast(response.data.message, "success");
+    }
+    return response;
+  },
   (error) => {
     const requestUrl = error.config?.url;
 
