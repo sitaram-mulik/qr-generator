@@ -20,5 +20,3 @@ export const setCreditsData = async (userId, {newAssetsCount, newDownloadsCount}
         console.log('Failed to update stats ', err);
     }
 }
-
-export const getDomainName = () => process.env.DOMAIN;

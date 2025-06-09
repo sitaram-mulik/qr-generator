@@ -7,8 +7,7 @@ import multer from "multer";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { httpsRedirect } from "./middleware/https.middleware.js";
-import greenlock from "./configs/greenlock.js"; // your greenlock instance export
-
+import greenlock from "./greenlock.js";
 import connectDatabase from "./utils/database.util.js";
 import authRoutes from "./routes/auth.routes.js";
 import assetsRoutes from "./routes/assets.routes.js";
@@ -74,11 +73,7 @@ async function startServer() {
     });
 
     // Use Greenlock's HTTPS server (handles certs & renewal)
-    greenlock
-      .serve(app)
-      .listen(PORT, () => {
-        console.log(`HTTPS server running on port ${PORT}`);
-      });
+    greenlock.serve(app);
   } else {
     app.get("/", (req, res) => {
       res.send("Server is running");

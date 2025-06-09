@@ -140,3 +140,5 @@ dist
 Server/storage/
 Client/build/
 Server/public/
+Server/.greenlockrc
+Server/greenlock.d/

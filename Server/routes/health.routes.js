@@ -1,7 +1,7 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { checkCertificateStatus } from '../utils/certificate.util.js';
-import { getDomainName } from '../utils/user.util.js';
+import { getDomainName } from '../utils/domain.util.js';
 
 const router = express.Router();
 

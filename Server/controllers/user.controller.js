@@ -1,6 +1,6 @@
 import UserModel from '../models/user.js';
 import bcrypt from "bcryptjs";
-import { getDomainName } from '../utils/user.util.js';
+import { getDomainName, addGreenlockSite } from '../utils/domain.util.js';
 
 export const getProfile = async (req, res) => {
     try {
@@ -35,16 +35,24 @@ export const createUser = async (req, res) => {
     
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const fullDomain = `${domain}.${getDomainName() || 'com'}`;
+
     const user = new UserModel({
       userName,
       displayName, 
       password: hashedPassword, 
       credits,
       availableCredits: credits,
-      domain: `${domain}.${getDomainName() || 'com'}`,
+      domain: fullDomain,
     });
 
     await user.save();
+
+    try {
+      addGreenlockSite(fullDomain,[fullDomain]);      
+    } catch (error) {
+      console.log('Error while adding domain SSL ', error);
+    }
 
     res.json({
       message:
