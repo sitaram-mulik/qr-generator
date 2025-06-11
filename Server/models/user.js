@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
   userName: {
@@ -12,9 +12,25 @@ const userSchema = new mongoose.Schema({
     select: false,
     unique: true
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   displayName: {
     type: String,
-    required: true,
+    required: true
+  },
+  subscriptionStarts: {
+    type: Date,
+    default: new Date()
+  },
+  subscriptionPeriod: {
+    type: Number,
+    default: 12
+  },
+  subscriptionEnds: {
+    type: Date,
+    default: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // Default to one year from now
   },
   credits: {
     type: Number,
@@ -42,8 +58,8 @@ const userSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
-export default mongoose.model("user", userSchema);
+export default mongoose.model('user', userSchema);

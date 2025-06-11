@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import axios from "../../utils/axiosInstance";
+import React, { useState, useContext } from 'react';
+import axios from '../../utils/axiosInstance';
 import {
   AppBar,
   Toolbar,
@@ -17,15 +17,15 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import PersonIcon from "@mui/icons-material/Person";
-import FolderIcon from "@mui/icons-material/Folder";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext";
+  Divider
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import PersonIcon from '@mui/icons-material/Person';
+import FolderIcon from '@mui/icons-material/Folder';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -34,9 +34,9 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const handleMenu = (event) => {
+  const handleMenu = event => {
     if (!isMobile) {
       setAnchorEl(event.currentTarget);
     }
@@ -50,7 +50,7 @@ const Header = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  const handleNavigation = (path) => {
+  const handleNavigation = path => {
     navigate(path);
     handleClose();
     setMobileMenuOpen(false);
@@ -58,12 +58,12 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("/auth/logout");
+      await axios.post('/auth/logout');
       removeUser();
-      sessionStorage.removeItem("user");
-      navigate("/login");
+      localStorage.removeItem('user');
+      navigate('/login');
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.log('Logout failed:', error);
     } finally {
       handleClose();
       setMobileMenuOpen(false);
@@ -75,72 +75,72 @@ const Header = () => {
       id,
       text,
       icon: <FolderIcon />,
-      onClick: () => handleNavigation(path),
+      onClick: () => handleNavigation(path)
     };
-  
+
   const menuItems = user
     ? [
-        getMobileMenuItem("dashboard", "Dashboard", "/"),
-        getMobileMenuItem("generate", "Generate assets", "/generate"),
-        getMobileMenuItem("assets", "My Assets", "/assets"),
-        getMobileMenuItem("campaigns", "My Campaigns", "/campaigns"),
+        getMobileMenuItem('dashboard', 'Dashboard', '/'),
+        getMobileMenuItem('generate', 'Generate assets', '/generate'),
+        getMobileMenuItem('assets', 'My Assets', '/assets'),
+        getMobileMenuItem('campaigns', 'My Campaigns', '/campaigns'),
         {
-          id: "profile",
-          text: "Profile",
+          id: 'profile',
+          text: 'Profile',
           icon: <PersonIcon />,
-          onClick: () => handleNavigation("/profile"),
+          onClick: () => handleNavigation('/profile')
         },
         {
-          text: "Logout",
+          text: 'Logout',
           icon: <LogoutIcon />,
-          onClick: handleLogout,
-        },
+          onClick: handleLogout
+        }
       ].filter(Boolean)
     : [
         {
-          text: "Login",
+          text: 'Login',
           icon: <AccountCircle />,
-          onClick: () => handleNavigation("/login"),
-        },
+          onClick: () => handleNavigation('/login')
+        }
       ];
-  
+
   return (
     <AppBar position="static">
-      <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
         {isMobile && (
           <IconButton
             color="inherit"
             edge="start"
             onClick={handleMobileMenuToggle}
-            sx={{ mr: 2, justifyContent: "flex-start" }}
+            sx={{ mr: 2, justifyContent: 'flex-start' }}
           >
             <MenuIcon />
           </IconButton>
         )}
 
         <Typography
-          variant={isMobile ? "h6" : "h5"}
+          variant={isMobile ? 'h6' : 'h5'}
           component={Link}
           to="/"
           sx={{
-            textDecoration: "none",
-            color: "inherit",
+            textDecoration: 'none',
+            color: 'inherit',
             flexGrow: 1,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}
         >
-          {isMobile ? "CAG" : "Campaign Assets Generator"}
+          {isMobile ? 'CAG' : 'Campaign Assets Generator'}
         </Typography>
 
         {!isMobile && user?.name && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="body1" sx={{ mr: 1 }}>
               {user.name}
             </Typography>
             <IconButton onClick={handleMenu} color="inherit" sx={{ p: 0.5 }}>
-              <Avatar sx={{ bgcolor: "#1565c0", width: 40, height: 40 }}>
+              <Avatar sx={{ bgcolor: '#1565c0', width: 40, height: 40 }}>
                 {user.name.charAt(0).toUpperCase()}
               </Avatar>
             </IconButton>
@@ -148,10 +148,10 @@ const Header = () => {
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleClose}
-              transformOrigin={{ horizontal: "right", vertical: "top" }}
-              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              {menuItems.map((item) => (
+              {menuItems.map(item => (
                 <MenuItem key={item.text} onClick={item.onClick}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
@@ -164,7 +164,7 @@ const Header = () => {
         {!isMobile && !user && (
           <Button
             color="inherit"
-            onClick={() => handleNavigation("/login")}
+            onClick={() => handleNavigation('/login')}
             startIcon={<AccountCircle />}
           >
             Login
@@ -179,8 +179,8 @@ const Header = () => {
         >
           <Box sx={{ width: 250 }} role="presentation">
             {user && (
-              <Box sx={{ p: 2, bgcolor: "primary.main", color: "white" }}>
-                <Avatar sx={{ mb: 1, bgcolor: "#1565c0" }}>
+              <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'white' }}>
+                <Avatar sx={{ mb: 1, bgcolor: '#1565c0' }}>
                   {user.name.charAt(0).toUpperCase()}
                 </Avatar>
                 <Typography variant="subtitle1">{user.name}</Typography>
@@ -188,7 +188,7 @@ const Header = () => {
             )}
             <Divider />
             <List>
-              {menuItems.map((item) => (
+              {menuItems.map(item => (
                 <ListItem key={item.id} onClick={item.onClick}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
@@ -203,60 +203,61 @@ const Header = () => {
           component="nav"
           variant="dense"
           sx={{
-            justifyContent: "flex-start",
-            bgcolor: "background.paper",
+            justifyContent: 'flex-start',
+            bgcolor: 'background.paper',
             borderTop: 1,
-            borderColor: "divider",
+            borderColor: 'divider',
             px: 2,
-            gap: 2,
+            gap: 2
           }}
-        ><Button
+        >
+          <Button
             component={Link}
             to="/"
-            color={location.pathname === "/" ? "secondary" : "primary"}
-            variant={location.pathname === "/" ? "contained" : "text"}
-            sx={{ textTransform: "none", fontWeight: "bold" }}
+            color={location.pathname === '/' ? 'secondary' : 'primary'}
+            variant={location.pathname === '/' ? 'contained' : 'text'}
+            sx={{ textTransform: 'none', fontWeight: 'bold' }}
           >
             Dashboard
           </Button>
           <Button
             component={Link}
             to="/generate"
-            color={location.pathname === "/generate" ? "secondary" : "primary"}
-            variant={location.pathname === "/generate" ? "contained" : "text"}
-            sx={{ textTransform: "none", fontWeight: "bold" }}
+            color={location.pathname === '/generate' ? 'secondary' : 'primary'}
+            variant={location.pathname === '/generate' ? 'contained' : 'text'}
+            sx={{ textTransform: 'none', fontWeight: 'bold' }}
           >
             Generate Assets
           </Button>
           <Button
             component={Link}
             to="/assets"
-            color={location.pathname.startsWith("/assets") ? "secondary" : "primary"}
-            variant={location.pathname.startsWith("/assets") ? "contained" : "text"}
-            sx={{ textTransform: "none", fontWeight: "bold" }}
+            color={location.pathname.startsWith('/assets') ? 'secondary' : 'primary'}
+            variant={location.pathname.startsWith('/assets') ? 'contained' : 'text'}
+            sx={{ textTransform: 'none', fontWeight: 'bold' }}
           >
             My Assets
           </Button>
           <Button
             component={Link}
             to="/campaigns"
-            color={location.pathname.startsWith("/campaigns") ? "secondary" : "primary"}
-            variant={location.pathname.startsWith("/campaigns") ? "contained" : "text"}
-            sx={{ textTransform: "none", fontWeight: "bold" }}
+            color={location.pathname.startsWith('/campaigns') ? 'secondary' : 'primary'}
+            variant={location.pathname.startsWith('/campaigns') ? 'contained' : 'text'}
+            sx={{ textTransform: 'none', fontWeight: 'bold' }}
           >
             My Campaigns
           </Button>
-          {user.isSuperAdmin && <Button
-            component={Link}
-            to="/users"
-            color={location.pathname.startsWith("/users") ? "secondary" : "primary"}
-            variant={location.pathname.startsWith("/users") ? "contained" : "text"}
-            sx={{ textTransform: "none", fontWeight: "bold" }}
-          >
-            Users
-          </Button>}
-
-
+          {user.isSuperAdmin && (
+            <Button
+              component={Link}
+              to="/users"
+              color={location.pathname.startsWith('/users') ? 'secondary' : 'primary'}
+              variant={location.pathname.startsWith('/users') ? 'contained' : 'text'}
+              sx={{ textTransform: 'none', fontWeight: 'bold' }}
+            >
+              Users
+            </Button>
+          )}
         </Toolbar>
       )}
     </AppBar>

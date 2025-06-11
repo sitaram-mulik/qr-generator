@@ -4,24 +4,29 @@ import axios from '../../utils/axiosInstance';
 
 const CreateCampaign = () => {
   const [name, setName] = useState('');
-  const [validTillDate, setValidTillDate] = useState('');
-  const [validTillTime, setValidTillTime] = useState('');
-  const [error, setError] = useState('');
+  // Set default date and time as current date and time in YYYY-MM-DD and HH:mm format
+  const getCurrentDate = () => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toTimeString().split(' ')[0].slice(0, 5);
+  };
+  const [validTillDate, setValidTillDate] = useState(getCurrentDate());
+  const [validTillTime, setValidTillTime] = useState(getCurrentTime());
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
-
       await axios.post('/campaigns/create', { name, validTillDate, validTillTime });
-      // Navigate back to home with the campaign name in query
+      // Navigate back to campaigns list
       navigate('/campaigns');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create campaign');
       setLoading(false);
     }
   };
@@ -31,12 +36,14 @@ const CreateCampaign = () => {
       <h2>Create New Campaign</h2>
       <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
         <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="name" style={{ display: 'block', marginBottom: '8px' }}>Campaign Name:</label>
+          <label htmlFor="name" style={{ display: 'block', marginBottom: '8px' }}>
+            Campaign Name:
+          </label>
           <input
             type="text"
             id="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             required
             style={{
               width: '100%',
@@ -48,12 +55,14 @@ const CreateCampaign = () => {
           />
         </div>
         <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="validTillDate" style={{ display: 'block', marginBottom: '8px' }}>Valid Till Date:</label>
+          <label htmlFor="validTillDate" style={{ display: 'block', marginBottom: '8px' }}>
+            Valid till
+          </label>
           <input
             type="date"
             id="validTillDate"
             value={validTillDate}
-            onChange={(e) => setValidTillDate(e.target.value)}
+            onChange={e => setValidTillDate(e.target.value)}
             required
             style={{
               width: '100%',
@@ -65,12 +74,11 @@ const CreateCampaign = () => {
           />
         </div>
         <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="validTillTime" style={{ display: 'block', marginBottom: '8px' }}>Valid Till Time:</label>
           <input
             type="time"
             id="validTillTime"
             value={validTillTime}
-            onChange={(e) => setValidTillTime(e.target.value)}
+            onChange={e => setValidTillTime(e.target.value)}
             required
             style={{
               width: '100%',
@@ -81,7 +89,6 @@ const CreateCampaign = () => {
             }}
           />
         </div>
-        {error && <div style={{ color: 'red', marginBottom: '20px' }}>{error}</div>}
         <button
           type="submit"
           disabled={loading}

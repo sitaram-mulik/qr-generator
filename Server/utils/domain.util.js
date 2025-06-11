@@ -9,7 +9,7 @@ export function addGreenlockSite(subject, altnames) {
     console.log('Command output:', output);
     return output;
   } catch (err) {
-    console.error('Error running greenlock add:', err.message);
+    console.log('Error running greenlock add:', err.message);
     throw err;
   }
 }

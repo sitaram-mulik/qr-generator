@@ -1,7 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Container, Typography, Paper } from "@mui/material";
-import { AuthContext } from "../../context/AuthContext";
-import axiosInstance from "../../utils/axiosInstance";
+import React, { useContext, useEffect, useState } from 'react';
+import { Container, Typography, Paper } from '@mui/material';
+import { AuthContext } from '../../context/AuthContext';
+import axiosInstance from '../../utils/axiosInstance';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import {
+  getSubscriptionEndDate,
+  getSubscriptionPeriod,
+  getSubscriptionStartDate
+} from '../../utils/user';
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
@@ -17,11 +25,16 @@ const Profile = () => {
       setProfile(response.data);
       console.log(response.data);
     } catch (error) {
-        console.error(error);
+      console.log(error);
     }
   };
 
-  
+  let availableCredits = profile.credits - (profile.downloads + profile.totalAssets);
+  if (availableCredits < 0) {
+    availableCredits = 0;
+  }
+
+  availableCredits = `${availableCredits} out of ${profile.credits}`;
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -30,33 +43,42 @@ const Profile = () => {
           My Profile
         </Typography>
         {user ? (
-          <>
-            <Typography variant="body1" gutterBottom>
-              <strong>Name:</strong> {profile.displayName}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              <strong>Username:</strong> {profile.userName}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              <strong>Domain:</strong> {profile.domain}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              <strong>Total credits:</strong> {profile.credits}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              <strong>Generated assets:</strong> {profile.totalAssets}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              <strong>Downloads:</strong> {profile.downloads}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              <strong>available credits:</strong> {profile.credits - (profile.downloads + profile.totalAssets)}
-            </Typography>
-          </>
+          <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+            <ListItem>
+              <ListItemText primary="Display Name" secondary={profile.displayName} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="UserName" secondary={profile.userName} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Domain Name" secondary={profile.domain} />
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary="Subscription "
+                secondary={
+                  <div>
+                    {getSubscriptionPeriod(profile)}
+                    <br />
+                    starts: {getSubscriptionStartDate(profile)}
+                    <br />
+                    ends:{getSubscriptionEndDate(profile)}
+                  </div>
+                }
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Available credits" secondary={availableCredits} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Generated assets" secondary={profile.totalAssets} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Downloads" secondary={profile.downloads} />
+            </ListItem>
+          </List>
         ) : (
-          <Typography variant="body1">
-            No user information available.
-          </Typography>
+          <Typography variant="body1">No user information available.</Typography>
         )}
       </Paper>
     </Container>

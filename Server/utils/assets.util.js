@@ -5,8 +5,6 @@ import { generateQRCodeBuffer } from './qr.utils.js';
 import { createCanvas } from 'canvas';
 import { drawPattern } from './basicShapes.util.js';
 
-
-
 // Generate unique pattern image with customizable type
 // async function generateImageFromWithPattern(uniqueCode, options = {}) {
 //   const width = 500;
@@ -44,7 +42,7 @@ import { drawPattern } from './basicShapes.util.js';
 
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min;
-}
+};
 
 async function getPatternBuffer() {
   const width = 500;
@@ -52,17 +50,15 @@ async function getPatternBuffer() {
   const canvas = createCanvas(width, height);
 
   const shapesCount = getRandomNumber(150, 500);
-  const shapeSides = getRandomNumber(2, 100)
-  const scale = getRandomNumber(1, 10); 
-  const rotationAngle = getRandomNumber(0, 360); 
-  const shapeSize = 250; 
+  const shapeSides = getRandomNumber(2, 100);
+  const scale = getRandomNumber(1, 10);
+  const rotationAngle = getRandomNumber(0, 360);
+  const shapeSize = 250;
   const shapeBorder = 1;
   drawPattern(canvas, shapesCount, shapeSides, scale, rotationAngle, shapeSize, shapeBorder);
-  
+
   // Convert canvas to buffer
-  return await sharp(canvas.toBuffer('image/png'))
-    .png()
-    .toBuffer();
+  return await sharp(canvas.toBuffer('image/png')).png().toBuffer();
 }
 
 // Generate combined image
@@ -73,7 +69,7 @@ async function generateImage(uniqueCode, baseDir, appUrl) {
   try {
     const [qrBuffer, patternBuffer] = await Promise.all([
       generateQRCodeBuffer(`${appUrl}/verify/${uniqueCode}`),
-      getPatternBuffer(),
+      getPatternBuffer()
     ]);
 
     const combinedImagePath = path.join(codeDir, `${uniqueCode}.png`);
@@ -83,34 +79,34 @@ async function generateImage(uniqueCode, baseDir, appUrl) {
         width: 1000,
         height: 500,
         channels: 4,
-        background: { r: 255, g: 255, b: 255, alpha: 1 },
-      },
+        background: { r: 255, g: 255, b: 255, alpha: 1 }
+      }
     })
       .png()
       .composite([
         { input: qrBuffer, left: 0, top: 0 },
-        { input: patternBuffer, left: 500, top: 0 },
+        { input: patternBuffer, left: 500, top: 0 }
       ])
       .toBuffer();
-      //.toFile(combinedImagePath);
+    //.toFile(combinedImagePath);
 
     //return `/storage/codes/${uniqueCode}/${uniqueCode}.png`;
   } catch (error) {
-    console.error("Error in saveCombinedImage:", error);
+    console.log('Error in saveCombinedImage:', error);
     throw error;
   }
 }
 
-const buildAssetsDBQuery = (req) => {
-  const { campaign, verified, downloaded, createdAfter } = req.query; 
+const buildAssetsDBQuery = req => {
+  const { campaign, verified, downloaded, createdAfter } = req.query;
   const query = { userId: req.userId };
-  if(campaign) query.campaign = campaign;
-  if(verified) query.verifiedAt = { $exists: verified };
+  if (campaign) query.campaign = campaign;
+  if (verified) query.verifiedAt = { $exists: verified };
   if (downloaded !== undefined) {
     if (downloaded === 'true') {
-      query.downloads = { $gt: 0 };  // downloaded > 0
+      query.downloads = { $gt: 0 }; // downloaded > 0
     } else {
-      query.downloads = 0;            // downloaded == 0
+      query.downloads = 0; // downloaded == 0
     }
   }
 
@@ -118,12 +114,7 @@ const buildAssetsDBQuery = (req) => {
     query.createdAt = { $gte: new Date(createdAfter) };
   }
 
-
-
   return query;
-}
-
-export {
-  generateImage,
-  buildAssetsDBQuery
 };
+
+export { generateImage, buildAssetsDBQuery };

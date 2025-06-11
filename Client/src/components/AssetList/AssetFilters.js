@@ -1,25 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { Box, TextField, MenuItem, Button, Dialog, DialogTitle, DialogContent, DialogActions, useMediaQuery, useTheme } from "@mui/material";
-import axios from "../../utils/axiosInstance";
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  TextField,
+  MenuItem,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  useMediaQuery,
+  useTheme
+} from '@mui/material';
+import axios from '../../utils/axiosInstance';
 
 const AssetFilters = ({ filters, onFilterChange }) => {
   const [campaignOptions, setCampaignOptions] = useState([]);
   const [open, setOpen] = useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const fetchCampaignOptions = async () => {
       try {
-        const response = await axios.get("/campaigns");
+        const response = await axios.get('/campaigns');
         setCampaignOptions(response.data);
       } catch (error) {
-        console.error("Failed to fetch campaign options:", error);
+        console.log('Failed to fetch campaign options:', error);
       }
     };
     fetchCampaignOptions();
   }, []);
-
 
   const handleOpen = () => {
     setOpen(true);
@@ -30,16 +40,24 @@ const AssetFilters = ({ filters, onFilterChange }) => {
   };
 
   const filterContent = (
-    <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "center", gap: 2, mb: 2 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: 'center',
+        gap: 2,
+        mb: 2
+      }}
+    >
       <TextField
         select
         label="Filter by Campaign"
-        value={filters.campaign || ""}
+        value={filters.campaign || ''}
         onChange={e => onFilterChange('campaign', e.target.value)}
         sx={{ minWidth: 200 }}
       >
         <MenuItem value="">All Campaigns</MenuItem>
-        {campaignOptions.map((campaign) => (
+        {campaignOptions.map(campaign => (
           <MenuItem key={campaign.id} value={campaign.name}>
             {campaign.name}
           </MenuItem>
@@ -49,7 +67,7 @@ const AssetFilters = ({ filters, onFilterChange }) => {
       <TextField
         select
         label="Filter by Verified"
-        value={filters.verified || ""}
+        value={filters.verified || ''}
         onChange={e => onFilterChange('verified', e.target.value)}
         sx={{ minWidth: 200 }}
       >
@@ -61,7 +79,7 @@ const AssetFilters = ({ filters, onFilterChange }) => {
       <TextField
         select
         label="Filter by Donwloaded"
-        value={filters.downloaded || ""}
+        value={filters.downloaded || ''}
         onChange={e => onFilterChange('downloaded', e.target.value)}
         sx={{ minWidth: 200 }}
       >
@@ -73,11 +91,11 @@ const AssetFilters = ({ filters, onFilterChange }) => {
       <TextField
         label="Filter by Created After"
         type="date"
-        value={filters.createdAfter || ""}
+        value={filters.createdAfter || ''}
         onChange={e => onFilterChange('createdAfter', e.target.value)}
         sx={{ minWidth: 200 }}
         InputLabelProps={{
-          shrink: true,
+          shrink: true
         }}
       />
     </Box>

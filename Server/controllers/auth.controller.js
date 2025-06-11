@@ -1,42 +1,50 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/user.js";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
+import ApiError from '../utils/ApiError.js';
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { userName, password } = req.body;
 
     const user = await User.findOne({ userName }).select('+password');
 
-    console.log("user:", user);
-    if (!user || ! user.password) {
-      return res.status(401).json({ error: "Invalid credentials" });
+    console.log('user:', user);
+    if (!user || !user.password) {
+      throw new ApiError(400, 'Invalid credentials');
     }
 
-    // if (!user.isVerified) {
-    //   return res.status(401).json({ error: "Please verify your email first" });
-    // }
+    if (!user.isActive) {
+      throw new ApiError(400, 'User acount is deactivated, contact admin.');
+    }
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      throw new ApiError(400, 'Invalid credentials');
     }
 
     const token = jwt.sign(
-      { userId: user._id, name: user.displayName, usageLimit: user.limit, domain: user.domain, isSuperAdmin: user.isSuperAdmin },
+      {
+        userId: user._id,
+        name: user.displayName,
+        credits: user.credits,
+        domain: user.domain,
+        isSuperAdmin: user.isSuperAdmin,
+        subscriptionEnds: user.subscriptionEnds
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: '24h' }
     );
 
     // Set token in HttpOnly cookie
-    res.cookie("token", token, {
+    res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
 
-    console.log("Login successful for user:", user);
+    console.log('Login successful for user:', user);
 
     res.json({
       id: user.userName,
@@ -45,23 +53,23 @@ const login = async (req, res) => {
       isSuperAdmin: user.isSuperAdmin
     });
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ error: "Login failed" });
+    console.log('Login error:', error);
+    next(error);
   }
 };
 
-const logout = async (req, res) => {
+const logout = async (req, res, next) => {
   try {
     // Clear the token cookie
-    res.clearCookie("token", {
+    res.clearCookie('token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     });
-    res.json({ message: "Logout successful" });
+    res.json({ message: 'Logout successful' });
   } catch (error) {
-    console.error("Logout error:", error);
-    res.status(500).json({ error: "Logout failed" });
+    console.log('Logout error:', error);
+    next(error);
   }
 };
 
@@ -85,15 +93,11 @@ const logout = async (req, res) => {
 //       message: "Email verified successfully, please login to use our services.",
 //     });
 //   } catch (error) {
-//     console.error("Verification error:", error);
+//     console.log("Verification error:", error);
 //     res
 //       .status(500)
 //       .json({ error: "Verification failed due to some issue", details: error });
 //   }
 // };
 
-
-export {
-  login,
-  logout
-};
+export { login, logout };

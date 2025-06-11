@@ -108,11 +108,10 @@
 //     res.sendFile(outputPath);
 
 //   } catch (error) {
-//     console.error('Error generating shape image:', error);
+//     console.log('Error generating shape image:', error);
 //     res.status(500).json({ error: 'Failed to generate shape image' });
 //   }
 // };
-
 
 // const uploadPatternImage = async (req, res) => {
 //   try {
@@ -149,7 +148,7 @@
 //     res.sendFile(outputPath);
 
 //   } catch (error) {
-//     console.error('Error processing uploaded pattern image:', error);
+//     console.log('Error processing uploaded pattern image:', error);
 //     res.status(500).json({ error: 'Failed to process uploaded pattern image' });
 //   }
 // };
