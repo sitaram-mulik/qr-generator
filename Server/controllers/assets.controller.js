@@ -8,6 +8,7 @@ import { s3, PutObjectCommand, GetObjectCommand } from '../configs/s3.js';
 import archiver from 'archiver';
 import { getAvailableCredits, setCreditsData } from '../utils/user.util.js';
 import { updateLocation } from '../utils/location.util.js';
+import sharp from 'sharp';
 
 import ApiError from '../utils/ApiError.js';
 
@@ -133,6 +134,27 @@ const verifyProduct = async (req, res, next) => {
   }
 };
 
+const getAssetPattern = async (req, res, next) => {
+  try {
+    const { code } = req.params;
+    const asset = await AssetModel.findOne({ code });
+    if (!asset) {
+      throw new ApiError(404, 'Asset not found');
+    }
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: `${asset.campaign}/${code}.png`
+    });
+    const data = await s3.send(command);
+    const patternImage = sharp().extract({ left: 500, top: 0, width: 500, height: 500 });
+    res.setHeader('Content-Type', 'image/png');
+    data.Body.pipe(patternImage).pipe(res);
+  } catch (error) {
+    console.log('Error getting asset pattern image', error);
+    next(error);
+  }
+};
+
 const downloadAssets = async (req, res, next) => {
   try {
     let query = buildAssetsDBQuery(req);
@@ -211,6 +233,7 @@ export {
   downloadAssets,
   getAssetByCode,
   verifyProduct,
+  getAssetPattern,
   getAssetsCount,
   getStatistics
 };

@@ -6,7 +6,8 @@ import {
   downloadAssets,
   verifyProduct,
   getAssetsCount,
-  getStatistics
+  getStatistics,
+  getAssetPattern
 } from '../controllers/assets.controller.js';
 import { authenticateToken } from '../middleware/auth.middleware.js';
 import { checkCredits } from '../middleware/credits.middleware.js';
@@ -18,6 +19,7 @@ const router = express.Router();
 
 router.get('/', authenticateToken, checkSubscription, getAssets);
 router.get('/verify/:code', verifyProduct);
+router.get('/pattern/:code', getAssetPattern);
 router.post(
   '/generate',
   authenticateToken,
