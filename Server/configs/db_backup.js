@@ -26,7 +26,8 @@ async function createBackup() {
         if (!fs.existsSync(backupDirectory)) {
             fs.mkdirSync(backupDirectory, { recursive: true });
         }
-        const mongodumpCommand = `mongodump --host "${process.env.MONGODB_HOST}" --port "${process.env.MONGODB_PORT}" --db "${process.env.MONGODB_DB}" --gzip --archive="${backupPath}"`;
+        // const mongodumpCommand = `mongodump --host "${process.env.MONGODB_HOST}" --port "${process.env.MONGODB_PORT}" --db "${process.env.MONGODB_DB}" --gzip --archive="${backupPath}"`;
+        const mongodumpCommand = `mongodump --uri "${process.env.MONGODB_URI}" --gzip --archive="${backupPath}"`;
         if (shell.exec(mongodumpCommand).code !== 0) {
             throw new Error('MongoDB dump failed');
         }
@@ -78,20 +79,17 @@ async function deleteLocalBackup() {
     return;
 }
 
-async function cronjob() {
+async function backupCronjob() {
     cron.schedule('0 0 * * *', async () => {
         try {
             await createBackup();
             await uploadBackup();
             await deleteBackup();
             await deleteLocalBackup();
-            console.log('Backup process completed successfully.');
         } catch (error) {
             console.error('Error running backup:', error);
         }
     });
 }
 
-module.exports = {
-    cronjob
-};
+export { backupCronjob };
