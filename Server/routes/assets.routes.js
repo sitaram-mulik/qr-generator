@@ -6,7 +6,8 @@ import {
   downloadAssets,
   verifyProduct,
   getAssetsCount,
-  getStatistics
+  getStatistics,
+  getAssetPattern
 } from '../controllers/assets.controller.js';
 import { authenticateToken } from '../middleware/auth.middleware.js';
 import { checkCredits } from '../middleware/credits.middleware.js';
@@ -35,8 +36,6 @@ router.get(
 router.get('/count', authenticateToken, checkSubscription, getAssetsCount);
 router.get('/statistics', authenticateToken, checkSubscription, getStatistics);
 router.get('/:code', authenticateToken, checkSubscription, getAssetByCode);
-
-// Protected routes (if needed in future)
-// router.post('/protected-route', authenticateToken, protectedController);
+router.get('/pattern/:code', getAssetPattern);
 
 export default router;

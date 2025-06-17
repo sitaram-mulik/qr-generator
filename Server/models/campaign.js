@@ -1,14 +1,20 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const campaignSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   validTill: {
     type: Date,
     required: true
+  },
+  validity: {
+    type: Number,
+    required: true,
+    enum: [1, 2, 3],
+    default: 1
   },
   userId: {
     type: String,
@@ -17,8 +23,8 @@ const campaignSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
-export default mongoose.model("campaign", campaignSchema);
+export default mongoose.model('campaign', campaignSchema);

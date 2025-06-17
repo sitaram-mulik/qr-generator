@@ -1,20 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import AssetModel from '../models/asset.js';
-import UserModel from '../models/user.js';
 import { buildAssetsDBQuery, generateImage } from '../utils/assets.util.js';
 import { getClientUrl } from '../utils/config.util.js';
 import { s3, PutObjectCommand, GetObjectCommand } from '../configs/s3.js';
 import archiver from 'archiver';
-import { getAvailableCredits, setCreditsData } from '../utils/user.util.js';
+import { setCreditsData } from '../utils/user.util.js';
 import { updateLocation } from '../utils/location.util.js';
+import sharp from 'sharp';
 
 import ApiError from '../utils/ApiError.js';
 
 const generate = async (req, res, next) => {
   try {
     const { count, campaignName = 'Test' } = req.body;
-    const domain = req.user.domain;
+    const { domain, credits } = req.user;
 
     const generatedAssets = [];
     const baseDir = path.join(process.cwd(), 'storage', 'codes');
@@ -45,7 +45,6 @@ const generate = async (req, res, next) => {
         console.log('Error uploading to S3:', error);
         continue;
       }
-      console.log('campaignName:', campaignName);
       const savedCode = await new AssetModel({
         code: uniqueCode,
         imagePath: s3Url,
@@ -60,7 +59,7 @@ const generate = async (req, res, next) => {
     }
 
     try {
-      await setCreditsData(req.userId, { newAssetsCount: generatedAssets.length });
+      await setCreditsData(req.userId, { newAssetsCount: generatedAssets.length, credits });
     } catch (err) {
       console.log('Failed to update stats ', err);
     }
@@ -113,6 +112,30 @@ const getAssetByCode = async (req, res, next) => {
   }
 };
 
+const getAssetPattern = async (req, res, next) => {
+  try {
+    console.log('getAssetPattern called');
+    const { code } = req.params;
+
+    const asset = await AssetModel.findOne({ code });
+    if (!asset) {
+      throw new ApiError(404, 'Asset not found');
+    }
+    console.log('asset ', asset);
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: `${asset.campaign}/${code}.png`
+    });
+    const data = await s3.send(command);
+    const patternImage = sharp().extract({ left: 500, top: 0, width: 500, height: 500 });
+    res.setHeader('Content-Type', 'image/png');
+    data.Body.pipe(patternImage).pipe(res);
+  } catch (error) {
+    console.log('Error getting asset pattern image', error);
+    next(error);
+  }
+};
+
 const verifyProduct = async (req, res, next) => {
   try {
     const { code } = req.params;
@@ -120,6 +143,7 @@ const verifyProduct = async (req, res, next) => {
     if (!asset) {
       throw new ApiError(404, 'Asset not found');
     }
+
     if (asset.verifiedAt) {
       return res.status(200).json({ message: 'Product already verified' });
     }
@@ -152,6 +176,8 @@ const downloadAssets = async (req, res, next) => {
       failure: 0
     };
 
+    let extraDownloads = 0;
+
     for (const asset of assets) {
       try {
         const key = asset.code;
@@ -165,6 +191,9 @@ const downloadAssets = async (req, res, next) => {
           { code: key },
           { downloads: (asset.downloads || 0) + 1, downloadedAt: Date.now() }
         );
+        if (asset.downloads > 2) {
+          extraDownloads++;
+        }
         summary.success++;
       } catch (err) {
         console.log('Error while downloading asset ', err);
@@ -175,7 +204,7 @@ const downloadAssets = async (req, res, next) => {
 
     archive.append(JSON.stringify(summary), { name: 'summary.json' });
     await archive.finalize().then(async () => {
-      await setCreditsData(req.userId, { newDownloadsCount: summary.success });
+      await setCreditsData(req.userId, { newDownloadsCount: summary.success, extraDownloads });
     });
   } catch (error) {
     console.log('Error downloading assets:', error);
@@ -212,5 +241,6 @@ export {
   getAssetByCode,
   verifyProduct,
   getAssetsCount,
-  getStatistics
+  getStatistics,
+  getAssetPattern
 };

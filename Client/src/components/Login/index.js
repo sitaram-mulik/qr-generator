@@ -24,7 +24,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('/auth/login', formData, { withCredentials: true });
-      if (response.data.id) {
+      if (response.data.userName) {
         addUser(response.data);
         // Navigate to the page user tried to access, or home page if no previous location
         const from = location.state?.from || '/';

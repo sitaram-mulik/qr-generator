@@ -1,7 +1,11 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectsCommand
+} from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
 dotenv.config();
-
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -11,4 +15,4 @@ const s3 = new S3Client({
   }
 });
 
-export { s3, PutObjectCommand, GetObjectCommand };
+export { s3, PutObjectCommand, GetObjectCommand, DeleteObjectsCommand };

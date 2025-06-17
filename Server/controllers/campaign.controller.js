@@ -1,19 +1,34 @@
 import CampaignModel from '../models/campaign.js';
 import ApiError from '../utils/ApiError.js';
+import { clearCampaignData } from '../utils/cleanup.utils.js';
 
 export const createCampaign = async (req, res, next) => {
   try {
-    const { name, validTillDate, validTillTime } = req.body;
+    const { name, validity } = req.body;
 
-    if (!name || !validTillDate || !validTillTime) {
+    if (!name || !validity) {
       throw new ApiError(400, 'Missing required fields');
+    }
+
+    // Date calculations based on validity
+    const currentDate = new Date();
+    let validTillDate = new Date(currentDate);
+    validTillDate.setFullYear(currentDate.getFullYear() + parseInt(validity));
+    validTillDate = validTillDate.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+    // set current time
+    const validTillTime = `${currentDate.getHours().toString().padStart(2, '0')}:${currentDate
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')}:00`; // Format to HH:MM:SS
+    if (validity < 1 || validity > 3) {
+      throw new ApiError(400, 'Validity must be between 1 and 3 years');
     }
 
     // Combine date and time and convert to UTC Date object
     const validTill = new Date(`${validTillDate}T${validTillTime}Z`);
 
     // Save campaign to the databas
-    const newCampaign = new CampaignModel({ name, validTill, userId: req.userId });
+    const newCampaign = new CampaignModel({ name, validity, validTill, userId: req.userId });
     await newCampaign.save();
 
     res.status(200).json({ message: 'Campaign created successfully' });
@@ -29,6 +44,19 @@ export const getAllCampaigns = async (req, res, next) => {
     res.status(200).json(campaigns);
   } catch (error) {
     console.log('Error fetching campaigns:', error);
+    next(error);
+  }
+};
+
+export const deleteCampaign = async (req, res, next) => {
+  const { campaignName } = req.body;
+  try {
+    const deletedAssets = await clearCampaignData(campaignName);
+    res.status(200).json({
+      message: `Campaign ${campaignName} and ${deletedAssets.deletedCount} assets deleted successfully`
+    });
+  } catch (error) {
+    console.log('Error deleting campaign:', error);
     next(error);
   }
 };

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useReducer } from "react";
-import axios from "../../utils/axiosInstance";
+import React, { useState, useEffect, useReducer } from 'react';
+import axios from '../../utils/axiosInstance';
 import {
   Container,
   Card,
   CardContent,
-  Typography,
   Button,
   LinearProgress,
   Box,
@@ -14,28 +13,29 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress,
-  Backdrop,
   Alert,
   TextField,
-} from "@mui/material";
-import ResultModal from "../Shared/ResultModal";
-import GetAppIcon from "@mui/icons-material/GetApp";
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { formatTimestamp } from "../../utils/common";
-import AssetFilters from "./AssetFilters";
+  Paper,
+  IconButton
+} from '@mui/material';
+import ResultModal from '../Shared/ResultModal';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import { formatTimestamp } from '../../utils/common';
+import AssetFilters from './AssetFilters';
 import { useNavigate, useLocation } from 'react-router-dom';
-import JSZip from "jszip";
+import JSZip from 'jszip';
+import Progress from '../Lib/Progress';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const initialFilterState = {
-  campaign: "",
-  verified: "",
-  downloaded: ""
+  campaign: '',
+  verified: '',
+  downloaded: ''
 };
 
 function filterReducer(state, action) {
   switch (action.type) {
-    case "SET_FILTERS":
+    case 'SET_FILTERS':
       return { ...state, ...action.payload };
     default:
       return state;
@@ -54,11 +54,10 @@ function AssetList() {
   const location = useLocation();
   const navigate = useNavigate();
 
-
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const paramsObj = Object.fromEntries(params.entries());
-    dispatchFilters({ type: "SET_FILTERS", payload: { ...paramsObj } });
+    dispatchFilters({ type: 'SET_FILTERS', payload: { ...paramsObj } });
   }, [location.search]);
 
   useEffect(() => {
@@ -73,7 +72,7 @@ function AssetList() {
       setCount(response.data.count);
       setLoading(false);
     } catch (err) {
-      setError("Failed to load code list ");
+      setError('Failed to load code list ');
       setLoading(false);
     }
   };
@@ -85,12 +84,12 @@ function AssetList() {
       const params = new URLSearchParams(location.search);
       params.append('count', count);
       const res = await axios(`/assets/download?${params.toString()}`, {
-        responseType: "blob",
+        responseType: 'blob'
       });
       const blob = res.data;
       const downloadUrl = window.URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = downloadUrl;
       a.download = `${filters.campaign || 'all'}-assets.zip`;
       document.body.appendChild(a);
@@ -100,7 +99,7 @@ function AssetList() {
 
       // 🔍 Read summary.txt from the ZIP
       const zip = await JSZip.loadAsync(blob);
-      const summaryJson = await zip.file("summary.json")?.async("string");
+      const summaryJson = await zip.file('summary.json')?.async('string');
 
       if (summaryJson) {
         const summary = JSON.parse(summaryJson);
@@ -109,7 +108,7 @@ function AssetList() {
         setModalOpen(true);
       }
     } catch (error) {
-      setError("Failed to download assets ", error);
+      setError('Failed to download assets ', error);
       setIsDownloading(false);
       return;
     }
@@ -117,14 +116,14 @@ function AssetList() {
 
   const onFilterChange = (filterName, value) => {
     const params = new URLSearchParams(location.search);
-    if(typeof value === undefined || value === '') {
+    if (typeof value === undefined || value === '') {
       params.delete(filterName);
     } else {
       params.set(filterName, value);
     }
 
     navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-  }
+  };
 
   if (loading) {
     return (
@@ -136,106 +135,108 @@ function AssetList() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={isDownloading}
-      >
-        <CircularProgress color="inherit" size={80} />
-      </Backdrop>
-      <Box sx={{ mb: 4 }}>
-        <AssetFilters
-          filters={filters}
-          onFilterChange={onFilterChange}
-        />
+      <Paper sx={{ p: 3 }}>
+        <Box sx={{ mb: 4 }}>
+          <AssetFilters filters={filters} onFilterChange={onFilterChange} />
 
-        <Box sx={{mb: 1}}>
-
-            <Button align="right" variant="contained" startIcon={<GetAppIcon />} onClick={downloadAllAssets} sx={{ mb: 2, mr: 2 }}>
-                Download assets
-            </Button> 
+          <Box sx={{ mb: 1 }} align="left">
             <TextField
-              label="Filtered items"
+              label="Download count"
               type="number"
               value={count}
               onChange={e => setCount(e.target.value)}
-
+              size="small"
+              sx={{ mb: 2, mr: 2 }}
             />
+            <Button variant="contained" startIcon={<GetAppIcon />} onClick={downloadAllAssets}>
+              Download assets
+            </Button>
+          </Box>
+
+          {downloadSummary && !isDownloading && (
+            <Card>
+              <CardContent>
+                <Box sx={{ mb: 2 }}>
+                  <Alert
+                    severity={downloadSummary.failed > 0 ? 'warning' : 'success'}
+                    sx={{ mt: 2 }}
+                  >
+                    Download complete: {downloadSummary.success} successful,{' '}
+                    {downloadSummary.failure} failed (Total: {downloadSummary.total})
+                  </Alert>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
         </Box>
 
-        {downloadSummary && !isDownloading && (<Card>
-          <CardContent>
-            <Box sx={{ mb: 2 }}>
-              
-                <Alert severity={downloadSummary.failed > 0 ? "warning" : "success"} sx={{ mt: 2 }}>
-                  Download complete: {downloadSummary.success} successful, {downloadSummary.failure} failed (Total: {downloadSummary.total})
-                </Alert>
-
-            </Box>
-          </CardContent>
-        </Card>
-                      )}
-      </Box>
-
-      <TableContainer component={Box} sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="assets table" size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Id</TableCell>
-              <TableCell>Campaign</TableCell>
-              <TableCell>Verified at</TableCell>
-              <TableCell>Downloads</TableCell>
-              <TableCell>Created at</TableCell>
-              <TableCell align="right">Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {assets.map((asset) => (
-              <TableRow key={asset.code} hover>
-                <TableCell component="th" scope="row">
-                  {asset.code}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {asset.campaign}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {asset.verifiedAt ? formatTimestamp(asset.verifiedAt) : "Not verified"}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {asset.downloads}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {formatTimestamp(asset.createdAt)}
-                </TableCell>
-                <TableCell align="right">
-                  <Button size="small" variant="contained" onClick={() => navigate(`/verify/${asset.code}`)}>
-                    Verify
-                  </Button>
-                </TableCell>
+        <TableContainer component={Box} sx={{ maxHeight: 440 }}>
+          <Table stickyHeader aria-label="assets table" size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Id</TableCell>
+                <TableCell>Campaign</TableCell>
+                <TableCell>Verified at</TableCell>
+                <TableCell>Downloads</TableCell>
+                <TableCell>Created at</TableCell>
+                <TableCell align="right">View</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {assets.map(asset => (
+                <TableRow key={asset.code} hover>
+                  <TableCell component="th" scope="row">
+                    {asset.code}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {asset.campaign}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {asset.verifiedAt ? formatTimestamp(asset.verifiedAt) : 'Not verified'}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {asset.downloads}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {formatTimestamp(asset.createdAt)}
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      color="primary"
+                      onClick={() => navigate(`/assets/code/${asset.code}`)}
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      {error && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
-        </Alert>
-      )}
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-      <ResultModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Download complete"
-        message={`Download complete: ${downloadSummary?.success || 0} successful, ${downloadSummary?.failure || 0} failed (Total: ${downloadSummary?.total || 0})`}
-        actions={[]}
-      />
+        <ResultModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          title="Download complete"
+          message={`Download complete: ${downloadSummary?.success || 0} successful, ${
+            downloadSummary?.failure || 0
+          } failed (Total: ${downloadSummary?.total || 0})`}
+          actions={[]}
+        />
 
-      {assets.length === 0 && (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          No matching assets found for this filter.
-        </Alert>
-      )}
+        {assets.length === 0 && (
+          <Alert severity="info" sx={{ mt: 2 }}>
+            No matching assets found for this filter.
+          </Alert>
+        )}
+      </Paper>
+      <Progress start={isDownloading} processingStats={downloadSummary} />
     </Container>
   );
 }

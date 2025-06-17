@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import axiosInstance from '../utils/axiosInstance';
 
 export const AuthContext = createContext(null);
 
@@ -22,6 +23,22 @@ export const AuthProvider = ({ children }) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    // get updated details from server if user exists
+    axiosInstance
+      .get('/user/profile')
+      .then(response => {
+        console.log('response.data profile ', response.data);
+        if (response.data) {
+          setUser(response.data);
+          localStorage.setItem('user', JSON.stringify(response.data));
+        }
+      })
+      .catch(error => {
+        console.error('Failed to fetch user profile:', error);
+        // Optionally handle error, e.g., show a notification
+      });
+
     setLoading(false); // Set loading to false after initialization
   }, []);
 

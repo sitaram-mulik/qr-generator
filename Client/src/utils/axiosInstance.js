@@ -24,6 +24,8 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem('user');
       // Redirect to login page
       //window.location.href = '/login';
+    } else if (error.response?.status === 402) {
+      window.location.href = '/profile';
     } else {
       console.log('Got error ', error);
       // Show error notification for other errors

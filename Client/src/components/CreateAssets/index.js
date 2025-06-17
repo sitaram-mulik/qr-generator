@@ -3,10 +3,20 @@ import axios from '../../utils/axiosInstance';
 import './index.css';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { Alert, CircularProgress, Box, Typography, Backdrop, Button } from '@mui/material';
+import {
+  Alert,
+  CircularProgress,
+  Box,
+  Button,
+  Paper,
+  Container,
+  TextField,
+  MenuItem
+} from '@mui/material';
 import ResultModal from '../Shared/ResultModal';
 import { getTodaysDate } from '../../utils/common';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import Progress from '../Lib/Progress';
 
 const CreateAssets = () => {
   const [count, setCount] = useState(1);
@@ -68,7 +78,7 @@ const CreateAssets = () => {
 
     const numberCount = parseInt(count);
     if (numberCount < 1) {
-      setError('Please enter a number between 1 and 1000');
+      setError('Please enter a number between 1 and 100000');
       return;
     }
 
@@ -81,9 +91,8 @@ const CreateAssets = () => {
 
     try {
       setLoading(true);
-      setBatchProgress(0); // Set initial progress immediately
+      setBatchProgress(0);
       setProcessingStats({
-        // Initialize processing stats with zeros
         total: numberCount,
         processed: 0,
         success: 0,
@@ -125,7 +134,7 @@ const CreateAssets = () => {
         setLoading(false);
         setBatchProgress(0);
         setModalOpen(true);
-      }, 1500);
+      }, 1000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to generate assets');
       setLoading(false);
@@ -151,36 +160,27 @@ const CreateAssets = () => {
   }
 
   return (
-    <div className="container">
-      <h2>Generate unique assets for your products</h2>
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="campaign">Select campaign:</label>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <h2>Generate unique assets for your products</h2>
+        <>
           {campaigns.length > 0 ? (
-            <>
-              <select
-                id="campaign"
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                select
+                label="Select Campaign"
                 value={selectedCampaign}
                 onChange={e => setSelectedCampaign(e.target.value)}
                 required
+                sx={{ minWidth: 300 }}
               >
                 {campaigns.map(({ name: c }) => (
-                  <option key={c} value={c}>
+                  <MenuItem key={c} value={c}>
                     {c}
-                  </option>
+                  </MenuItem>
                 ))}
-              </select>
-              <div style={{ marginTop: '8px' }}>
-                <a
-                  href="#"
-                  onClick={handleCampaignClick}
-                  style={{ color: '#1976d2', textDecoration: 'none' }}
-                >
-                  Create new campaign
-                </a>
-              </div>
-            </>
+              </TextField>
+            </Box>
           ) : (
             <div className="no-campaigns">
               <p>No campaigns found.</p>
@@ -194,115 +194,64 @@ const CreateAssets = () => {
               </Button>
             </div>
           )}
-        </div>
 
-        <div className="form-group">
-          <label htmlFor="count">Asset counts:</label>
-          <input
-            type="number"
-            id="count"
-            value={count}
-            onChange={e => setCount(e.target.value)}
-            min="1"
-            max={usageStats?.remaining || 1000}
-            required
-            style={{ width: '200px' }}
-          />
-          {usageStats && <small className="input-help">Max: {usageStats.remaining}</small>}
-        </div>
-
-        <div className="form-group">
-          Generate unique code:
-          <input type="checkbox" id="uniqueCode" checked disabled />
-        </div>
-
-        <div className="form-group">
-          Generate QR code:
-          <input type="checkbox" id="qr" checked disabled />
-        </div>
-
-        <div className="form-group">
-          Generate unique patterned images
-          <input type="checkbox" id="image" checked disabled />
-        </div>
-
-        <Button
-          type="submit"
-          variant="contained"
-          startIcon={<AddCircleOutlineIcon />}
-          disabled={loading || !campaigns.length || (usageStats && usageStats.remaining <= 0)}
-        >
-          {loading ? (
-            <>
-              <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-              Generating...
-            </>
-          ) : (
-            'Generate Assets'
-          )}
-        </Button>
-      </form>
-
-      {loading && (
-        <Backdrop
-          sx={{
-            color: '#1976d2',
-            backgroundColor: '#fff',
-            zIndex: theme => theme.zIndex.drawer + 1,
-            flexDirection: 'column'
-          }}
-          open={loading}
-        >
-          <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress
-              variant="determinate"
-              value={100}
-              size={150}
-              thickness={5}
-              sx={{ color: '#e0e0e0', position: 'absolute', top: 0, left: 0 }}
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <TextField
+              type="number"
+              id="count"
+              value={count}
+              onChange={e => setCount(e.target.value)}
+              min="1"
+              max={usageStats?.remaining || 10000}
+              required
+              style={{ width: 300 }}
             />
-            <CircularProgress
-              variant="determinate"
-              value={batchProgress}
-              size={150}
-              thickness={5}
-              sx={{ color: '#1976d2' }}
-            />
+            {usageStats && <small className="input-help">Max: {usageStats.remaining}</small>}
           </Box>
-          <Typography variant="h6" color="inherit" align="center" sx={{ mt: 2 }}>
-            {Math.round(batchProgress)}% Complete
-          </Typography>
-          {processingStats && (
-            <Typography variant="body1" color="inherit" align="center" sx={{ mt: 1 }}>
-              Generated: {processingStats.success} / Failed: {processingStats.failed} / Total:{' '}
-              {processingStats.total}
-            </Typography>
-          )}
-        </Backdrop>
-      )}
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3, mt: 2 }}>
-          {error}
-        </Alert>
-      )}
+          <Button
+            type="submit"
+            variant="contained"
+            startIcon={<AddCircleOutlineIcon />}
+            disabled={loading || !campaigns.length}
+            onClick={handleSubmit}
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                Generating...
+              </>
+            ) : (
+              'Generate Assets'
+            )}
+          </Button>
+        </>
 
-      {codes?.length > 0 && (
-        <ResultModal
-          open={modalOpen}
-          onClose={handleCloseModal}
-          title="Summary"
-          message={`Successfully generated: ${codes.length} assets`}
-          actions={[
-            {
-              label: 'View/download the assets',
-              variant: 'outlined',
-              href: `/assets?campaign=${selectedCampaign}&downloaded=false&createdAfter=${getTodaysDate()}`
-            }
-          ]}
-        />
-      )}
-    </div>
+        <Progress start={loading} progress={batchProgress} processingStats={processingStats} />
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3, mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        {codes?.length > 0 && (
+          <ResultModal
+            open={modalOpen}
+            onClose={handleCloseModal}
+            title="Summary"
+            message={`Successfully generated ${processingStats.success} assets, Failed to generate ${processingStats.failed} assets.`}
+            actions={[
+              {
+                label: 'View/download the assets',
+                variant: 'outlined',
+                href: `/assets?campaign=${selectedCampaign}&downloaded=false&createdAfter=${getTodaysDate()}`
+              }
+            ]}
+          />
+        )}
+      </Paper>
+    </Container>
   );
 };
 

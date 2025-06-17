@@ -10,9 +10,8 @@ const checkSubscription = (req, res, next) => {
     const subscriptionEndsEpoch = Math.floor(new Date(subscriptionEnds).getTime() / 1000);
 
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-    console.log('Current time:', subscriptionEndsEpoch, currentTime);
     if (subscriptionEndsEpoch && subscriptionEndsEpoch < currentTime) {
-      throw new ApiError(403, 'Inactive subscription');
+      throw new ApiError(402, 'Inactive subscription');
     }
     next();
   } catch (error) {

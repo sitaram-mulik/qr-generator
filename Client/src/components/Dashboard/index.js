@@ -1,19 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from '../../utils/axiosInstance';
-import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  CircularProgress,
-  useTheme,
-  useMediaQuery,
-  Button,
-  Alert
-} from '@mui/material';
+import { Box, CircularProgress, useTheme, useMediaQuery, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import LocationChart from './LocationChart';
+import Locations from './Locations';
 import Statistics from '../Lib/Statistics';
 
 const Dashboard = () => {
@@ -83,7 +72,7 @@ const Dashboard = () => {
     <Box sx={{ flexGrow: 1, p: isSmallScreen ? 1 : 2 }}>
       <Statistics stats={stats || []} />
       <Box sx={{ mb: 3, mt: 3 }}>
-        <LocationChart />
+        <Locations />
       </Box>
     </Box>
   );

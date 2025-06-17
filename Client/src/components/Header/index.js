@@ -17,7 +17,8 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
+  Alert
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -134,14 +135,14 @@ const Header = () => {
           {isMobile ? 'CAG' : 'Campaign Assets Generator'}
         </Typography>
 
-        {!isMobile && user?.name && (
+        {!isMobile && user?.userName && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="body1" sx={{ mr: 1 }}>
-              {user.name}
+              {user.displayName}
             </Typography>
             <IconButton onClick={handleMenu} color="inherit" sx={{ p: 0.5 }}>
               <Avatar sx={{ bgcolor: '#1565c0', width: 40, height: 40 }}>
-                {user.name.charAt(0).toUpperCase()}
+                {user.displayName.charAt(0).toUpperCase()}
               </Avatar>
             </IconButton>
             <Menu
@@ -181,9 +182,9 @@ const Header = () => {
             {user && (
               <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'white' }}>
                 <Avatar sx={{ mb: 1, bgcolor: '#1565c0' }}>
-                  {user.name.charAt(0).toUpperCase()}
+                  {user.displayName.charAt(0).toUpperCase()}
                 </Avatar>
-                <Typography variant="subtitle1">{user.name}</Typography>
+                <Typography variant="subtitle1">{user.displayName}</Typography>
               </Box>
             )}
             <Divider />
@@ -258,6 +259,9 @@ const Header = () => {
               Users
             </Button>
           )}
+          <Box sx={{ position: 'absolute', right: 0 }}>
+            <Alert severity={user.credits > 0 ? 'success' : 'error'}>Credits: {user.credits}</Alert>
+          </Box>
         </Toolbar>
       )}
     </AppBar>

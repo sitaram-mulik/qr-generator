@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import ApiError from '../utils/ApiError.js';
 import UserModel from '../models/user.js';
+import { asyncHandler } from '../utils/common.util.js';
 
-const authenticateToken = async (req, res, next) => {
+const authenticateToken = asyncHandler(async (req, res, next) => {
   // Extract token from httpOnly cookie named 'token'
   const token = req.cookies && req.cookies.token;
 
@@ -34,6 +35,6 @@ const authenticateToken = async (req, res, next) => {
     console.log('Unauthorized error:', error);
     next(error);
   }
-};
+});
 
 export { authenticateToken };

@@ -30,7 +30,9 @@ const login = async (req, res, next) => {
         credits: user.credits,
         domain: user.domain,
         isSuperAdmin: user.isSuperAdmin,
-        subscriptionEnds: user.subscriptionEnds
+        subscriptionEnds: user.subscriptionEnds,
+        downloads: user.downloads,
+        totalAssets: user.totalAssets
       },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
@@ -46,12 +48,7 @@ const login = async (req, res, next) => {
 
     console.log('Login successful for user:', user);
 
-    res.json({
-      id: user.userName,
-      name: user.displayName,
-      domain: user.domain,
-      isSuperAdmin: user.isSuperAdmin
-    });
+    res.json(user);
   } catch (error) {
     console.log('Login error:', error);
     next(error);

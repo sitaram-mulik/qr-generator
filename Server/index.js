@@ -69,7 +69,7 @@ async function startServer() {
     console.log(err.stack);
     if (err instanceof ApiError || err.statusCode) {
       const statusCode = err.statusCode || 500;
-      const message = err.message || 'An unexpected error occurred';
+      const message = err.message || 'Something went wrong';
       // Remove file and line numbers from stack trace for details
       const details = err.stack ? err.stack.split('\n').slice(0, 1).join('') : '';
       res.status(statusCode).json({
@@ -79,7 +79,7 @@ async function startServer() {
     } else {
       const details = err.stack ? err.stack.split('\n').slice(0, 1).join('') : '';
       res.status(500).json({
-        message: 'An unexpected error occurred',
+        message: 'Something went wrong',
         details
       });
     }

@@ -13,29 +13,23 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  TextField,
   Checkbox
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
 import GetAppIcon from '@mui/icons-material/NewLabel';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit';
 import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import axiosInstance from '../../utils/axiosInstance';
 import {
   getAvailableCredits,
   getSubscriptionEndDate,
-  getSubscriptionPeriod,
   getSubscriptionStartDate,
   isSubscriptionExpired
 } from '../../utils/user';
+import ConfirmDelete from '../Lib/ConfirmDelete';
+import Progress from '../Lib/Progress';
+import EditIcon from '@mui/icons-material/Edit';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -43,8 +37,8 @@ const UserList = () => {
   const [error, setError] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteUserName, setDeleteUserName] = useState('');
-  const [confirmInput, setConfirmInput] = useState('');
   const [userStatusLoading, setUserStatusLoading] = useState(false);
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,7 +48,6 @@ const UserList = () => {
   const fetchUsers = async () => {
     try {
       const response = await axios.get('/user/all');
-      console.log('response.data ', response.data);
       setUsers(response.data);
       setLoading(false);
     } catch (err) {
@@ -64,7 +57,7 @@ const UserList = () => {
   };
 
   const handleEdit = id => {
-    navigate(`/users/action?edit=${id}`);
+    navigate(`/users/action/${id}`);
   };
 
   const handleCreate = () => {
@@ -85,30 +78,22 @@ const UserList = () => {
     }
   };
 
-  const openDeleteDialog = userName => {
-    setDeleteUserName(userName);
-    setConfirmInput('');
+  const openDeleteDialog = _id => {
+    setDeleteUserName(_id);
     setDeleteDialogOpen(true);
   };
 
-  const closeDeleteDialog = () => {
-    setDeleteDialogOpen(false);
-    setDeleteUserName('');
-    setConfirmInput('');
-  };
-
   const handleDelete = async () => {
-    if (confirmInput.toLowerCase() !== 'delete') {
-      return;
-    }
     try {
-      const response = (
+      setDeleteInProgress(true);
+      try {
         await axiosInstance.delete('/user/delete', {
-          params: { userName: deleteUserName }
-        })
-      )?.data;
-      console.log('deleted ? ', response);
-      closeDeleteDialog();
+          params: { userId: deleteUserName }
+        });
+      } catch (error) {
+        console.log('Error while deleting user:', error);
+      }
+      setDeleteInProgress(false);
       fetchUsers();
     } catch (err) {
       console.log('Delete failed', err);
@@ -153,25 +138,22 @@ const UserList = () => {
             <Table stickyHeader aria-label="campaign table" size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Id</TableCell>
                   <TableCell>User Name</TableCell>
                   <TableCell>Display Name</TableCell>
                   <TableCell>Domain</TableCell>
-                  <TableCell>Subscription</TableCell>
+                  <TableCell>Subscription period</TableCell>
                   <TableCell>Credits</TableCell>
-                  <TableCell>Available Credits</TableCell>
                   <TableCell>Total assets</TableCell>
                   <TableCell>Downloads</TableCell>
                   <TableCell>Super Admin</TableCell>
-                  {/* <TableCell>Edit</TableCell> */}
-                  <TableCell>Change status</TableCell>
-                  <TableCell>Delete</TableCell>
+                  <TableCell>Edit</TableCell>
+                  <TableCell>Active</TableCell>
+                  <TableCell>Clear</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {users.map(
                   ({
-                    userId,
                     userName,
                     displayName,
                     domain,
@@ -184,7 +166,6 @@ const UserList = () => {
                     ...rest
                   }) => {
                     const isSubExpired = isSubscriptionExpired(rest);
-                    const availableCredits = getAvailableCredits(credits, totalAssets, downloads);
                     return (
                       <TableRow
                         key={_id}
@@ -206,9 +187,6 @@ const UserList = () => {
                         }}
                       >
                         <TableCell component="td" scope="row">
-                          {userId}
-                        </TableCell>
-                        <TableCell component="td" scope="row">
                           {userName}
                         </TableCell>
                         <TableCell component="td" scope="row">
@@ -218,24 +196,21 @@ const UserList = () => {
                           {domain}
                         </TableCell>
                         <TableCell component="td" scope="row">
-                          {getSubscriptionPeriod(rest)} ({getSubscriptionStartDate(rest)}-
-                          {getSubscriptionEndDate(rest)})
-                        </TableCell>
-                        <TableCell component="td" scope="row">
-                          {credits}
+                          {getSubscriptionStartDate(rest)} - {getSubscriptionEndDate(rest)}
                         </TableCell>
                         <TableCell
                           component="td"
                           scope="row"
                           sx={{
                             color:
-                              availableCredits <= 0
+                              credits <= 0
                                 ? theme => theme.palette.error.main + '!important'
                                 : 'inherit'
                           }}
                         >
-                          {availableCredits}
+                          {credits}
                         </TableCell>
+
                         <TableCell component="td" scope="row">
                           {totalAssets}
                         </TableCell>
@@ -245,11 +220,11 @@ const UserList = () => {
                         <TableCell component="td" scope="row">
                           {isSuperAdmin ? 'Yes' : 'No'}
                         </TableCell>
-                        {/* <TableCell component="th" scope="row">
-                            <IconButton onClick={handleEdit} color="primary">
+                        <TableCell component="th" scope="row">
+                          <IconButton onClick={() => handleEdit(_id)} color="primary">
                             <EditIcon />
-                            </IconButton>
-                          </TableCell> */}
+                          </IconButton>
+                        </TableCell>
                         <TableCell component="td" scope="row">
                           <Checkbox
                             checked={isActive}
@@ -259,11 +234,11 @@ const UserList = () => {
                         </TableCell>
                         <TableCell component="td" scope="row">
                           <IconButton
-                            onClick={() => openDeleteDialog(userName)}
+                            onClick={() => openDeleteDialog(_id)}
                             disabled={isSuperAdmin}
                             color="primary"
                           >
-                            <DeleteIcon />
+                            <DeleteSweepIcon />
                           </IconButton>
                         </TableCell>
                       </TableRow>
@@ -275,34 +250,13 @@ const UserList = () => {
           </TableContainer>
         )}
 
-        <Dialog open={deleteDialogOpen} onClose={closeDeleteDialog}>
-          <DialogTitle>Confirm Delete</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              To confirm deletion, please type <b>delete</b> in the box below.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Type 'delete' to confirm"
-              fullWidth
-              variant="standard"
-              value={confirmInput}
-              onChange={e => setConfirmInput(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeDeleteDialog}>Cancel</Button>
-            <Button
-              onClick={handleDelete}
-              disabled={confirmInput.toLowerCase() !== 'delete'}
-              color="error"
-            >
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ConfirmDelete
+          onDeleteConfirm={handleDelete}
+          show={deleteDialogOpen}
+          message="This action will clear all data (including assets) of the user."
+        />
       </Paper>
+      <Progress start={deleteInProgress} />
     </Container>
   );
 };

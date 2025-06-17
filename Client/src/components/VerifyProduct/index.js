@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import "./index.css";
-import axios from "../../utils/axiosInstance";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import './index.css';
+import axios from '../../utils/axiosInstance';
 
 function VerifyProduct() {
   const { code } = useParams();
@@ -12,10 +12,10 @@ function VerifyProduct() {
   useEffect(() => {
     const fetchCodeDetails = async () => {
       try {
-        const response = await axios.get(`/assets/verify/${code}`)
+        const response = await axios.get(`/assets/verify/${code}`);
         const details = response.data;
         console.log('details ', details);
-        if(details?.code) {
+        if (details?.code) {
           setCodeDetails(details);
         }
         setLoading(false);
@@ -32,21 +32,22 @@ function VerifyProduct() {
     return <div className="loading">Loading...</div>;
   }
 
-
   return (
     <div className="code-detail">
       <div className="code-info">
-        {!codeDetails?.code ? 
+        {!codeDetails?.code ? (
           <h1 className="error">The product is possible counterfiet</h1>
-        : <h1 className="sucess">Congratulations, Your product is valid</h1> }
+        ) : (
+          <h1 className="sucess">Congratulations, Your product is valid</h1>
+        )}
       </div>
-      {codeDetails?.imagePath && <div className="image-container">
-        <img
-          src={codeDetails.imagePath}
-          alt="Generated Code"
-          className="full-image"
-        />
-      </div>}
+      {codeDetails?.code && (
+        <div className="image-container">
+          <img
+            src={`${process.env.REACT_APP_API_URL || ''}/api/assets/pattern/${codeDetails.code}`}
+          />
+        </div>
+      )}
     </div>
   );
 }

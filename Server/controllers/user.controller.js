@@ -2,12 +2,23 @@ import UserModel from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import { getDomainName, addGreenlockSite } from '../utils/domain.util.js';
 import ApiError from '../utils/ApiError.js';
+import { clearUsersData } from '../utils/cleanup.utils.js';
 
 export const getProfile = async (req, res, next) => {
   try {
     console.log('verified ', req.user);
     const profile = await UserModel.findById(req.userId);
     res.json(profile);
+  } catch (error) {
+    console.log('Error fetching codes:', error);
+    next(error);
+  }
+};
+
+export const getUser = async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.params.userId);
+    res.json(user);
   } catch (error) {
     console.log('Error fetching codes:', error);
     next(error);
@@ -26,7 +37,15 @@ export const getUsers = async (req, res, next) => {
 
 export const createUser = async (req, res, next) => {
   try {
-    const { userName, displayName, password, credits, domain } = req.body;
+    const {
+      userName,
+      displayName,
+      password,
+      credits,
+      domain,
+      subscriptionStarts,
+      subscriptionEnds
+    } = req.body;
 
     const existingUser = await UserModel.findOne({ userName });
 
@@ -43,8 +62,9 @@ export const createUser = async (req, res, next) => {
       displayName,
       password: hashedPassword,
       credits,
-      availableCredits: credits,
-      domain: fullDomain
+      domain: fullDomain,
+      subscriptionStarts,
+      subscriptionEnds
     });
 
     await user.save();
@@ -66,24 +86,37 @@ export const createUser = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    const { userName, displayName, password, credits, domain } = req.body;
-
-    const updateData = {
+    const {
       userName,
       displayName,
+      password,
       credits,
-      domain: `${domain}.${getDomainName() || 'com'}`
+      domain,
+      subscriptionEnds,
+      subscriptionStarts
+    } = req.body;
+
+    const updateData = {
+      displayName,
+      credits,
+      subscriptionEnds,
+      subscriptionStarts,
+      subscriptionEnds
     };
+
+    if (domain) {
+      updateData.domain = `${domain}.${getDomainName() || 'com'}`;
+    }
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updateData.password = hashedPassword;
     }
 
-    const user = await UserModel.updateOne({ userName }, updateData);
+    await UserModel.updateOne({ userName }, updateData);
 
     res.json({
-      message: 'User updated.'
+      message: 'User updated succesfully.'
     });
   } catch (error) {
     console.log('Error while updating user:', error);
@@ -93,11 +126,11 @@ export const updateUser = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    const userName = req.query.userName;
-    await UserModel.deleteOne({ userName });
+    const userId = req.query.userId;
+    await clearUsersData(userId);
 
     res.json({
-      message: 'User deleted.'
+      message: 'User data cleared!'
     });
   } catch (error) {
     console.log('Error while updating user:', error);

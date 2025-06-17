@@ -24,19 +24,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: new Date()
   },
-  subscriptionPeriod: {
-    type: Number,
-    default: 12
-  },
   subscriptionEnds: {
     type: Date,
     default: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // Default to one year from now
   },
   credits: {
-    type: Number,
-    default: 500
-  },
-  availableCredits: {
     type: Number,
     default: 500
   },
