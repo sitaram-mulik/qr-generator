@@ -36,9 +36,9 @@ const Progress = ({ start, processingStats, progress }) => {
         </Box>
         {processingStats && (
           <Typography variant="body1" color="inherit" align="center" sx={{ mt: 1 }}>
-            Successful: {processingStats.success} / Failed:{' '}
-            {processingStats.failed || processingStats.failure} / Total:
-            {processingStats.total}
+            Successful: {processingStats.success || 0} / Failed:
+            {processingStats.failed || processingStats.failure || 0} / Total:
+            {processingStats.total || 0}
           </Typography>
         )}
       </Backdrop>

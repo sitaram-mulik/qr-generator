@@ -1,15 +1,19 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from '../../utils/axiosInstance';
 import { Box, CircularProgress, useTheme, useMediaQuery, Alert } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Locations from './Locations';
 import Statistics from '../Lib/Statistics';
+import CampaignSelector from '../Lib/CampaignSelector';
+import ScanChart from '../Lib/ScanChart';
+import ScanCompletionPieChart from './ScanCompletionPieChart';
 
 const Dashboard = () => {
   const [counts, setCounts] = useState({
     totalCount: 0,
     downloadedCount: 0,
-    verifiedCount: 0
+    verifiedCount: 0,
+    campaignCount: 0
   });
 
   const [loading, setLoading] = useState(true);
@@ -17,12 +21,14 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const [searchParams] = useSearchParams();
+  const selectedCampaign = searchParams.get('campaign') || 'all';
 
   useEffect(() => {
     const fetchCounts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/assets/statistics');
+        const response = await axios.get(`/assets/statistics?campaign=${selectedCampaign}`);
         const { totalCount, downloadedCount, verifiedCount } = response?.data || {};
         setCounts({
           totalCount,
@@ -37,16 +43,26 @@ const Dashboard = () => {
     };
 
     fetchCounts();
-  }, []);
+  }, [selectedCampaign]);
 
   const stats = useMemo(
     () => [
-      { label: 'Total Assets', value: counts?.totalCount || 0 },
-      { label: 'Scanned Assets', value: counts?.verifiedCount || 0 },
-      { label: 'Downloaded Assets', value: counts?.downloadedCount || 0 }
+      { label: 'Campaigns', value: counts?.campaignCount || 0 },
+      { label: 'Assets', value: counts?.totalCount || 0 },
+      { label: 'Scans', value: counts?.verifiedCount || 0 },
+      { label: 'Downloads', value: counts?.downloadedCount || 0 }
     ],
     [counts]
   );
+
+  const handleCardClick = type => {
+    // Placeholder for click action, e.g., navigate or filter
+  };
+
+  const setCampaignsData = useCallback(campaigns => {
+    console.log('campaignscampaigns ', campaigns);
+    setCounts(state => ({ ...state, campaignCount: campaigns?.length || 0 }));
+  }, []);
 
   if (loading) {
     return (
@@ -64,15 +80,22 @@ const Dashboard = () => {
     );
   }
 
-  const handleCardClick = type => {
-    // Placeholder for click action, e.g., navigate or filter
-  };
-
   return (
     <Box sx={{ flexGrow: 1, p: isSmallScreen ? 1 : 2 }}>
-      <Statistics stats={stats || []} />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Statistics stats={stats || []} />
+        <CampaignSelector setCampaignsData={setCampaignsData} />
+      </Box>
+      <Box sx={{ display: 'flex', mt: 2, justifyContent: 'space-between', alignItems: 'stretch' }}>
+        <Box sx={{ flexBasis: '52%' }}>
+          <ScanChart selectedCampaign={selectedCampaign} />
+        </Box>
+        <Box sx={{ flexBasis: '47%' }}>
+          <ScanCompletionPieChart counts={counts} />
+        </Box>
+      </Box>
       <Box sx={{ mb: 3, mt: 3 }}>
-        <Locations />
+        <Locations selectedCampaign={selectedCampaign} counts={counts} />
       </Box>
     </Box>
   );

@@ -100,7 +100,7 @@ async function generateImage(uniqueCode, baseDir, appUrl) {
 const buildAssetsDBQuery = req => {
   const { campaign, verified, downloaded, createdAfter } = req.query;
   const query = { userId: req.userId };
-  if (campaign) query.campaign = campaign;
+  if (campaign && campaign !== 'all') query.campaign = campaign;
   if (verified) query.verifiedAt = { $exists: verified };
   if (downloaded !== undefined) {
     if (downloaded === 'true') {
@@ -113,6 +113,8 @@ const buildAssetsDBQuery = req => {
   if (createdAfter) {
     query.createdAt = { $gte: new Date(createdAfter) };
   }
+
+  console.log('assets query ', query);
 
   return query;
 };

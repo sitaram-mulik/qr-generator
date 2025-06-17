@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     required: false
   },
+  gracePeriod: {
+    type: Number,
+    default: 30
+  },
   createdAt: {
     type: Date,
     default: Date.now

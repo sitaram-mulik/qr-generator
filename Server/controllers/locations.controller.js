@@ -1,8 +1,12 @@
 import LocationModel from '../models/location.js';
 
 export const getLocations = async (req, res, next) => {
+  const campaign = req.query.campaign;
+  const query = { userId: req.userId };
+  if (campaign && campaign !== 'all') query.campaign = campaign;
+
   try {
-    const locations = await LocationModel.find({ userId: req.userId }).sort({ createdAt: -1 });
+    const locations = await LocationModel.find(query).sort({ createdAt: -1 });
     res.json(locations);
   } catch (error) {
     console.log('Error fetching locations:', error);

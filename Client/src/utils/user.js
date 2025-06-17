@@ -29,7 +29,7 @@ export const getSubscriptionPeriod = profile => {
  * @param {string|Date} subscriptionEnds - The subscription end date-time.
  * @returns {boolean} - True if subscriptionEnds is less than current date-time, else false.
  */
-export const isSubscriptionExpired = subscriptionEnds => {
+export const isSubscriptionExpired = ({ subscriptionEnds }) => {
   if (!subscriptionEnds) return false;
   const endDate = new Date(subscriptionEnds);
   const now = new Date();
@@ -47,6 +47,24 @@ export const getSubscriptionDaysRemaining = subscriptionEnds => {
   const endDate = new Date(subscriptionEnds);
   const now = new Date();
   const diffTime = endDate - now;
+  if (diffTime <= 0) return 0;
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
+/**
+ * Returns the number of days remaining until account deactivation based on subscriptionEnds and gracePeriod.
+ * Returns 0 if subscriptionEnds or gracePeriod is invalid or deactivation date has passed.
+ * @param {string|Date} subscriptionEnds - The subscription end date-time.
+ * @param {number} gracePeriod - The grace period in days.
+ * @returns {number} - Number of days remaining until deactivation.
+ */
+export const getDeactivationDaysRemaining = (subscriptionEnds, gracePeriod) => {
+  if (!subscriptionEnds || typeof gracePeriod !== 'number' || gracePeriod < 0) return 0;
+  const endDate = new Date(subscriptionEnds);
+  const deactivationDate = new Date(endDate);
+  deactivationDate.setDate(deactivationDate.getDate() + gracePeriod);
+  const now = new Date();
+  const diffTime = deactivationDate - now;
   if (diffTime <= 0) return 0;
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
-import { Box, Button, Container, MenuItem, Paper, TextField } from '@mui/material';
+import { Alert, Box, Button, Container, MenuItem, Paper, TextField } from '@mui/material';
+import { AuthContext } from '../../context/AuthContext';
 
 const validTillOptions = [
   { id: 1, name: '1 Year' },
@@ -14,7 +15,7 @@ const CreateCampaign = () => {
   const [validity, setValidity] = useState(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const { user } = useContext(AuthContext);
   const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
@@ -56,7 +57,7 @@ const CreateCampaign = () => {
         >
           <TextField
             select
-            label="Validity *"
+            label="Campaign validity *"
             value={validity}
             onChange={e => setValidity(e.target.value)}
             sx={{ minWidth: 300 }}
@@ -67,6 +68,10 @@ const CreateCampaign = () => {
               </MenuItem>
             ))}
           </TextField>
+          <Alert severity="warning" sx={{ mt: 2 }}>
+            Note: Assets created under this campaign will be deleted automatically,{' '}
+            {user.gracePeriod} days after the Campaign validity ends.
+          </Alert>
         </Box>
         <Button type="primary" variant="contained" onClick={handleSubmit}>
           {loading ? 'Creating...' : 'Create Campaign'}

@@ -14,7 +14,12 @@ const Map = ({ locations = [] }) => {
 
   return (
     locations[0] && (
-      <MapContainer style={{ height: '500px' }} center={[lat, lng]} zoom={2} scrollWheelZoom={true}>
+      <MapContainer
+        style={{ height: '500px', minWidth: '300px' }}
+        center={[lat, lng]}
+        zoom={2}
+        scrollWheelZoom={true}
+      >
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -17,13 +17,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  // Initialize user from localStorage if available
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-
+  const fetchUserDetails = () => {
     // get updated details from server if user exists
     axiosInstance
       .get('/user/profile')
@@ -38,7 +32,15 @@ export const AuthProvider = ({ children }) => {
         console.error('Failed to fetch user profile:', error);
         // Optionally handle error, e.g., show a notification
       });
+  };
 
+  // Initialize user from localStorage if available
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    fetchUserDetails();
     setLoading(false); // Set loading to false after initialization
   }, []);
 
@@ -53,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, addUser, removeUser }}>
+    <AuthContext.Provider value={{ user, loading, addUser, removeUser, fetchUserDetails }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useContext } from 'react';
 import axios from '../../utils/axiosInstance';
 import {
   Container,
@@ -26,6 +26,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import JSZip from 'jszip';
 import Progress from '../Lib/Progress';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { AuthContext } from '../../context/AuthContext';
 
 const initialFilterState = {
   campaign: '',
@@ -53,6 +54,7 @@ function AssetList() {
   const [filters, dispatchFilters] = useReducer(filterReducer, initialFilterState);
   const location = useLocation();
   const navigate = useNavigate();
+  const { fetchUserDetails } = useContext(AuthContext);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -107,9 +109,11 @@ function AssetList() {
         setDownloadSummary(summary);
         setModalOpen(true);
       }
+      fetchUserDetails();
     } catch (error) {
       setError('Failed to download assets ', error);
       setIsDownloading(false);
+      fetchUserDetails();
       return;
     }
   };

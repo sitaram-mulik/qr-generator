@@ -30,7 +30,7 @@ const CreateAssets = () => {
   const [batchProgress, setBatchProgress] = useState(0);
   const [processingStats, setProcessingStats] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const { user } = useContext(AuthContext);
+  const { fetchUserDetails } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -139,6 +139,8 @@ const CreateAssets = () => {
       setError(err.response?.data?.error || 'Failed to generate assets');
       setLoading(false);
       setBatchProgress(0);
+    } finally {
+      fetchUserDetails();
     }
   };
 

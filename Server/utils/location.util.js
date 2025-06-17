@@ -10,9 +10,9 @@ export const updateLocation = async (req, campaign, code, userId) => {
   try {
     const forwarded = req.headers['x-forwarded-for'];
 
-    const ip = forwarded
-      ? forwarded.split(',')[0]
-      : req.socket.remoteAddress?.replace('::ffff:', '');
+    //const ip = forwarded ? forwarded.split(',')[0] : req.socket.remoteAddress?.replace("::ffff:", "");
+
+    const ip = '45.115.172.0';
 
     const geo = geoip.lookup(ip);
 
