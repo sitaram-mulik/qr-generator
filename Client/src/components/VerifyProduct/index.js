@@ -15,7 +15,7 @@ function VerifyProduct() {
         const response = await axios.get(`/assets/verify/${code}`)
         const details = response.data;
         console.log('details ', details);
-        if(details?.code) {
+        if (details?.code) {
           setCodeDetails(details);
         }
         setLoading(false);
@@ -36,13 +36,13 @@ function VerifyProduct() {
   return (
     <div className="code-detail">
       <div className="code-info">
-        {!codeDetails?.code ? 
+        {!codeDetails?.code ?
           <h1 className="error">The product is possible counterfiet</h1>
-        : <h1 className="sucess">Congratulations, Your product is valid</h1> }
+          : <h1 className="sucess">Congratulations, Your product is valid</h1>}
       </div>
       {codeDetails?.imagePath && <div className="image-container">
         <img
-          src={codeDetails.imagePath}
+          src={`http://localhost:8001/api/assets/pattern/${codeDetails.code}`}
           alt="Generated Code"
           className="full-image"
         />
