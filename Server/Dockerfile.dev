@@ -3,7 +3,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Add Python and other build dependencies
-RUN apk add --no-cache python3 make g++ pkgconfig cairo-dev pango-dev libjpeg-turbo-dev giflib-dev
+RUN apk add --no-cache python3 make g++ pkgconfig cairo-dev pango-dev libjpeg-turbo-dev giflib-dev mongodb-tools
 
 COPY package*.json ./
 
