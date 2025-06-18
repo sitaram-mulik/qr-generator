@@ -6,6 +6,12 @@ const campaignSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  title: {
+    type: String
+  },
+  description: {
+    type: String
+  },
   validTill: {
     type: Date,
     required: true

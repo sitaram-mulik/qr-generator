@@ -6,11 +6,11 @@ import UserModel from '../models/user.js';
 
 export const clearCampaignData = async campaignName => {
   // Delete s3 objects
-  const assets = await AssetModel.find({ campaignName });
+  const assets = await AssetModel.find({ campaign: campaignName });
   await deleteS3Objects(assets);
 
   // delete from Assets data from database
-  const deletedAssets = await AssetModel.deleteMany({ campaignName });
+  const deletedAssets = await AssetModel.deleteMany({ campaign: campaignName });
 
   // delete from Location data from database
   await LocationModel.deleteMany({ campaign: campaignName });

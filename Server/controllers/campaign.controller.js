@@ -4,7 +4,7 @@ import { clearCampaignData } from '../utils/cleanup.utils.js';
 
 export const createCampaign = async (req, res, next) => {
   try {
-    const { name, validity } = req.body;
+    const { name, validity, description, title } = req.body;
 
     if (!name || !validity) {
       throw new ApiError(400, 'Missing required fields');
@@ -28,7 +28,14 @@ export const createCampaign = async (req, res, next) => {
     const validTill = new Date(`${validTillDate}T${validTillTime}Z`);
 
     // Save campaign to the databas
-    const newCampaign = new CampaignModel({ name, validity, validTill, userId: req.userId });
+    const newCampaign = new CampaignModel({
+      name,
+      validity,
+      validTill,
+      userId: req.userId,
+      title,
+      description
+    });
     await newCampaign.save();
 
     res.status(200).json({ message: 'Campaign created successfully' });
@@ -57,6 +64,29 @@ export const deleteCampaign = async (req, res, next) => {
     });
   } catch (error) {
     console.log('Error deleting campaign:', error);
+    next(error);
+  }
+};
+
+export const getCampaignDetails = async (req, res, next) => {
+  const { campaign } = req.params;
+
+  try {
+    const campaignDetails = await CampaignModel.findOne({ name: campaign });
+    res.status(200).json(campaignDetails);
+  } catch (error) {
+    console.log('Error fetching campaigns:', error);
+    next(error);
+  }
+};
+
+export const updateCampaign = async (req, res, next) => {
+  const { name, title, description } = req.body;
+  try {
+    const campaignDetails = await CampaignModel.updateOne({ name }, { title, description });
+    res.status(200).json(campaignDetails);
+  } catch (error) {
+    console.log('Error fetching campaigns:', error);
     next(error);
   }
 };

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Chart from 'react-apexcharts';
 import axios from '../../utils/axiosInstance';
 import { getChartOptions } from '../../utils/chart';
-import { Box, Paper } from '@mui/material';
+import { Box, Grid, Paper } from '@mui/material';
 import Map from '../Lib/Map';
 import LocationsBarCharts from './LocationsBarCharts';
 
@@ -18,10 +18,7 @@ const Locations = ({ selectedCampaign }) => {
         setLoading(true);
         const locationsRes = await axios.get(`/locations?campaign=${selectedCampaign}`);
         console.log('locationsRes.data ', locationsRes.data);
-        const _locations = [...locationsRes.data].filter(
-          ({ country }) => !country || country !== 'unknown'
-        );
-
+        const _locations = [...locationsRes.data];
         setLocationData(_locations);
         setLoading(false);
       } catch (err) {
@@ -37,22 +34,34 @@ const Locations = ({ selectedCampaign }) => {
   const countryData = useMemo(
     () =>
       locationData.reduce((acc, loc) => {
-        const country = loc.country || 'Unknown';
+        const country = !loc.country || loc.country === 'unknown' ? 'Anonymous' : loc.country;
         acc[country] = (acc[country] || 0) + 1;
         return acc;
       }, {}),
     [locationData]
   );
 
-  const citiesInCountry = useMemo(() => {
-    const cities = [];
-    locationData.forEach(loc => {
-      if (loc.country === country) {
-        cities.push(loc);
-      }
-    });
-    return cities;
-  }, [locationData, country]);
+  const cityData = useMemo(
+    () =>
+      locationData
+        .filter(loc => loc.city)
+        .reduce((acc, loc) => {
+          const city = loc.city || 'Anonymous';
+          acc[city] = (acc[city] || 0) + 1;
+          return acc;
+        }, {}),
+    [locationData]
+  );
+
+  // const citiesInCountry = useMemo(() => {
+  //   const cities = [];
+  //   locationData.forEach(loc => {
+  //     if (loc.country === country && loc.city) {
+  //       cities.push(loc);
+  //     }
+  //   });
+  //   return cities;
+  // }, [locationData, country]);
 
   const coordinates = useMemo(() => {
     const _coordinates = [];
@@ -61,43 +70,18 @@ const Locations = ({ selectedCampaign }) => {
       const [lat, lng] = JSON.parse(loc.ll);
       _coordinates.push({ lat, lng });
     });
-    console.log('Coordinates for map:', _coordinates);
     return _coordinates || [];
   }, [locationData]);
 
-  const cityData = useMemo(
-    () =>
-      citiesInCountry.reduce((acc, loc) => {
-        const city = loc.city || 'Unknown';
-        acc[city] = (acc[city] || 0) + 1;
-        return acc;
-      }, {}),
-    [citiesInCountry]
-  );
-
-  const handleCountryClick = (index, label) => {
-    setCountry(label);
-  };
-
-  // Prepare data for ApexCharts pie chart
-  const countrySeries = useMemo(() => Object.values(countryData), [countryData]);
-  const citySeries = useMemo(() => Object.values(cityData), [cityData]);
-
-  const countryOptions = useMemo(() => {
-    const labels = Object.keys(countryData);
-    const options = getChartOptions(
-      'pie',
-      'Products scanned by Country',
-      labels,
-      handleCountryClick
-    );
-    return options;
-  }, [countryData]);
-
-  const cityOptions = useMemo(() => {
-    const labels = Object.keys(cityData);
-    return getChartOptions('pie', 'Products scanned by City', labels);
-  }, [cityData]);
+  // const cityData = useMemo(
+  //   () =>
+  //     citiesInCountry.reduce((acc, loc) => {
+  //       const city = loc.city;
+  //       acc[city] = (acc[city] || 0) + 1;
+  //       return acc;
+  //     }, {}),
+  //   [citiesInCountry]
+  // );
 
   // Prepare top 5 countries and cities for bar charts
   const topCountries = useMemo(() => {
@@ -109,6 +93,7 @@ const Locations = ({ selectedCampaign }) => {
   }, [countryData]);
 
   const topCities = useMemo(() => {
+    console.log('cityData ', cityData);
     const entries = Object.entries(cityData)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -117,22 +102,26 @@ const Locations = ({ selectedCampaign }) => {
   }, [cityData]);
 
   return (
-    !loading && (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Paper sx={{ p: 2, flexBasis: '50%' }}>
-            {coordinates.length > 0 && (
-              <>
-                <h3>Scan locations</h3>
-                <Map locations={coordinates} />
-              </>
-            )}
+    !loading &&
+    coordinates.length > 0 && (
+      <>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Paper
+            sx={{
+              p: 2
+            }}
+          >
+            <h3>Scan locations</h3>
+            <Map locations={coordinates} />
           </Paper>
+        </Grid>
+        <LocationsBarCharts topCountries={topCountries} topCities={topCities} />
+
+        {/* <Grid size={{ xs: 12, md: 4 }}>
           <Paper
             sx={{
               p: 2,
-              flexBasis: '45%',
-              display: 'flex',
+              display: 'inline-flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}
@@ -150,9 +139,8 @@ const Locations = ({ selectedCampaign }) => {
               />
             )}
           </Paper>
-        </Box>
-        <LocationsBarCharts topCountries={topCountries} topCities={topCities} />
-      </Box>
+        </Grid> */}
+      </>
     )
   );
 };

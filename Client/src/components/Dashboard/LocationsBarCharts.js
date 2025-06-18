@@ -1,6 +1,6 @@
 import React from 'react';
 import Chart from 'react-apexcharts';
-import { Paper, Box, Typography } from '@mui/material';
+import { Paper, Box, Typography, Grid } from '@mui/material';
 import { getChartOptions } from '../../utils/chart';
 
 const LocationsBarCharts = ({ topCountries, topCities }) => {
@@ -24,7 +24,8 @@ const LocationsBarCharts = ({ topCountries, topCities }) => {
 
   // Chart options for horizontal bar chart
   const countryOptions = {
-    ...getChartOptions('bar', 'Top 5 Countries', countryLabels),
+    ...getChartOptions('bar', 'Top Countries', countryLabels),
+    dataLabels: { enabled: false },
     plotOptions: {
       bar: {
         horizontal: true,
@@ -39,7 +40,8 @@ const LocationsBarCharts = ({ topCountries, topCities }) => {
   };
 
   const cityOptions = {
-    ...getChartOptions('bar', 'Top 5 Cities', cityLabels),
+    ...getChartOptions('bar', 'Top Cities', cityLabels),
+    dataLabels: { enabled: false },
     plotOptions: {
       bar: {
         horizontal: true,
@@ -54,20 +56,16 @@ const LocationsBarCharts = ({ topCountries, topCities }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-      <Paper sx={{ flex: 1, p: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Top 5 Countries
-        </Typography>
-        <Chart options={countryOptions} series={countrySeries} type="bar" height={300} />
+    <Grid size={{ xs: 12, md: 4 }}>
+      <Paper sx={{ p: 2 }}>
+        {topCountries.length > 0 && (
+          <Chart options={countryOptions} series={countrySeries} type="bar" height={200} />
+        )}
+        {topCities.length > 0 && (
+          <Chart options={cityOptions} series={citySeries} type="bar" height={200} />
+        )}
       </Paper>
-      <Paper sx={{ flex: 1, p: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Top 5 Cities
-        </Typography>
-        <Chart options={cityOptions} series={citySeries} type="bar" height={300} />
-      </Paper>
-    </Box>
+    </Grid>
   );
 };
 

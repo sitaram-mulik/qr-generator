@@ -2,25 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './index.css';
 import axios from '../../utils/axiosInstance';
+import { Alert, AppBar, Box, Container, Paper } from '@mui/material';
 
 function VerifyProduct() {
   const { code } = useParams();
   const [codeDetails, setCodeDetails] = useState(null);
+  const [campaignDetails, setCampaignDetails] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchCodeDetails = async () => {
       try {
         const response = await axios.get(`/assets/verify/${code}`);
-        const details = response.data;
-        console.log('details ', details);
-        if (details?.code) {
-          setCodeDetails(details);
+        const { campaign, asset } = response.data || {};
+        if (asset?.code) {
+          setCodeDetails(asset);
+        }
+        if (campaign) {
+          setCampaignDetails(campaign);
         }
         setLoading(false);
       } catch (error) {
-        setError(error.message);
         setLoading(false);
       }
     };
@@ -33,22 +35,39 @@ function VerifyProduct() {
   }
 
   return (
-    <div className="code-detail">
-      <div className="code-info">
-        {!codeDetails?.code ? (
-          <h1 className="error">The product is possible counterfiet</h1>
-        ) : (
-          <h1 className="sucess">Congratulations, Your product is valid</h1>
-        )}
-      </div>
-      {codeDetails?.code && (
-        <div className="image-container">
-          <img
-            src={`${process.env.REACT_APP_API_URL || ''}/api/assets/pattern/${codeDetails.code}`}
-          />
-        </div>
+    <>
+      {campaignDetails.title && (
+        <AppBar
+          position="static"
+          sx={{ p: 2, backgroundColor: 'secondary.light', color: 'secondary.contrastText' }}
+        >
+          <h1>{campaignDetails.title}</h1>
+        </AppBar>
       )}
-    </div>
+      <Container>
+        {!codeDetails?.code ? (
+          <Alert severity="error" sx={{ mb: 2, mt: 2 }}>
+            The product is possible counterfiet!
+          </Alert>
+        ) : (
+          <Alert severity="success" sx={{ mb: 2, mt: 2 }}>
+            Congratulations, Your product is valid
+          </Alert>
+        )}
+        {campaignDetails.description && (
+          <Paper sx={{ p: 2, backgroundColor: 'info.light', color: 'secondary.contrastText' }}>
+            <p>{campaignDetails.description}</p>
+          </Paper>
+        )}
+        {!codeDetails?.verifiedAt && codeDetails?.code && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+            <img
+              src={`${process.env.REACT_APP_API_URL || ''}/api/assets/pattern/${codeDetails.code}`}
+            />
+          </Box>
+        )}
+      </Container>
+    </>
   );
 }
 

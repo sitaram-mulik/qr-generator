@@ -16,6 +16,7 @@ import locationRoutes from './routes/location.route.js';
 import campaignRoutes from './routes/campaign.routes.js';
 import ApiError from './utils/ApiError.js';
 import { getClientUrl } from './utils/config.util.js';
+import { cagCronjob } from './configs/cag-cron.js';
 
 dotenv.config();
 
@@ -119,3 +120,4 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 startServer().catch(console.log);
+cagCronjob();

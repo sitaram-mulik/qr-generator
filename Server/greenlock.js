@@ -8,11 +8,11 @@ const __dirname = path.dirname(__filename);
 const greenlock = Greenlock.init({
   packageRoot: __dirname,
   configDir: './greenlock.d',
-  maintainerEmail: 'helloaadityaa@gmail.com',
+  maintainerEmail: process.env.EMAIL || '',
   staging: false,
   cluster: false,
   manager: {
-    module: '@greenlock/manager',
+    module: '@greenlock/manager'
   }
 });
 

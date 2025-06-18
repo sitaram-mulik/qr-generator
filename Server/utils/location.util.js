@@ -1,5 +1,4 @@
 import LocationModel from '../models/location.js';
-import CampaignModel from '../models/campaign.js';
 import geoip from 'geoip-lite';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json' assert { type: 'json' };
@@ -10,9 +9,11 @@ export const updateLocation = async (req, campaign, code, userId) => {
   try {
     const forwarded = req.headers['x-forwarded-for'];
 
-    //const ip = forwarded ? forwarded.split(',')[0] : req.socket.remoteAddress?.replace("::ffff:", "");
+    // const ip = forwarded
+    //   ? forwarded.split(',')[0]
+    //   : req.socket.remoteAddress?.replace('::ffff:', '');
 
-    const ip = '45.115.172.0';
+    const ip = '103.174.156.88';
 
     const geo = geoip.lookup(ip);
 

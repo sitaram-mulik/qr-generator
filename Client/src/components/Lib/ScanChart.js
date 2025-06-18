@@ -102,15 +102,13 @@ const ScanChart = ({ selectedCampaign }) => {
     null,
     false
   );
-
+  console.log('chartData.series?.data ', chartData.series);
   return (
-    <Paper sx={{ p: 2, mt: 2 }}>
-      {chartData.labels.length > 0 ? (
+    chartData.labels.length > 0 && (
+      <Paper sx={{ p: 2, mt: 2 }}>
         <Chart options={chartOptions} series={chartData.series} type="line" height={400} />
-      ) : (
-        'Loading chart...'
-      )}
-    </Paper>
+      </Paper>
+    )
   );
 };
 

@@ -23,6 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ConfirmDelete from '../Lib/ConfirmDelete';
 import Progress from '../Lib/Progress';
+import EditIcon from '@mui/icons-material/Edit';
 
 const CampaignList = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -54,7 +55,7 @@ const CampaignList = () => {
   };
 
   const handleCreateCampaignClick = () => {
-    navigate('/create-campaign');
+    navigate('/campaigns/action');
   };
 
   const handleDelete = async () => {
@@ -120,7 +121,8 @@ const CampaignList = () => {
                   <TableCell>Name</TableCell>
                   <TableCell>Valid till</TableCell>
                   <TableCell>Created at</TableCell>
-                  <TableCell>View assets</TableCell>
+                  <TableCell>Assets</TableCell>
+                  <TableCell>Edit</TableCell>
                   <TableCell>Delete</TableCell>
                 </TableRow>
               </TableHead>
@@ -139,6 +141,14 @@ const CampaignList = () => {
                     <TableCell component="td" scope="row">
                       <IconButton color="primary" onClick={() => viewAssets(name)}>
                         <VisibilityIcon />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      <IconButton
+                        onClick={() => navigate(`/campaigns/action/${name}`)}
+                        color="primary"
+                      >
+                        <EditIcon />
                       </IconButton>
                     </TableCell>
                     <TableCell component="td" scope="row">

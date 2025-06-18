@@ -49,7 +49,15 @@ function AppContent() {
           }
         />
         <Route
-          path="/create-campaign"
+          path="/campaigns/action"
+          element={
+            <ProtectedRoute>
+              <CreateCampaign />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/campaigns/action/:campaign"
           element={
             <ProtectedRoute>
               <CreateCampaign />

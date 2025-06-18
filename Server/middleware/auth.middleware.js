@@ -18,13 +18,18 @@ const authenticateToken = asyncHandler(async (req, res, next) => {
     const requestDomain = req.hostname || req.get('origin');
 
     const user = await UserModel.findById(verified.userId);
+
+    if (!user) {
+      throw new ApiError(401, 'Invalid credentials');
+    }
+
     // Check domain
     if (process.env.NODE_ENV === 'production' && user.domain !== requestDomain) {
       throw new ApiError(401, 'Invalid access');
     }
 
     // Verify account status
-    if (!user.isActive) {
+    if (!user?.isActive) {
       throw new ApiError(401, 'User access disabled');
     }
 

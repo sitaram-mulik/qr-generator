@@ -50,15 +50,17 @@ const ScanCompletionPieChart = ({ counts }) => {
   })();
 
   return (
-    <Paper sx={{ p: 2, mt: 2 }}>
-      <Chart
-        key={JSON.stringify(series)}
-        options={chartOptions}
-        series={series}
-        type="pie"
-        height={350}
-      />
-    </Paper>
+    counts.verifiedCount > 0 && (
+      <Paper sx={{ p: 2, mt: 2 }}>
+        <Chart
+          key={JSON.stringify(series)}
+          options={chartOptions}
+          series={series}
+          type="pie"
+          height={350}
+        />
+      </Paper>
+    )
   );
 };
 

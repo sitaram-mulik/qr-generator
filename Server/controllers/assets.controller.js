@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import AssetModel from '../models/asset.js';
+import CampaignModel from '../models/campaign.js';
 import { buildAssetsDBQuery, generateImage } from '../utils/assets.util.js';
 import { getClientUrl } from '../utils/config.util.js';
 import { s3, PutObjectCommand, GetObjectCommand } from '../configs/s3.js';
@@ -141,16 +142,33 @@ const verifyProduct = async (req, res, next) => {
     const { code } = req.params;
     const asset = await AssetModel.findOne({ code });
     if (!asset) {
-      throw new ApiError(404, 'Asset not found');
+      throw new ApiError(404, 'Product not found');
+    }
+
+    const campaignDetails = await CampaignModel.findOne({ name: asset.campaign });
+
+    if (!campaignDetails) {
+      throw new ApiError(404, 'Product not found');
+    }
+
+    const campaignValidity = campaignDetails.validTill;
+    // check whether campaign is expired
+    const isCampaignExpired = campaignValidity
+      ? new Date(campaignValidity).getTime() < new Date().getTime()
+      : true;
+
+    if (isCampaignExpired) {
+      throw new ApiError(404, 'This campaign is expired!');
     }
 
     if (asset.verifiedAt) {
-      return res.status(200).json({ message: 'Product already verified' });
+      return res.status(200).json({ campaign: campaignDetails });
+      // throw new ApiError();
     }
     await AssetModel.updateOne({ code }, { verifiedAt: new Date() });
     await updateLocation(req, asset.campaign, code, asset.userId);
 
-    res.json(asset);
+    res.json({ asset, campaign: campaignDetails });
   } catch (error) {
     console.log('Error updating asset details', error);
     next(error);

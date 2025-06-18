@@ -2,6 +2,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
   DeleteObjectsCommand
 } from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
@@ -15,4 +16,4 @@ const s3 = new S3Client({
   }
 });
 
-export { s3, PutObjectCommand, GetObjectCommand, DeleteObjectsCommand };
+export { s3, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, DeleteObjectsCommand };

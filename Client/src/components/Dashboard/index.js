@@ -1,6 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from '../../utils/axiosInstance';
-import { Box, CircularProgress, useTheme, useMediaQuery, Alert } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+  Alert,
+  Grid,
+  Container
+} from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Locations from './Locations';
 import Statistics from '../Lib/Statistics';
@@ -81,23 +89,28 @@ const Dashboard = () => {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, p: isSmallScreen ? 1 : 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+    <Container maxWidth={false} sx={{ p: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexDirection: { xs: 'column', md: 'row' }
+        }}
+      >
         <Statistics stats={stats || []} />
         <CampaignSelector setCampaignsData={setCampaignsData} />
       </Box>
-      <Box sx={{ display: 'flex', mt: 2, justifyContent: 'space-between', alignItems: 'stretch' }}>
-        <Box sx={{ flexBasis: '52%' }}>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <ScanChart selectedCampaign={selectedCampaign} />
-        </Box>
-        <Box sx={{ flexBasis: '47%' }}>
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
           <ScanCompletionPieChart counts={counts} />
-        </Box>
-      </Box>
-      <Box sx={{ mb: 3, mt: 3 }}>
+        </Grid>
+
         <Locations selectedCampaign={selectedCampaign} counts={counts} />
-      </Box>
-    </Box>
+      </Grid>
+    </Container>
   );
 };
 

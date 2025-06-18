@@ -26,7 +26,7 @@ const Map = ({ locations = [] }) => {
         />
         <MarkerClusterGroup>
           {locations.map((loc, i) => (
-            <Marker icon={customIcon} key={i} position={[loc.lat, loc.lng]} title={'222'}></Marker>
+            <Marker icon={customIcon} key={i} position={[loc.lat, loc.lng]}></Marker>
           ))}
         </MarkerClusterGroup>
       </MapContainer>
