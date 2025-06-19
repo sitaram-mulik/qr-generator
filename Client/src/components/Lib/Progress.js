@@ -21,6 +21,8 @@ const Progress = ({ start, processingStats, progress = 0, onClose }) => {
   const [visible, setVisible] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
 
+  const failed = processingStats?.failed || processingStats?.failure || 0;
+
   useEffect(() => {
     if (start) {
       setDisplayedProgress(0);
@@ -186,34 +188,29 @@ const Progress = ({ start, processingStats, progress = 0, onClose }) => {
                 py: 0.5
               }}
             >
-              {`${Math.min(displayedProgress, 100)}%`}
+              {`${Math.floor(Math.min(displayedProgress, 100))}%`}
             </Typography>
           </Box>
-
-          {/* Success and Failure Counts */}
-          {processingStats && (
-            <Stack direction="row" spacing={2} mt={4}>
-              <Chip
-                label={`✅ Success: ${processingStats.success}`}
-                sx={{ backgroundColor: '#4caf50', color: 'white', fontSize: '1rem', px: 2 }}
-              />
-              <Chip
-                label={`❌ Failure: ${processingStats.failed || processingStats.failure || 0}`}
-                sx={{ backgroundColor: '#f44336', color: 'white', fontSize: '1rem', px: 2 }}
-              />
-            </Stack>
-          )}
-
-          {start ? (
-            <Alert severity="warning" sx={{ mt: 3 }}>
-              {' '}
-              Please do not close or refresh this screen
-            </Alert>
-          ) : (
-            <Alert severity="success" sx={{ mt: 3 }}>
-              Operation completed. You can close this screen
-            </Alert>
-          )}
+          <Box sx={{ mt: 4 }}>
+            {processingStats &&
+              !start &&
+              (failed > 0 ? (
+                <Alert severity="warning">
+                  Data processed with some failures. <br />
+                  {failed} items out of ${processingStats.success} was not processed.
+                </Alert>
+              ) : (
+                <Alert security="success">
+                  Data processed successfully. <br /> {processingStats.success} items processed. You
+                  can now close the screen.
+                </Alert>
+              ))}
+            {start && (
+              <Alert severity="warning">
+                Processing data... Please do not leave or refresh this screen
+              </Alert>
+            )}
+          </Box>
         </Box>
       </Backdrop>
     </>

@@ -143,7 +143,7 @@ const CreateAssets = () => {
   };
 
   const handleCampaignClick = () => {
-    navigate('/create-campaign');
+    navigate('/campaigns/action');
   };
 
   const handleClose = () => {

@@ -51,7 +51,7 @@ const AssetFilters = ({ filters, onFilterChange }) => {
     >
       <TextField
         select
-        label="Campaign"
+        label="By Campaign"
         value={filters.campaign || ''}
         onChange={e => onFilterChange('campaign', e.target.value)}
         sx={{ minWidth: 200 }}

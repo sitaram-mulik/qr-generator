@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import Chart from 'react-apexcharts';
 import axios from '../../utils/axiosInstance';
-import { getChartOptions } from '../../utils/chart';
 import { Box, Grid, Paper } from '@mui/material';
 import Map from '../Lib/Map';
 import LocationsBarCharts from './LocationsBarCharts';

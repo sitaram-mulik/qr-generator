@@ -30,7 +30,7 @@ const CampaignSelector = ({ setCampaignsData }) => {
   return (
     <TextField
       select
-      label="Campaign"
+      label="Select Campaign"
       value={selectedCampaign}
       onChange={e => onSelectCampaign(e.target.value)}
       required
