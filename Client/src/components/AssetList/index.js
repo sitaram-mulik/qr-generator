@@ -50,7 +50,6 @@ function AssetList() {
   const [count, setCount] = useState([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSummary, setDownloadSummary] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
   const [filters, dispatchFilters] = useReducer(filterReducer, initialFilterState);
   const location = useLocation();
   const navigate = useNavigate();
@@ -107,7 +106,7 @@ function AssetList() {
         const summary = JSON.parse(summaryJson);
         setIsDownloading(false);
         setDownloadSummary(summary);
-        setModalOpen(true);
+        //setModalOpen(true);
       }
       fetchUserDetails();
     } catch (error) {
@@ -165,7 +164,7 @@ function AssetList() {
                     severity={downloadSummary.failed > 0 ? 'warning' : 'success'}
                     sx={{ mt: 2 }}
                   >
-                    Download complete: {downloadSummary.success} successful,{' '}
+                    Last download status: {downloadSummary.success} successful,{' '}
                     {downloadSummary.failure} failed (Total: {downloadSummary.total})
                   </Alert>
                 </Box>
@@ -223,16 +222,6 @@ function AssetList() {
             {error}
           </Alert>
         )}
-
-        <ResultModal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          title="Download complete"
-          message={`Download complete: ${downloadSummary?.success || 0} successful, ${
-            downloadSummary?.failure || 0
-          } failed (Total: ${downloadSummary?.total || 0})`}
-          actions={[]}
-        />
 
         {assets.length === 0 && (
           <Alert severity="info" sx={{ mt: 2 }}>

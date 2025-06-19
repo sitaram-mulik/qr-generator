@@ -141,7 +141,7 @@ const Header = () => {
               {user.displayName}
             </Typography>
             <IconButton onClick={handleMenu} color="inherit" sx={{ p: 0.5 }}>
-              <Avatar sx={{ bgcolor: '#1565c0', width: 40, height: 40 }}>
+              <Avatar sx={{ width: 40, height: 40 }}>
                 {user.displayName.charAt(0).toUpperCase()}
               </Avatar>
             </IconButton>
@@ -181,9 +181,7 @@ const Header = () => {
           <Box sx={{ width: 250 }} role="presentation">
             {user && (
               <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'white' }}>
-                <Avatar sx={{ mb: 1, bgcolor: '#1565c0' }}>
-                  {user.displayName.charAt(0).toUpperCase()}
-                </Avatar>
+                <Avatar sx={{ mb: 1 }}>{user.displayName.charAt(0).toUpperCase()}</Avatar>
                 <Typography variant="subtitle1">{user.displayName}</Typography>
               </Box>
             )}

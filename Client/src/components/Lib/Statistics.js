@@ -18,8 +18,7 @@ const Statistics = ({ stats }) => {
             textAlign: 'center',
             borderRadius: 2,
             boxShadow: 2,
-            backgroundColor: stat.color || '#f5f5f5',
-            width: '18%'
+            width: '24%'
           }}
           key={stat.label}
         >

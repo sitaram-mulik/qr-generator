@@ -72,7 +72,7 @@ const Profile = () => {
           {profile.displayName}
         </Typography>
         {user ? (
-          <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+          <List sx={{ width: '100%', maxWidth: 360 }}>
             <ListItem>
               <ListItemText primary="UserName" secondary={profile.userName} />
             </ListItem>

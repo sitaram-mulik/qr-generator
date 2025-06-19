@@ -155,7 +155,7 @@ const UserAction = () => {
   };
 
   if (loadingUser) {
-    return <Progress start={loadingUser} />;
+    return <CircularProgress />;
   }
 
   return (

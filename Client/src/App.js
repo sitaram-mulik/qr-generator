@@ -6,6 +6,9 @@ import { AuthContext } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import UserList from './components/UserList';
 import UserAction from './components/UserAction';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
 
 const CreateAssets = React.lazy(() => import('./components/CreateAssets'));
 const CreateCampaign = React.lazy(() => import('./components/CreateCampaign'));
@@ -127,11 +130,14 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <ToastProvider>
-        <AppContent />
-      </ToastProvider>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

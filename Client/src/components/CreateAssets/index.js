@@ -29,7 +29,6 @@ const CreateAssets = () => {
   const [usageStats, setUsageStats] = useState(null);
   const [batchProgress, setBatchProgress] = useState(0);
   const [processingStats, setProcessingStats] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
   const { fetchUserDetails } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -133,7 +132,6 @@ const CreateAssets = () => {
       setTimeout(() => {
         setLoading(false);
         setBatchProgress(0);
-        setModalOpen(true);
       }, 1000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to generate assets');
@@ -148,8 +146,7 @@ const CreateAssets = () => {
     navigate('/create-campaign');
   };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
+  const handleClose = () => {
     setCodes([]);
   };
 
@@ -212,8 +209,8 @@ const CreateAssets = () => {
           </Box>
 
           <Button
-            type="submit"
-            variant="contained"
+            color="inherit"
+            variant="primary"
             startIcon={<AddCircleOutlineIcon />}
             disabled={loading || !campaigns.length}
             onClick={handleSubmit}
@@ -229,28 +226,17 @@ const CreateAssets = () => {
           </Button>
         </>
 
-        <Progress start={loading} progress={batchProgress} processingStats={processingStats} />
+        <Progress
+          start={loading}
+          progress={batchProgress}
+          processingStats={processingStats}
+          onClose={handleClose}
+        />
 
         {error && (
           <Alert severity="error" sx={{ mb: 3, mt: 2 }}>
             {error}
           </Alert>
-        )}
-
-        {codes?.length > 0 && (
-          <ResultModal
-            open={modalOpen}
-            onClose={handleCloseModal}
-            title="Summary"
-            message={`Successfully generated ${processingStats.success} assets, Failed to generate ${processingStats.failed} assets.`}
-            actions={[
-              {
-                label: 'View/download the assets',
-                variant: 'outlined',
-                href: `/assets?campaign=${selectedCampaign}&downloaded=false&createdAfter=${getTodaysDate()}`
-              }
-            ]}
-          />
         )}
       </Paper>
     </Container>
