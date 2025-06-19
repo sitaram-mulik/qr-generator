@@ -51,7 +51,7 @@ const AssetFilters = ({ filters, onFilterChange }) => {
     >
       <TextField
         select
-        label="Filter by Campaign"
+        label="Campaign"
         value={filters.campaign || ''}
         onChange={e => onFilterChange('campaign', e.target.value)}
         sx={{ minWidth: 200 }}
@@ -66,19 +66,19 @@ const AssetFilters = ({ filters, onFilterChange }) => {
 
       <TextField
         select
-        label="Filter by Verified"
+        label="By Scan"
         value={filters.verified || ''}
         onChange={e => onFilterChange('verified', e.target.value)}
         sx={{ minWidth: 200 }}
       >
         <MenuItem value="">All</MenuItem>
-        <MenuItem value="true">Verified</MenuItem>
-        <MenuItem value="false">Not verified</MenuItem>
+        <MenuItem value="true">Scanned</MenuItem>
+        <MenuItem value="false">Not scanned</MenuItem>
       </TextField>
 
       <TextField
         select
-        label="Filter by Donwloaded"
+        label="By Downloads"
         value={filters.downloaded || ''}
         onChange={e => onFilterChange('downloaded', e.target.value)}
         sx={{ minWidth: 200 }}

@@ -30,6 +30,8 @@ const Locations = ({ selectedCampaign }) => {
     fetchLocations();
   }, [selectedCampaign]);
 
+  console.log('locations ', locationData);
+
   // Aggregate location data by country
   const countryData = useMemo(
     () =>
@@ -85,6 +87,7 @@ const Locations = ({ selectedCampaign }) => {
 
   // Prepare top 5 countries and cities for bar charts
   const topCountries = useMemo(() => {
+    console.log('countryData ', countryData);
     const entries = Object.entries(countryData)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -105,17 +108,16 @@ const Locations = ({ selectedCampaign }) => {
     !loading &&
     coordinates.length > 0 && (
       <>
-        <Grid size={{ xs: 12, md: 8 }}>
+        <LocationsBarCharts topCountries={topCountries} topCities={topCities} />
+        <Grid item size={{ xs: 12, md: 8 }}>
           <Paper
             sx={{
               p: 2
             }}
           >
-            <h3>Scan locations</h3>
             <Map locations={coordinates} />
           </Paper>
         </Grid>
-        <LocationsBarCharts topCountries={topCountries} topCities={topCities} />
 
         {/* <Grid size={{ xs: 12, md: 4 }}>
           <Paper

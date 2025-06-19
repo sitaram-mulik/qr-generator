@@ -1,68 +1,51 @@
 import React from 'react';
-import Chart from 'react-apexcharts';
-import { Paper, Box, Typography, Grid } from '@mui/material';
-import { getChartOptions } from '../../utils/chart';
+import { Paper, Typography, Box, Grid, useTheme, useMediaQuery } from '@mui/material';
+import { BarChart } from '@mui/x-charts/BarChart';
 
 const LocationsBarCharts = ({ topCountries, topCities }) => {
-  // Prepare data for countries bar chart
+  console.log('topCountries ', topCountries);
+  const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
+
   const countryLabels = topCountries.map(item => item.country);
-  const countrySeries = [
-    {
-      name: 'Count',
-      data: topCountries.map(item => item.count)
-    }
-  ];
+  const countrySeries = topCountries.map(item => item.count);
 
-  // Prepare data for cities bar chart
-  const cityLabels = topCities.map(item => item.city || item.cities); // handle key name variation
-  const citySeries = [
-    {
-      name: 'Count',
-      data: topCities.map(item => item.count)
-    }
-  ];
-
-  // Chart options for horizontal bar chart
-  const countryOptions = {
-    ...getChartOptions('bar', 'Top Countries', countryLabels),
-    dataLabels: { enabled: false },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        dataLabels: {
-          position: 'top'
-        }
-      }
-    },
-    xaxis: {
-      categories: countryLabels
-    }
-  };
-
-  const cityOptions = {
-    ...getChartOptions('bar', 'Top Cities', cityLabels),
-    dataLabels: { enabled: false },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        dataLabels: {
-          position: 'top'
-        }
-      }
-    },
-    xaxis: {
-      categories: cityLabels
-    }
-  };
+  const cityLabels = topCities.map(item => item.city || item.cities);
+  const citySeries = topCities.map(item => item.count);
 
   return (
-    <Grid size={{ xs: 12, md: 4 }}>
+    <Grid item xs={12}>
       <Paper sx={{ p: 2 }}>
         {topCountries.length > 0 && (
-          <Chart options={countryOptions} series={countrySeries} type="bar" height={200} />
+          <Box mb={4}>
+            <BarChart
+              xAxis={[{ data: countrySeries, label: 'count' }]}
+              yAxis={[{ scaleType: 'band', data: countryLabels }]}
+              series={[{ data: countrySeries, label: 'Top Countries' }]}
+              layout="horizontal"
+              width={isMdUp ? 500 : 300} // Fixed width for md+ and smaller for mobile
+              height={Math.max(200, countryLabels.length * 40)}
+              sx={{
+                '.MuiBarElement-root': { fill: '#1976d2' }
+              }}
+            />
+          </Box>
         )}
+
         {topCities.length > 0 && (
-          <Chart options={cityOptions} series={citySeries} type="bar" height={200} />
+          <Box>
+            <BarChart
+              xAxis={[{ data: citySeries, label: 'count' }]}
+              yAxis={[{ scaleType: 'band', data: cityLabels }]}
+              series={[{ data: citySeries, label: 'Top Cities' }]}
+              layout="horizontal"
+              width={isMdUp ? 500 : 300}
+              height={Math.max(200, cityLabels.length * 40)}
+              sx={{
+                '.MuiBarElement-root': { fill: '#388e3c' }
+              }}
+            />
+          </Box>
         )}
       </Paper>
     </Grid>

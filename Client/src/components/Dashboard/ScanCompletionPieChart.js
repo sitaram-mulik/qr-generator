@@ -1,63 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { Paper } from '@mui/material';
-import Chart from 'react-apexcharts';
-
-const labels = ['Scanned', 'Remaining'];
+import { PieChart } from '@mui/x-charts/PieChart';
 
 const ScanCompletionPieChart = ({ counts }) => {
   const [series, setSeries] = useState([]);
+
   useEffect(() => {
-    console.log('ScanCompletionPieChart counts prop:', counts);
     const { verifiedCount, totalCount } = counts || {};
     const scanned = verifiedCount || 0;
     const remaining = totalCount ? Math.max(totalCount - scanned, 0) : 0;
 
-    setSeries([scanned, remaining]);
+    setSeries([
+      { label: 'Scanned', value: scanned },
+      { label: 'Remaining', value: remaining }
+    ]);
   }, [counts]);
-
-  console.log('ScanCompletionPieChart series state:', series);
-
-  // Simplified chart options for debugging
-  const chartOptions = (() => {
-    return {
-      chart: {
-        type: 'pie',
-        toolbar: {
-          show: true
-        }
-      },
-      labels: labels,
-      colors: ['#4CAF50', '#F44336'],
-      legend: {
-        show: true
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: function (val, opts) {
-          console.log('opts.dataPointIndex ', opts);
-          return labels[opts.seriesIndex] + ': ' + val.toFixed(1) + '%';
-        }
-      },
-      title: {
-        text: 'Scan Completion Percentage',
-        align: 'center',
-        style: {
-          fontSize: '16px',
-          fontWeight: 'bold'
-        }
-      }
-    };
-  })();
 
   return (
     counts.verifiedCount > 0 && (
       <Paper sx={{ p: 2, mt: 2 }}>
-        <Chart
-          key={JSON.stringify(series)}
-          options={chartOptions}
-          series={series}
-          type="pie"
-          height={350}
+        <PieChart
+          height={300}
+          width={300}
+          series={[
+            {
+              data: series,
+              innerRadius: '50%',
+              arcLabelMinAngle: 20
+            }
+          ]}
+          skipAnimation={false}
         />
       </Paper>
     )

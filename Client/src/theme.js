@@ -33,7 +33,8 @@ const theme = createTheme({
     }
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    // fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Fira Code", "Roboto", "Helvetica", "Arial", monospace',
     h1: { fontWeight: 700, fontSize: '2.5rem', letterSpacing: '-0.01562em', color: '#000000' },
     h2: { fontWeight: 700, fontSize: '2rem', letterSpacing: '-0.00833em', color: '#000000' },
     h3: { fontWeight: 700, fontSize: '1.75rem', letterSpacing: '0em', color: '#000000' },

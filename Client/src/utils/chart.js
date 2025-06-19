@@ -55,3 +55,5 @@ export const getChartOptions = (
     }
   };
 };
+
+export const valueFormatter = ({ value }) => `${item.value}%`;
