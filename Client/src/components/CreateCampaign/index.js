@@ -92,7 +92,6 @@ const CreateCampaign = () => {
             id="title"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            required
             fullWidth
             disabled={false}
           />
@@ -112,7 +111,6 @@ const CreateCampaign = () => {
             id="desc"
             value={desc}
             onChange={e => setDesc(e.target.value)}
-            required
             disabled={false}
           />
         </Box>

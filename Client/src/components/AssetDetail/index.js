@@ -4,8 +4,9 @@ import axios from '../../utils/axiosInstance';
 import { Box, Container, List, ListItem, ListItemText, Paper } from '@mui/material';
 import { formatTimestamp } from '../../utils/common';
 
-function AssetDetail() {
-  const { code } = useParams();
+function AssetDetail({ code: propCode }) {
+  const { code: paramCode } = useParams();
+  const code = propCode || paramCode;
   const [codeDetails, setCodeDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,47 +34,49 @@ function AssetDetail() {
   }
 
   return (
-    <Container>
+    <Container sx={{ mt: 6, mb: 2 }}>
       {codeDetails?.imagePath && (
-        <Paper elevation={3} sx={{ m: 2, p: 2 }}>
-          <List sx={{ flexDirection: 'column', alignItems: 'center' }}>
-            <ListItem>
-              <ListItemText primary="Campaign Name" secondary={codeDetails.campaign} />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Created at"
-                secondary={formatTimestamp(codeDetails.createdAt)}
-              />
-            </ListItem>
-            {codeDetails.downloadedAt && (
-              <ListItem>
-                <ListItemText
-                  primary="Downloaded at"
-                  secondary={formatTimestamp(codeDetails.downloadedAt)}
-                />
-              </ListItem>
-            )}
-            <ListItem>
-              <ListItemText primary="Total downloads" secondary={codeDetails.downloads} />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Verified at"
-                secondary={
-                  codeDetails.verifiedAt ? formatTimestamp(codeDetails.verifiedAt) : 'Not verified'
-                }
-              />
-            </ListItem>
-          </List>
+        <Paper elevation={3}>
           <img
             src={`${process.env.REACT_APP_API_URL || ''}/api/assets/pattern/${codeDetails.code}`}
             alt="Generated Code"
             className="full-image"
+            style={{ width: '100%' }}
           />
-          {/* <Box sx={{ textAlign: 'center', mb: 2 }}>
-            <img src={codeDetails.imagePath} alt="Generated Code" className="full-image" />
-          </Box> */}
+          <Box sx={{ display: { md: 'flex' } }}>
+            <List>
+              <ListItem>
+                <ListItemText primary="Campaign Name" secondary={codeDetails.campaign} />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Created time"
+                  secondary={formatTimestamp(codeDetails.createdAt)}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Scanned time"
+                  secondary={
+                    codeDetails.verifiedAt ? formatTimestamp(codeDetails.verifiedAt) : 'Not scanned'
+                  }
+                />
+              </ListItem>
+            </List>
+            <List>
+              <ListItem>
+                <ListItemText primary="Total downloads" secondary={codeDetails.downloads} />
+              </ListItem>
+              {codeDetails.downloadedAt && (
+                <ListItem>
+                  <ListItemText
+                    primary="Last download time"
+                    secondary={formatTimestamp(codeDetails.downloadedAt)}
+                  />
+                </ListItem>
+              )}
+            </List>
+          </Box>
         </Paper>
       )}
     </Container>

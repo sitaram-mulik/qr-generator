@@ -15,6 +15,8 @@ import Statistics from '../Lib/Statistics';
 import CampaignSelector from '../Lib/CampaignSelector';
 import ScanChart from '../Lib/ScanChart';
 import ScanCompletionPieChart from './ScanCompletionPieChart';
+import './index.css';
+import { BoxGrid } from '../../theme';
 
 const Dashboard = () => {
   const [counts, setCounts] = useState({
@@ -100,13 +102,14 @@ const Dashboard = () => {
         <Statistics stats={stats || []} />
         <CampaignSelector setCampaignsData={setCampaignsData} />
       </Box>
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 8 }}>
-          <ScanChart selectedCampaign={selectedCampaign} />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+      <Grid container spacing={4} sx={{ mt: 4 }}>
+        <BoxGrid size={{ xs: 12, md: 4 }}>
           <ScanCompletionPieChart counts={counts} />
-        </Grid>
+        </BoxGrid>
+
+        <BoxGrid size={{ xs: 12, md: 8 }}>
+          <ScanChart selectedCampaign={selectedCampaign} />
+        </BoxGrid>
 
         <Locations selectedCampaign={selectedCampaign} counts={counts} />
       </Grid>

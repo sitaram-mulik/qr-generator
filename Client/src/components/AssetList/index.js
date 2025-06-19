@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react';
+import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react';
 import axios from '../../utils/axiosInstance';
 import {
   Container,
@@ -16,9 +16,10 @@ import {
   Alert,
   TextField,
   Paper,
-  IconButton
+  IconButton,
+  Dialog
 } from '@mui/material';
-import ResultModal from '../Shared/ResultModal';
+import CloseIcon from '@mui/icons-material/Close';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import { formatTimestamp } from '../../utils/common';
 import AssetFilters from './AssetFilters';
@@ -27,21 +28,35 @@ import JSZip from 'jszip';
 import Progress from '../Lib/Progress';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AuthContext } from '../../context/AuthContext';
+import AssetDetail from '../AssetDetail';
+import { styled } from '@mui/material/styles';
 
 const initialFilterState = {
   campaign: '',
   verified: '',
-  downloaded: ''
+  downloaded: '',
+  createdAfter: ''
 };
 
 function filterReducer(state, action) {
   switch (action.type) {
     case 'SET_FILTERS':
       return { ...state, ...action.payload };
+    case 'RESET_FILTERS':
+      return { ...initialFilterState };
     default:
       return state;
   }
 }
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2)
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1)
+  }
+}));
 
 function AssetList() {
   const [loading, setLoading] = useState(true);
@@ -51,6 +66,8 @@ function AssetList() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSummary, setDownloadSummary] = useState(null);
   const [filters, dispatchFilters] = useReducer(filterReducer, initialFilterState);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAssetCode, setSelectedAssetCode] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { fetchUserDetails } = useContext(AuthContext);
@@ -128,6 +145,11 @@ function AssetList() {
     navigate(`${location.pathname}?${params.toString()}`, { replace: true });
   };
 
+  const onFilterReset = useCallback(() => {
+    dispatchFilters({ type: 'RESET_FILTERS' });
+    navigate('/assets');
+  }, []);
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -140,7 +162,11 @@ function AssetList() {
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper sx={{ p: 3 }}>
         <Box sx={{ mb: 4 }}>
-          <AssetFilters filters={filters} onFilterChange={onFilterChange} />
+          <AssetFilters
+            filters={filters}
+            onFilterChange={onFilterChange}
+            onFilterReset={onFilterReset}
+          />
 
           <Box sx={{ mb: 1 }} align="left">
             <TextField
@@ -206,7 +232,10 @@ function AssetList() {
                   <TableCell align="right">
                     <IconButton
                       color="primary"
-                      onClick={() => navigate(`/assets/code/${asset.code}`)}
+                      onClick={() => {
+                        setSelectedAssetCode(asset.code);
+                        setModalOpen(true);
+                      }}
                     >
                       <VisibilityIcon />
                     </IconButton>
@@ -229,7 +258,23 @@ function AssetList() {
           </Alert>
         )}
       </Paper>
-      <Progress start={isDownloading} processingStats={downloadSummary} />
+      <Progress start={isDownloading} processingStats={downloadSummary} operationCount={count} />
+
+      <BootstrapDialog open={modalOpen} onClose={() => setModalOpen(false)}>
+        <IconButton
+          aria-label="close"
+          onClick={() => setModalOpen(false)}
+          sx={theme => ({
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme.palette.grey[500]
+          })}
+        >
+          <CloseIcon />
+        </IconButton>
+        {selectedAssetCode && <AssetDetail code={selectedAssetCode} />}
+      </BootstrapDialog>
     </Container>
   );
 }

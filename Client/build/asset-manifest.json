@@ -1,21 +1,22 @@
 {
   "files": {
     "main.css": "/static/css/main.be05f8e4.css",
-    "main.js": "/static/js/main.d8cbf5c1.js",
-    "static/css/276.6752488a.chunk.css": "/static/css/276.6752488a.chunk.css",
-    "static/js/276.bd4f7bb7.chunk.js": "/static/js/276.bd4f7bb7.chunk.js",
-    "static/js/981.658b69ec.chunk.js": "/static/js/981.658b69ec.chunk.js",
-    "static/js/588.7d30803d.chunk.js": "/static/js/588.7d30803d.chunk.js",
-    "static/js/676.31325dd2.chunk.js": "/static/js/676.31325dd2.chunk.js",
-    "static/js/4.31177468.chunk.js": "/static/js/4.31177468.chunk.js",
+    "main.js": "/static/js/main.33aff0a5.js",
+    "static/css/238.6752488a.chunk.css": "/static/css/238.6752488a.chunk.css",
+    "static/js/238.8973200c.chunk.js": "/static/js/238.8973200c.chunk.js",
+    "static/js/981.8e167a84.chunk.js": "/static/js/981.8e167a84.chunk.js",
+    "static/js/588.85732134.chunk.js": "/static/js/588.85732134.chunk.js",
+    "static/js/676.6716f8c5.chunk.js": "/static/js/676.6716f8c5.chunk.js",
+    "static/js/4.4752f875.chunk.js": "/static/js/4.4752f875.chunk.js",
     "static/js/164.378ee704.chunk.js": "/static/js/164.378ee704.chunk.js",
     "static/css/841.9a187123.chunk.css": "/static/css/841.9a187123.chunk.css",
     "static/js/841.017c71d2.chunk.js": "/static/js/841.017c71d2.chunk.js",
-    "static/css/23.4862fd0b.chunk.css": "/static/css/23.4862fd0b.chunk.css",
-    "static/js/23.2e43a617.chunk.js": "/static/js/23.2e43a617.chunk.js",
+    "static/css/834.4a38899b.chunk.css": "/static/css/834.4a38899b.chunk.css",
+    "static/js/834.7f9e9083.chunk.js": "/static/js/834.7f9e9083.chunk.js",
     "static/js/712.a974241d.chunk.js": "/static/js/712.a974241d.chunk.js",
-    "static/js/0.f73871de.chunk.js": "/static/js/0.f73871de.chunk.js",
-    "static/js/433.2462bb26.chunk.js": "/static/js/433.2462bb26.chunk.js",
+    "static/js/728.1d0e9064.chunk.js": "/static/js/728.1d0e9064.chunk.js",
+    "static/js/815.ef71106c.chunk.js": "/static/js/815.ef71106c.chunk.js",
+    "static/media/qr-loader.png": "/static/media/qr-loader.9db3de2ecb4729d1a1ef.png",
     "static/media/fira-code-latin-400-normal.woff": "/static/media/fira-code-latin-400-normal.33aba290fb778009b57e.woff",
     "static/media/fira-code-latin-400-normal.woff2": "/static/media/fira-code-latin-400-normal.d1be2246107f9bc07d21.woff2",
     "static/media/fira-code-cyrillic-ext-400-normal.woff": "/static/media/fira-code-cyrillic-ext-400-normal.8ffd548f616ec4877cae.woff",
@@ -35,6 +36,6 @@
   },
   "entrypoints": [
     "static/css/main.be05f8e4.css",
-    "static/js/main.d8cbf5c1.js"
+    "static/js/main.33aff0a5.js"
   ]
 }

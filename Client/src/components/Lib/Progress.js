@@ -1,22 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { QRCodeCanvas } from 'qrcode.react';
-import {
-  Box,
-  Backdrop,
-  Chip,
-  Stack,
-  IconButton,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  Button,
-  Alert
-} from '@mui/material';
+import { Box, Backdrop, IconButton, Typography, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { keyframes } from '@mui/system';
+import QRLoaderImage from './qr-loader.png';
 
-const Progress = ({ start, processingStats, progress = 0, onClose }) => {
+const Progress = ({ start, processingStats, progress = 0, onClose, operationCount }) => {
   const [displayedProgress, setDisplayedProgress] = useState(0);
   const [visible, setVisible] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
@@ -41,10 +29,10 @@ const Progress = ({ start, processingStats, progress = 0, onClose }) => {
         }
         return prev;
       });
-    }, 250);
+    }, operationCount * 4);
 
     return () => clearInterval(interval);
-  }, [start]);
+  }, [start, operationCount]);
 
   useEffect(() => {
     if (progress > displayedProgress) {
@@ -138,8 +126,9 @@ const Progress = ({ start, processingStats, progress = 0, onClose }) => {
             sx={showFlash ? { animation: `${flashAnimation} 2s ease-out infinite` } : {}}
           >
             {/* Grey Base QR */}
-            <Box position="absolute" top={0} left={0} width="100%" height="100%" opacity={0.2}>
-              <QRCodeCanvas size={320} fgColor="#888888" />
+            <Box position="absolute" top={0} left={0} width="100%" height="100%">
+              {/* <QRCodeCanvas size={320} fgColor="#888888" /> */}
+              <img src={QRLoaderImage} width={320} height={320} style={{ opacity: 0.2 }} />
             </Box>
 
             {/* Dark QR with progressive reveal */}
@@ -155,7 +144,7 @@ const Progress = ({ start, processingStats, progress = 0, onClose }) => {
                 transition: 'clip-path 0.2s ease-out'
               }}
             >
-              <QRCodeCanvas size={320} fgColor="#000000" />
+              <img src={QRLoaderImage} width={320} height={320} />
             </Box>
 
             {/* Scan Line */}
@@ -197,7 +186,7 @@ const Progress = ({ start, processingStats, progress = 0, onClose }) => {
               (failed > 0 ? (
                 <Alert severity="warning">
                   Data processed with some failures. <br />
-                  {failed} items out of ${processingStats.success} was not processed.
+                  {failed} items out of {processingStats.total} was not processed.
                 </Alert>
               ) : (
                 <Alert security="success">

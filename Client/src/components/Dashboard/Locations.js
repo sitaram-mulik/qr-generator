@@ -3,6 +3,7 @@ import axios from '../../utils/axiosInstance';
 import { Box, Grid, Paper } from '@mui/material';
 import Map from '../Lib/Map';
 import LocationsBarCharts from './LocationsBarCharts';
+import { BoxGrid } from '../../theme';
 
 const Locations = ({ selectedCampaign }) => {
   const [locationData, setLocationData] = useState([]);
@@ -28,40 +29,30 @@ const Locations = ({ selectedCampaign }) => {
     fetchLocations();
   }, [selectedCampaign]);
 
-  console.log('locations ', locationData);
-
   // Aggregate location data by country
   const countryData = useMemo(
     () =>
       locationData.reduce((acc, loc) => {
-        const country = !loc.country || loc.country === 'unknown' ? 'Anonymous' : loc.country;
+        const country = loc.country;
         acc[country] = (acc[country] || 0) + 1;
         return acc;
       }, {}),
     [locationData]
   );
 
+  console.log('locations ', countryData);
+
   const cityData = useMemo(
     () =>
       locationData
         .filter(loc => loc.city)
         .reduce((acc, loc) => {
-          const city = loc.city || 'Anonymous';
+          const city = loc.city || 'unknown';
           acc[city] = (acc[city] || 0) + 1;
           return acc;
         }, {}),
     [locationData]
   );
-
-  // const citiesInCountry = useMemo(() => {
-  //   const cities = [];
-  //   locationData.forEach(loc => {
-  //     if (loc.country === country && loc.city) {
-  //       cities.push(loc);
-  //     }
-  //   });
-  //   return cities;
-  // }, [locationData, country]);
 
   const coordinates = useMemo(() => {
     const _coordinates = [];
@@ -73,19 +64,8 @@ const Locations = ({ selectedCampaign }) => {
     return _coordinates || [];
   }, [locationData]);
 
-  // const cityData = useMemo(
-  //   () =>
-  //     citiesInCountry.reduce((acc, loc) => {
-  //       const city = loc.city;
-  //       acc[city] = (acc[city] || 0) + 1;
-  //       return acc;
-  //     }, {}),
-  //   [citiesInCountry]
-  // );
-
   // Prepare top 5 countries and cities for bar charts
   const topCountries = useMemo(() => {
-    console.log('countryData ', countryData);
     const entries = Object.entries(countryData)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -94,7 +74,6 @@ const Locations = ({ selectedCampaign }) => {
   }, [countryData]);
 
   const topCities = useMemo(() => {
-    console.log('cityData ', cityData);
     const entries = Object.entries(cityData)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -102,20 +81,31 @@ const Locations = ({ selectedCampaign }) => {
     return entries;
   }, [cityData]);
 
+  const topCountryName = useMemo(() => {
+    return topCountries.filter(c => c.country !== 'unknown').sort((a, b) => a.count - b.count)?.[0]
+      ?.country;
+  }, [topCountries]);
+
+  const topCityName = useMemo(() => {
+    return topCities.filter(c => c.city !== 'unknown').sort((a, b) => a.count - b.count)?.[0]?.city;
+  }, [topCountries]);
+
+  const centerLocation = useMemo(() => {
+    const loc = locationData.find(loc => loc.country === topCountryName);
+    console.log('loc ', loc);
+    if (!loc) return {};
+    const [lat, lng] = JSON.parse(loc.ll);
+    return { lat, lng };
+  }, [topCountryName]);
+
   return (
     !loading &&
     coordinates.length > 0 && (
       <>
         <LocationsBarCharts topCountries={topCountries} topCities={topCities} />
-        <Grid item size={{ xs: 12, md: 8 }}>
-          <Paper
-            sx={{
-              p: 2
-            }}
-          >
-            <Map locations={coordinates} />
-          </Paper>
-        </Grid>
+        <BoxGrid item size={{ xs: 12, md: 8 }}>
+          <Map locations={coordinates} centerLocation={centerLocation} />
+        </BoxGrid>
 
         {/* <Grid size={{ xs: 12, md: 4 }}>
           <Paper

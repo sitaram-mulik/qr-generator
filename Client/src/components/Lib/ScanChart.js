@@ -98,17 +98,15 @@ const ScanChart = ({ selectedCampaign }) => {
 
   return (
     chartData.labels.length > 0 && (
-      <Paper sx={{ p: 2, mt: 2 }}>
-        <LineChart
-          xAxis={[{ scaleType: 'point', data: chartData.labels }]}
-          series={[{ data: chartData.series, area: true, label: 'Scanned Assets' }]}
-          height={400}
-          sx={{
-            '.MuiLineElement-root': { strokeWidth: 3 },
-            '.MuiAreaElement-root': { opacity: 0.2 }
-          }}
-        />
-      </Paper>
+      <LineChart
+        xAxis={[{ scaleType: 'point', data: chartData.labels }]}
+        series={[{ data: chartData.series, area: true, label: 'Scanned Assets' }]}
+        height={400}
+        sx={{
+          '.MuiLineElement-root': { strokeWidth: 3 },
+          '.MuiAreaElement-root': { opacity: 0.2 }
+        }}
+      />
     )
   );
 };

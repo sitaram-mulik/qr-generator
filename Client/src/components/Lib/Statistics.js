@@ -16,7 +16,6 @@ const Statistics = ({ stats }) => {
           sx={{
             p: { xs: 1, sm: 2 },
             textAlign: 'center',
-            borderRadius: 2,
             boxShadow: 2,
             width: '24%'
           }}

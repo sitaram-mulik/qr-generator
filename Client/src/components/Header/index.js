@@ -206,7 +206,9 @@ const Header = () => {
             bgcolor: 'background.paper',
             borderTop: 1,
             borderColor: 'divider',
+            py: 1,
             px: 2,
+
             gap: 2
           }}
         >
@@ -257,7 +259,7 @@ const Header = () => {
               Users
             </Button>
           )}
-          <Box sx={{ position: 'absolute', right: 0 }}>
+          <Box sx={{ position: 'absolute', right: 2 }}>
             <Alert severity={user.credits > 0 ? 'success' : 'error'}>Credits: {user.credits}</Alert>
           </Box>
         </Toolbar>

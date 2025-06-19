@@ -12,12 +12,16 @@ import {
   useTheme
 } from '@mui/material';
 import axios from '../../utils/axiosInstance';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
+import { useNavigate } from 'react-router-dom';
 
-const AssetFilters = ({ filters, onFilterChange }) => {
+const AssetFilters = ({ filters, onFilterChange, onFilterReset }) => {
   const [campaignOptions, setCampaignOptions] = useState([]);
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCampaignOptions = async () => {
@@ -39,6 +43,10 @@ const AssetFilters = ({ filters, onFilterChange }) => {
     setOpen(false);
   };
 
+  const resetFilters = () => {
+    onFilterReset();
+  };
+
   const filterContent = (
     <Box
       sx={{
@@ -46,7 +54,8 @@ const AssetFilters = ({ filters, onFilterChange }) => {
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'center',
         gap: 2,
-        mb: 2
+        mb: 2,
+        height: { md: '50px' }
       }}
     >
       <TextField
@@ -63,7 +72,6 @@ const AssetFilters = ({ filters, onFilterChange }) => {
           </MenuItem>
         ))}
       </TextField>
-
       <TextField
         select
         label="By Scan"
@@ -75,7 +83,6 @@ const AssetFilters = ({ filters, onFilterChange }) => {
         <MenuItem value="true">Scanned</MenuItem>
         <MenuItem value="false">Not scanned</MenuItem>
       </TextField>
-
       <TextField
         select
         label="By Downloads"
@@ -87,9 +94,8 @@ const AssetFilters = ({ filters, onFilterChange }) => {
         <MenuItem value="true">Downloaded</MenuItem>
         <MenuItem value="false">Not downloaded</MenuItem>
       </TextField>
-
       <TextField
-        label="Filter by Created After"
+        label="Created After"
         type="date"
         value={filters.createdAfter || ''}
         onChange={e => onFilterChange('createdAfter', e.target.value)}
@@ -97,7 +103,15 @@ const AssetFilters = ({ filters, onFilterChange }) => {
         InputLabelProps={{
           shrink: true
         }}
-      />
+      />{' '}
+      <Button
+        onClick={resetFilters}
+        variant="contained"
+        startIcon={<RestoreIcon />}
+        sx={{ height: { md: '100%' } }}
+      >
+        Reset
+      </Button>
     </Box>
   );
 
@@ -109,10 +123,14 @@ const AssetFilters = ({ filters, onFilterChange }) => {
         </Button>
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
           <DialogTitle>Filters</DialogTitle>
-          <DialogContent>{filterContent}</DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Close</Button>
-          </DialogActions>
+          <DialogContent>
+            {filterContent}
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Button startIcon={<DisabledByDefaultIcon />} onClick={handleClose}>
+                Close
+              </Button>
+            </Box>
+          </DialogContent>
         </Dialog>
       </>
     );

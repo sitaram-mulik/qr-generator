@@ -33,7 +33,6 @@ const CampaignSelector = ({ setCampaignsData }) => {
       label="Select Campaign"
       value={selectedCampaign}
       onChange={e => onSelectCampaign(e.target.value)}
-      required
       sx={{ minWidth: 300 }}
     >
       <MenuItem key="all" value="all">

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Paper } from '@mui/material';
+import { Paper, useMediaQuery } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
+import theme from '../../theme';
 
 const ScanCompletionPieChart = ({ counts }) => {
   const [series, setSeries] = useState([]);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const { verifiedCount, totalCount } = counts || {};
@@ -12,26 +14,24 @@ const ScanCompletionPieChart = ({ counts }) => {
 
     setSeries([
       { label: 'Scanned', value: scanned },
-      { label: 'Remaining', value: remaining }
+      { label: 'Pending', value: remaining }
     ]);
   }, [counts]);
 
   return (
     counts.verifiedCount > 0 && (
-      <Paper sx={{ p: 2, mt: 2 }}>
-        <PieChart
-          height={300}
-          width={300}
-          series={[
-            {
-              data: series,
-              innerRadius: '50%',
-              arcLabelMinAngle: 20
-            }
-          ]}
-          skipAnimation={false}
-        />
-      </Paper>
+      <PieChart
+        height={300}
+        width={isMobile ? 200 : 420}
+        series={[
+          {
+            data: series,
+            innerRadius: '50%',
+            arcLabelMinAngle: 20
+          }
+        ]}
+        skipAnimation={false}
+      />
     )
   );
 };

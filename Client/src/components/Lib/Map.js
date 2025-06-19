@@ -3,9 +3,9 @@ import MarkerClusterGroup from 'react-leaflet-cluster';
 import 'leaflet/dist/leaflet.css';
 import iconUrl from './location.svg';
 
-const Map = ({ locations = [] }) => {
+const Map = ({ locations = [], centerLocation }) => {
   if (!locations.length) return null;
-  const { lat, lng } = locations[0];
+  const { lat, lng } = centerLocation || locations[0];
 
   const customIcon = new L.Icon({
     iconUrl,
@@ -15,13 +15,13 @@ const Map = ({ locations = [] }) => {
   return (
     locations[0] && (
       <MapContainer
-        style={{ height: '500px', minWidth: '300px' }}
+        style={{ height: '500px', minWidth: '300px', width: '100%' }}
         center={[lat, lng]}
         zoom={2}
         scrollWheelZoom={true}
       >
         <TileLayer
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MarkerClusterGroup>

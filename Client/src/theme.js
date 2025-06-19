@@ -1,4 +1,5 @@
-import { createTheme } from '@mui/material/styles';
+import { Grid } from '@mui/material';
+import { createTheme, styled } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
@@ -8,7 +9,7 @@ const theme = createTheme({
       contrastText: '#ffffff'
     },
     secondary: {
-      main: '#888888', // Gray
+      main: '#f9f9f9', // Gray
       contrastText: '#000000'
     },
     background: {
@@ -69,8 +70,41 @@ const theme = createTheme({
           border: '1px solid #888888'
         }
       }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0
+        }
+      }
+    },
+    MuiFilledInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0
+        }
+      }
+    },
+
+    MuiInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0
+        }
+      }
     }
   }
 });
+
+export const BoxGrid = styled(Grid)(({ theme }) => ({
+  padding: 2,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.palette.secondary.main,
+  color: theme.palette.secondary.contrastText,
+  border: '1px solid',
+  borderColor: theme.palette.primary.main
+}));
 
 export default theme;

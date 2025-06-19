@@ -231,6 +231,7 @@ const CreateAssets = () => {
           progress={batchProgress}
           processingStats={processingStats}
           onClose={handleClose}
+          operationCount={count}
         />
 
         {error && (
