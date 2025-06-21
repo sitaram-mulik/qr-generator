@@ -88,7 +88,7 @@ const detectExpiredAccounts = async () => {
 };
 
 async function cagCronjob() {
-  cron.schedule('0 * * * *', async () => {
+  cron.schedule('0 0 * * *', async () => {
     try {
       await createBackup();
       await uploadBackup();

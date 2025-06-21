@@ -46,7 +46,7 @@ export const deleteS3Objects = async assets => {
     // create batch of 1000 assets to delete
 
     batch.push({ Key: `${asset.campaign}/${asset.code}.png` });
-    console.log(`batch ${i} `, batch);
+    console.log(`batch ${i} `, batch?.length);
     if (batch.length === 1000 || i === assets.length - 1) {
       await deleteBatchFromS3(batch);
       batch = []; // Clear the batch

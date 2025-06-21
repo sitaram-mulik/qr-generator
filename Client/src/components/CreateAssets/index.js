@@ -11,15 +11,19 @@ import {
   Paper,
   Container,
   TextField,
-  MenuItem
+  MenuItem,
+  Checkbox
 } from '@mui/material';
-import ResultModal from '../Shared/ResultModal';
-import { getTodaysDate } from '../../utils/common';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Progress from '../Lib/Progress';
 
+const patternTypes = ['geopattern', 'Polygons'];
+
 const CreateAssets = () => {
   const [count, setCount] = useState(1);
+  const [patternType, setPatternType] = useState(patternTypes[0]);
+  const [size, setSize] = useState(200);
+  const [includePattern, setIncludePattern] = useState(true);
   const [codes, setCodes] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -56,11 +60,14 @@ const CreateAssets = () => {
     }
   };
 
-  const processBatch = async (batchSize, totalCount, processedCount) => {
+  const processBatch = async batchSize => {
     try {
       const response = await axios.post('assets/generate', {
         count: batchSize,
-        campaignName: selectedCampaign
+        campaignName: selectedCampaign,
+        patternType,
+        size,
+        includePattern
       });
       return response.data.codes;
     } catch (err) {
@@ -76,8 +83,15 @@ const CreateAssets = () => {
     setProcessingStats(null);
 
     const numberCount = parseInt(count);
-    if (numberCount < 1) {
-      setError('Please enter a number between 1 and 100000');
+    if (numberCount < 1 || numberCount > 10000) {
+      setError('Please enter a number between 1 and 10000');
+      return;
+    }
+
+    const numberSize = parseInt(size);
+
+    if (numberSize < 100 || numberSize > 500) {
+      setError('Please enter size between 100 and 500');
       return;
     }
 
@@ -98,7 +112,7 @@ const CreateAssets = () => {
         failed: 0
       });
 
-      const batchSize = 20;
+      const batchSize = 100;
       let processedCount = 0;
       let successCount = 0;
       let failedCount = 0;
@@ -148,6 +162,7 @@ const CreateAssets = () => {
 
   const handleClose = () => {
     setCodes([]);
+    navigate('/assets');
   };
 
   if (initialLoading) {
@@ -207,6 +222,55 @@ const CreateAssets = () => {
             />
             {usageStats && <small className="input-help">Max: {usageStats.remaining}</small>}
           </Box>
+
+          <Box
+            sx={{
+              mb: 1,
+              display: 'flex',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              width: 300
+            }}
+          >
+            <Checkbox
+              checked={includePattern}
+              onChange={() => setIncludePattern(state => !state)}
+              sx={{ pl: 0 }}
+            />
+            <label>Include pattern image</label>
+          </Box>
+
+          {includePattern && (
+            <>
+              <Box sx={{ mt: 2, mb: 2 }}>
+                <TextField
+                  select
+                  label="Pattern type"
+                  value={patternType}
+                  onChange={e => setPatternType(e.target.value)}
+                  sx={{ minWidth: 300 }}
+                >
+                  {patternTypes.map(type => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+
+              <Box sx={{ mt: 2, mb: 3 }}>
+                <TextField
+                  type="number"
+                  id="size"
+                  value={size}
+                  onChange={e => setSize(e.target.value)}
+                  slotProps={{ htmlInput: { min: 100, max: 500 } }}
+                  required
+                  style={{ width: 300 }}
+                />
+              </Box>
+            </>
+          )}
 
           <Button
             color="inherit"

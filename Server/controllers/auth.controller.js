@@ -6,10 +6,9 @@ import ApiError from '../utils/ApiError.js';
 const login = async (req, res, next) => {
   try {
     const { userName, password } = req.body;
-
+    console.log('Login request :', userName);
     const user = await User.findOne({ userName }).select('+password');
-
-    console.log('user:', user);
+    console.log('User found :', user);
     if (!user || !user.password) {
       throw new ApiError(400, 'Invalid credentials');
     }
@@ -57,6 +56,7 @@ const login = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   try {
+    console.log('Logout request :', req.user);
     // Clear the token cookie
     res.clearCookie('token', {
       httpOnly: true,

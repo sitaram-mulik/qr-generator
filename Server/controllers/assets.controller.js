@@ -2,20 +2,30 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import AssetModel from '../models/asset.js';
 import CampaignModel from '../models/campaign.js';
-import { buildAssetsDBQuery, generateImage } from '../utils/assets.util.js';
+import { buildAssetsDBQuery, generateImage, streamToBuffer } from '../utils/assets.util.js';
 import { getClientUrl } from '../utils/config.util.js';
-import { s3, PutObjectCommand, GetObjectCommand } from '../configs/s3.js';
+import { s3, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '../configs/s3.js';
 import archiver from 'archiver';
 import { setCreditsData } from '../utils/user.util.js';
-import { updateLocation } from '../utils/location.util.js';
 import sharp from 'sharp';
+import { updateLocation } from '../utils/location.util.js';
 
 import ApiError from '../utils/ApiError.js';
 
 const generate = async (req, res, next) => {
   try {
-    const { count, campaignName = 'Test' } = req.body;
+    const {
+      count,
+      campaignName = 'Test',
+      patternType = 'geopattern',
+      size = 200,
+      includePattern = true
+    } = req.body;
     const { domain, credits } = req.user;
+
+    if (count > 100 || count < 1) throw new ApiError('400', 'Count must be between 1 and 100');
+
+    if (size > 500 || size < 100) throw new ApiError('400', 'Size must be between 1 and 100');
 
     const generatedAssets = [];
     const baseDir = path.join(process.cwd(), 'storage', 'codes');
@@ -26,10 +36,16 @@ const generate = async (req, res, next) => {
       const uuid = uuidv4();
       const uniqueCode = `${timestamp}-${uuid}`;
       let imageBuffer;
-      let s3Url;
       try {
         // Get image buffer
-        imageBuffer = await generateImage(uniqueCode, baseDir, appUrl);
+        imageBuffer = await generateImage(
+          uniqueCode,
+          baseDir,
+          appUrl,
+          patternType,
+          parseInt(size),
+          includePattern
+        );
 
         // upload each image in s3
         await s3.send(
@@ -40,22 +56,18 @@ const generate = async (req, res, next) => {
             ContentType: 'image/png'
           })
         );
-
-        s3Url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${campaignName}/${uniqueCode}.png`;
       } catch (error) {
         console.log('Error uploading to S3:', error);
         continue;
       }
       const savedCode = await new AssetModel({
         code: uniqueCode,
-        imagePath: s3Url,
         campaign: campaignName,
         userId: req.userId
       }).save();
 
       generatedAssets.push({
-        code: savedCode.code,
-        imageUrl: savedCode.imagePath
+        code: savedCode.code
       });
     }
 
@@ -115,7 +127,29 @@ const getAssetByCode = async (req, res, next) => {
 
 const getAssetPattern = async (req, res, next) => {
   try {
-    console.log('getAssetPattern called');
+    const { code } = req.params;
+
+    const asset = await AssetModel.findOne({ code });
+    if (!asset) {
+      throw new ApiError(404, 'Asset not found');
+    }
+    const Key = `${asset.campaign}/${code}.png`;
+    const Bucket = process.env.AWS_S3_BUCKET;
+    const command = new GetObjectCommand({
+      Bucket,
+      Key
+    });
+    const data = await s3.send(command);
+
+    data.Body.pipe(res);
+  } catch (error) {
+    console.log('Error getting asset pattern image', error);
+    next(error);
+  }
+};
+
+const getVerifiedAssetPattern = async (req, res, next) => {
+  try {
     const { code } = req.params;
 
     const asset = await AssetModel.findOne({ code });
@@ -123,14 +157,40 @@ const getAssetPattern = async (req, res, next) => {
       throw new ApiError(404, 'Asset not found');
     }
     console.log('asset ', asset);
+    const Key = `${asset.campaign}/${code}.png`;
+    const Bucket = process.env.AWS_S3_BUCKET;
     const command = new GetObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET,
-      Key: `${asset.campaign}/${code}.png`
+      Bucket,
+      Key
     });
     const data = await s3.send(command);
-    const patternImage = sharp().extract({ left: 500, top: 0, width: 500, height: 500 });
+    if (!data.Body) {
+      throw ApiError('400', 'Image not found');
+    }
+    // Convert stream to buffer
+    const imageBuffer = await streamToBuffer(data.Body);
+
+    // Get image width
+    const metadata = await sharp(imageBuffer).metadata();
+    const halfWidth = Math.floor(metadata.width / 2);
+
+    // Cut image in half
+    const patternImage = sharp(imageBuffer).extract({
+      left: halfWidth, // start from middle
+      top: 0,
+      width: metadata.width - halfWidth, // cover remaining part
+      height: metadata.height
+    });
+
     res.setHeader('Content-Type', 'image/png');
-    data.Body.pipe(patternImage).pipe(res);
+    patternImage.pipe(res);
+
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket,
+        Key
+      })
+    );
   } catch (error) {
     console.log('Error getting asset pattern image', error);
     next(error);
@@ -260,5 +320,6 @@ export {
   verifyProduct,
   getAssetsCount,
   getStatistics,
-  getAssetPattern
+  getAssetPattern,
+  getVerifiedAssetPattern
 };

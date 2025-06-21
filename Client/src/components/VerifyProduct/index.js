@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import './index.css';
 import axios from '../../utils/axiosInstance';
 import { Alert, AppBar, Box, Container, Paper } from '@mui/material';
@@ -9,6 +9,9 @@ function VerifyProduct() {
   const [codeDetails, setCodeDetails] = useState(null);
   const [campaignDetails, setCampaignDetails] = useState({});
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  let showImage = searchParams.get('image');
+  showImage = typeof showImage === 'undefined' || showImage === null ? true : JSON.parse(showImage);
 
   useEffect(() => {
     const fetchCodeDetails = async () => {
@@ -59,10 +62,12 @@ function VerifyProduct() {
             <p>{campaignDetails.description}</p>
           </Paper>
         )}
-        {!codeDetails?.verifiedAt && codeDetails?.code && (
+        {!codeDetails?.verifiedAt && codeDetails?.code && showImage && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
             <img
-              src={`${process.env.REACT_APP_API_URL || ''}/api/assets/pattern/${codeDetails.code}`}
+              src={`${process.env.REACT_APP_API_URL || ''}/api/assets/verifyImage/${
+                codeDetails.code
+              }`}
             />
           </Box>
         )}

@@ -1,14 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const assetSchema = new mongoose.Schema({
   code: {
     type: String,
     required: true,
-    unique: true,
-  },
-  imagePath: {
-    type: String,
-    required: true,
+    unique: true
   },
   campaign: {
     type: String,
@@ -23,7 +19,7 @@ const assetSchema = new mongoose.Schema({
   },
   downloads: {
     type: Number,
-    default: 0,
+    default: 0
   },
   downloadedAt: {
     type: Date
@@ -35,8 +31,8 @@ const assetSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
-export default mongoose.model("asset", assetSchema);
+export default mongoose.model('asset', assetSchema);

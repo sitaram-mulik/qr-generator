@@ -6,7 +6,6 @@ import { clearUsersData } from '../utils/cleanup.utils.js';
 
 export const getProfile = async (req, res, next) => {
   try {
-    console.log('verified ', req.user);
     const profile = await UserModel.findById(req.userId);
     res.json(profile);
   } catch (error) {

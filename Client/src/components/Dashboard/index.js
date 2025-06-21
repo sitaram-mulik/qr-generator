@@ -70,7 +70,6 @@ const Dashboard = () => {
   };
 
   const setCampaignsData = useCallback(campaigns => {
-    console.log('campaignscampaigns ', campaigns);
     setCounts(state => ({ ...state, campaignCount: campaigns?.length || 0 }));
   }, []);
 

@@ -15,7 +15,6 @@ function AssetDetail({ code: propCode }) {
       try {
         const response = await axios.get(`/assets/${code}`);
         const details = response.data;
-        console.log('details ', details);
         if (details?.code) {
           setCodeDetails(details);
         }
@@ -35,10 +34,10 @@ function AssetDetail({ code: propCode }) {
 
   return (
     <Container sx={{ mt: 6, mb: 2 }}>
-      {codeDetails?.imagePath && (
+      {codeDetails?.code && (
         <Paper elevation={3}>
           <img
-            src={`${process.env.REACT_APP_API_URL || ''}/api/assets/pattern/${codeDetails.code}`}
+            src={`${process.env.REACT_APP_API_URL || ''}/api/assets/image/${codeDetails.code}`}
             alt="Generated Code"
             className="full-image"
             style={{ width: '100%' }}

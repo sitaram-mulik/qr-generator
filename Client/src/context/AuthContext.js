@@ -22,7 +22,6 @@ export const AuthProvider = ({ children }) => {
     axiosInstance
       .get('/user/profile')
       .then(response => {
-        console.log('response.data profile ', response.data);
         if (response.data) {
           setUser(response.data);
           localStorage.setItem('user', JSON.stringify(response.data));
@@ -46,7 +45,6 @@ export const AuthProvider = ({ children }) => {
 
   // Update localStorage when user changes
   useEffect(() => {
-    console.log('user changed', user);
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
     } else {

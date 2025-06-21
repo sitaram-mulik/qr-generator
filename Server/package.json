@@ -24,6 +24,7 @@
     "express-rate-limit": "^7.5.0",
     "fs-extra": "^11.3.0",
     "geoip-lite": "^1.4.10",
+    "geopattern": "^1.2.3",
     "greenlock": "^4.0.4",
     "greenlock-express": "^4.0.3",
     "i18n-iso-countries": "^7.14.0",

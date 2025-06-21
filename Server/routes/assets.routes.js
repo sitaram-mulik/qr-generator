@@ -7,7 +7,8 @@ import {
   verifyProduct,
   getAssetsCount,
   getStatistics,
-  getAssetPattern
+  getAssetPattern,
+  getVerifiedAssetPattern
 } from '../controllers/assets.controller.js';
 import { authenticateToken } from '../middleware/auth.middleware.js';
 import { checkCredits } from '../middleware/credits.middleware.js';
@@ -36,6 +37,7 @@ router.get(
 router.get('/count', authenticateToken, checkSubscription, getAssetsCount);
 router.get('/statistics', authenticateToken, checkSubscription, getStatistics);
 router.get('/:code', authenticateToken, checkSubscription, getAssetByCode);
-router.get('/pattern/:code', getAssetPattern);
+router.get('/verifyImage/:code', getVerifiedAssetPattern);
+router.get('/image/:code', getAssetPattern);
 
 export default router;
