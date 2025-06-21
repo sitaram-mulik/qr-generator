@@ -2,7 +2,7 @@ import LocationModel from '../models/location.js';
 
 export const getLocations = async (req, res, next) => {
   const campaign = req.query.campaign;
-  const query = { userId: req.userId };
+  const query = req.user.isSuperAdmin ? {} : { userId: req.userId };
   if (campaign && campaign !== 'all') query.campaign = campaign;
 
   try {

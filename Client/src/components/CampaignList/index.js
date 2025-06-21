@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import {
   Container,
-  Typography,
   CircularProgress,
   Alert,
   Box,
   Paper,
-  Button,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  IconButton
+  IconButton,
+  Tooltip,
+  Button
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
-import GetAppIcon from '@mui/icons-material/NewLabel';
 import { formatTimestamp } from '../../utils/common';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ConfirmDelete from '../Lib/ConfirmDelete';
 import Progress from '../Lib/Progress';
 import EditIcon from '@mui/icons-material/Edit';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { isValidityExpired } from '../../utils/user';
 
 const CampaignList = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -91,17 +92,15 @@ const CampaignList = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h5" component="h1" gutterBottom>
-          My Campaigns
-        </Typography>
-        <Box sx={{ mb: 1 }}>
-          <Button
-            variant="contained"
-            startIcon={<GetAppIcon />}
-            onClick={handleCreateCampaignClick}
-            sx={{ mb: 2 }}
-          >
-            Create campaign
+        <Box
+          sx={{
+            pb: 2,
+            display: 'flex',
+            justifyContent: { xs: 'flex-start', md: 'flex-end' }
+          }}
+        >
+          <Button startIcon={<AddCircleIcon />} onClick={handleCreateCampaignClick}>
+            Create
           </Button>
         </Box>
         {error && (
@@ -119,6 +118,7 @@ const CampaignList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>
+                  <TableCell>UserId</TableCell>
                   <TableCell>Valid till</TableCell>
                   <TableCell>Created at</TableCell>
                   <TableCell>Assets</TableCell>
@@ -127,37 +127,61 @@ const CampaignList = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {campaigns.map(({ name, validTill, createdAt, _id }) => (
-                  <TableRow key={_id} hover>
-                    <TableCell component="th" scope="row">
-                      {name}
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      {formatTimestamp(validTill)}
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      {formatTimestamp(createdAt)}
-                    </TableCell>
-                    <TableCell component="td" scope="row">
-                      <IconButton color="primary" onClick={() => viewAssets(name)}>
-                        <VisibilityIcon />
-                      </IconButton>
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      <IconButton
-                        onClick={() => navigate(`/campaigns/action/${name}`)}
-                        color="primary"
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </TableCell>
-                    <TableCell component="td" scope="row">
-                      <IconButton onClick={() => openDeleteDialog(name)} color="primary">
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {campaigns.map(({ name, userId, validTill, createdAt, _id }) => {
+                  const validityExpired = isValidityExpired(validTill);
+                  return (
+                    <TableRow
+                      key={_id}
+                      hover
+                      sx={{
+                        backgroundColor: validityExpired
+                          ? theme => theme.palette.warning.main + '!important'
+                          : 'inherit',
+                        '> td': {
+                          color: validityExpired
+                            ? theme => theme.palette.warning.contrastText
+                            : 'inherit'
+                        },
+                        '&:hover': {
+                          backgroundColor: validityExpired
+                            ? theme => theme.palette.warning.dark + '!important'
+                            : 'inherit'
+                        }
+                      }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {name}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        {userId}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        {formatTimestamp(validTill)}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        {formatTimestamp(createdAt)}
+                      </TableCell>
+                      <TableCell component="td" scope="row">
+                        <IconButton color="primary" onClick={() => viewAssets(name)}>
+                          <VisibilityIcon />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        <IconButton
+                          onClick={() => navigate(`/campaigns/action/${name}`)}
+                          color="primary"
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell component="td" scope="row">
+                        <IconButton onClick={() => openDeleteDialog(name)} color="primary">
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

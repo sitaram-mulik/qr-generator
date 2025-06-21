@@ -29,9 +29,9 @@ export const getSubscriptionPeriod = profile => {
  * @param {string|Date} subscriptionEnds - The subscription end date-time.
  * @returns {boolean} - True if subscriptionEnds is less than current date-time, else false.
  */
-export const isSubscriptionExpired = ({ subscriptionEnds }) => {
-  if (!subscriptionEnds) return false;
-  const endDate = new Date(subscriptionEnds);
+export const isValidityExpired = validTill => {
+  if (!validTill) return false;
+  const endDate = new Date(validTill);
   const now = new Date();
   return endDate < now;
 };

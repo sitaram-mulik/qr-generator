@@ -233,7 +233,7 @@ const downloadAssets = async (req, res, next) => {
 const getStatistics = async (req, res, next) => {
   try {
     const campaign = req.query.campaign;
-    const query = { userId: req.userId };
+    const query = req.user.isSuperAdmin ? {} : { userId: req.userId };
     if (campaign && campaign !== 'all') query.campaign = campaign;
     const totalCount = await AssetModel.countDocuments(query);
     const downloadedCount = await AssetModel.countDocuments({ ...query, downloads: { $gt: 0 } });

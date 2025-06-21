@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Container,
-  Typography,
   CircularProgress,
   Alert,
   Box,
@@ -13,23 +12,23 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Checkbox
+  Checkbox,
+  Tooltip
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../utils/axiosInstance';
-import GetAppIcon from '@mui/icons-material/NewLabel';
 import IconButton from '@mui/material/IconButton';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import axiosInstance from '../../utils/axiosInstance';
 import {
-  getAvailableCredits,
   getSubscriptionEndDate,
   getSubscriptionStartDate,
-  isSubscriptionExpired
+  isValidityExpired
 } from '../../utils/user';
 import ConfirmDelete from '../Lib/ConfirmDelete';
 import Progress from '../Lib/Progress';
 import EditIcon from '@mui/icons-material/Edit';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -113,17 +112,15 @@ const UserList = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h5" component="h1" gutterBottom>
-          Users
-        </Typography>
-        <Box sx={{ mb: 1 }}>
-          <Button
-            variant="contained"
-            startIcon={<GetAppIcon />}
-            onClick={handleCreate}
-            sx={{ mb: 2 }}
-          >
-            Create User
+        <Box
+          sx={{
+            pb: 2,
+            display: 'flex',
+            justifyContent: { xs: 'flex-start', md: 'flex-end' }
+          }}
+        >
+          <Button startIcon={<AddCircleIcon />} onClick={handleCreate}>
+            Create
           </Button>
         </Box>
         {error && (
@@ -138,12 +135,13 @@ const UserList = () => {
             <Table stickyHeader aria-label="campaign table" size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>User Name</TableCell>
-                  <TableCell>Display Name</TableCell>
+                  <TableCell>UserId</TableCell>
+                  <TableCell>UserName</TableCell>
+                  <TableCell>Name</TableCell>
                   <TableCell>Domain</TableCell>
                   <TableCell>Subscription period</TableCell>
                   <TableCell>Credits</TableCell>
-                  <TableCell>Total assets</TableCell>
+                  <TableCell>Assets</TableCell>
                   <TableCell>Downloads</TableCell>
                   <TableCell>Super Admin</TableCell>
                   <TableCell>Edit</TableCell>
@@ -165,7 +163,7 @@ const UserList = () => {
                     isActive,
                     ...rest
                   }) => {
-                    const isSubExpired = isSubscriptionExpired(rest);
+                    const isSubExpired = isValidityExpired(rest.subscriptionEnds);
                     return (
                       <TableRow
                         key={_id}
@@ -186,6 +184,9 @@ const UserList = () => {
                           }
                         }}
                       >
+                        <TableCell component="td" scope="row">
+                          {_id}
+                        </TableCell>
                         <TableCell component="td" scope="row">
                           {userName}
                         </TableCell>

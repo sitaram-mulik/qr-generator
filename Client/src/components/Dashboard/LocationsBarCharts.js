@@ -4,7 +4,6 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { BoxGrid } from '../../theme';
 
 const LocationsBarCharts = ({ topCountries, topCities }) => {
-  console.log('topCountries ', topCountries);
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
 

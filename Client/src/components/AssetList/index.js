@@ -4,7 +4,6 @@ import {
   Container,
   Card,
   CardContent,
-  Button,
   LinearProgress,
   Box,
   Table,
@@ -17,7 +16,8 @@ import {
   TextField,
   Paper,
   IconButton,
-  Dialog
+  Dialog,
+  Button
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -30,6 +30,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AuthContext } from '../../context/AuthContext';
 import AssetDetail from '../AssetDetail';
 import { styled } from '@mui/material/styles';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const initialFilterState = {
   campaign: '',
@@ -161,24 +162,33 @@ function AssetList() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper sx={{ p: 3 }}>
-        <Box sx={{ mb: 4 }}>
+        <Box>
           <AssetFilters
             filters={filters}
             onFilterChange={onFilterChange}
             onFilterReset={onFilterReset}
           />
-
-          <Box sx={{ mb: 1 }} align="left">
+          <Box
+            sx={{
+              pt: 2,
+              pb: 2,
+              display: 'flex',
+              justifyContent: { xs: 'flex-start', md: 'flex-end' }
+            }}
+          >
             <TextField
-              label="Download count"
+              label="Result"
               type="number"
               value={count}
               onChange={e => setCount(e.target.value)}
               size="small"
-              sx={{ mb: 2, mr: 2 }}
+              sx={{ width: '100px' }}
             />
-            <Button variant="contained" startIcon={<GetAppIcon />} onClick={downloadAllAssets}>
-              Download assets
+            <Button startIcon={<GetAppIcon />} sx={{ mr: 1, ml: 2 }} onClick={downloadAllAssets}>
+              Download
+            </Button>
+            <Button startIcon={<AddCircleIcon />} onClick={() => navigate('/assets/create')}>
+              Create
             </Button>
           </Box>
 

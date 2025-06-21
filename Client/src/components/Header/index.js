@@ -22,11 +22,14 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import PersonIcon from '@mui/icons-material/Person';
-import FolderIcon from '@mui/icons-material/Folder';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import CampaignIcon from '@mui/icons-material/Campaign';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import GroupIcon from '@mui/icons-material/Group';
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -71,24 +74,38 @@ const Header = () => {
     }
   };
 
-  const getMobileMenuItem = (id, text, path) =>
-    isMobile && {
-      id,
-      text,
-      icon: <FolderIcon />,
-      onClick: () => handleNavigation(path)
-    };
-
   const menuItems = user
     ? [
-        getMobileMenuItem('dashboard', 'Dashboard', '/'),
-        getMobileMenuItem('generate', 'Generate assets', '/generate'),
-        getMobileMenuItem('assets', 'My Assets', '/assets'),
-        getMobileMenuItem('campaigns', 'My Campaigns', '/campaigns'),
+        isMobile && {
+          id: 'dashboard',
+          text: 'Dashboard',
+          icon: <DashboardIcon />,
+          onClick: () => handleNavigation('/')
+        },
+        isMobile && {
+          id: 'assets',
+          text: 'Assets',
+          icon: <QrCodeScannerIcon />,
+          onClick: () => handleNavigation('/assets')
+        },
+        isMobile && {
+          id: 'campaigns',
+          text: 'Campaigns',
+          icon: <CampaignIcon />,
+          onClick: () => handleNavigation('/campaigns')
+        },
+        isMobile &&
+          user?.isSuperAdmin && {
+            id: 'users',
+            text: 'Users',
+            icon: <GroupIcon />,
+            onClick: () => handleNavigation('/users')
+          },
+
         {
           id: 'profile',
           text: 'Profile',
-          icon: <PersonIcon />,
+          icon: <AccountCircleIcon />,
           onClick: () => handleNavigation('/profile')
         },
         {
@@ -112,6 +129,7 @@ const Header = () => {
           <IconButton
             color="inherit"
             edge="start"
+            size="large"
             onClick={handleMobileMenuToggle}
             sx={{ mr: 2, justifyContent: 'flex-start' }}
           >
@@ -208,7 +226,6 @@ const Header = () => {
             borderColor: 'divider',
             py: 1,
             px: 2,
-
             gap: 2
           }}
         >
@@ -223,21 +240,12 @@ const Header = () => {
           </Button>
           <Button
             component={Link}
-            to="/generate"
-            color={location.pathname === '/generate' ? 'secondary' : 'primary'}
-            variant={location.pathname === '/generate' ? 'contained' : 'text'}
-            sx={{ textTransform: 'none', fontWeight: 'bold' }}
-          >
-            Generate Assets
-          </Button>
-          <Button
-            component={Link}
             to="/assets"
             color={location.pathname.startsWith('/assets') ? 'secondary' : 'primary'}
             variant={location.pathname.startsWith('/assets') ? 'contained' : 'text'}
             sx={{ textTransform: 'none', fontWeight: 'bold' }}
           >
-            My Assets
+            Assets
           </Button>
           <Button
             component={Link}
@@ -246,7 +254,7 @@ const Header = () => {
             variant={location.pathname.startsWith('/campaigns') ? 'contained' : 'text'}
             sx={{ textTransform: 'none', fontWeight: 'bold' }}
           >
-            My Campaigns
+            Campaigns
           </Button>
           {user.isSuperAdmin && (
             <Button

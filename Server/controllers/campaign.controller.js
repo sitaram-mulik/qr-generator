@@ -46,8 +46,13 @@ export const createCampaign = async (req, res, next) => {
 };
 
 export const getAllCampaigns = async (req, res, next) => {
+  const query = req.user.isSuperAdmin
+    ? req.query.userId
+      ? { userId: req.query.userId }
+      : {}
+    : { userId: req.userId };
   try {
-    const campaigns = await CampaignModel.find({ userId: req.userId }).sort({ createdAt: -1 });
+    const campaigns = await CampaignModel.find(query).sort({ createdAt: -1 });
     res.status(200).json(campaigns);
   } catch (error) {
     console.log('Error fetching campaigns:', error);

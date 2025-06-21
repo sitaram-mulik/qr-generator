@@ -36,7 +36,7 @@ function AppContent() {
 
         {/* Protected routes */}
         <Route
-          path="/generate"
+          path="/assets/create"
           element={
             <ProtectedRoute>
               <CreateAssets />

@@ -9,7 +9,7 @@ import {
   getSubscriptionEndDate,
   getSubscriptionPeriod,
   getSubscriptionStartDate,
-  isSubscriptionExpired,
+  isValidityExpired,
   getSubscriptionDaysRemaining,
   getDeactivationDaysRemaining
 } from '../../utils/user';
@@ -37,7 +37,7 @@ const Profile = () => {
   };
 
   const subscriptionEnds = profile.subscriptionEnds;
-  const expired = isSubscriptionExpired({ subscriptionEnds });
+  const expired = isValidityExpired(subscriptionEnds);
   const daysRemaining = getSubscriptionDaysRemaining(subscriptionEnds);
   const gracePeriod = profile.gracePeriod || 0;
   const deactivationDaysRemaining = getDeactivationDaysRemaining(subscriptionEnds, gracePeriod);

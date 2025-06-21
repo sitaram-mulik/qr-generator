@@ -2,6 +2,7 @@ import { Paper } from '@mui/material';
 import { useEffect, useState } from 'react';
 import axiosInstance from '../../utils/axiosInstance';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { BoxGrid } from '../../theme';
 
 const ScanChart = ({ selectedCampaign }) => {
   const [chartData, setChartData] = useState({ labels: [], series: [] });
@@ -98,15 +99,17 @@ const ScanChart = ({ selectedCampaign }) => {
 
   return (
     chartData.labels.length > 0 && (
-      <LineChart
-        xAxis={[{ scaleType: 'point', data: chartData.labels }]}
-        series={[{ data: chartData.series, area: true, label: 'Scanned Assets' }]}
-        height={400}
-        sx={{
-          '.MuiLineElement-root': { strokeWidth: 3 },
-          '.MuiAreaElement-root': { opacity: 0.2 }
-        }}
-      />
+      <BoxGrid size={{ xs: 12, md: 8 }}>
+        <LineChart
+          xAxis={[{ scaleType: 'point', data: chartData.labels }]}
+          series={[{ data: chartData.series, area: true, label: 'Scanned Assets' }]}
+          height={400}
+          sx={{
+            '.MuiLineElement-root': { strokeWidth: 3 },
+            '.MuiAreaElement-root': { opacity: 0.2 }
+          }}
+        />
+      </BoxGrid>
     )
   );
 };

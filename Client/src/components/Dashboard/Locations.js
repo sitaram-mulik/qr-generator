@@ -16,7 +16,6 @@ const Locations = ({ selectedCampaign }) => {
       try {
         setLoading(true);
         const locationsRes = await axios.get(`/locations?campaign=${selectedCampaign}`);
-        console.log('locationsRes.data ', locationsRes.data);
         const _locations = [...locationsRes.data];
         setLocationData(_locations);
         setLoading(false);
@@ -39,8 +38,6 @@ const Locations = ({ selectedCampaign }) => {
       }, {}),
     [locationData]
   );
-
-  console.log('locations ', countryData);
 
   const cityData = useMemo(
     () =>
@@ -82,17 +79,16 @@ const Locations = ({ selectedCampaign }) => {
   }, [cityData]);
 
   const topCountryName = useMemo(() => {
-    return topCountries.filter(c => c.country !== 'unknown').sort((a, b) => a.count - b.count)?.[0]
+    return topCountries.filter(c => c.country !== 'unknown').sort((a, b) => b.count - a.count)?.[0]
       ?.country;
   }, [topCountries]);
 
   const topCityName = useMemo(() => {
-    return topCities.filter(c => c.city !== 'unknown').sort((a, b) => a.count - b.count)?.[0]?.city;
+    return topCities.filter(c => c.city !== 'unknown').sort((a, b) => b.count - a.count)?.[0]?.city;
   }, [topCountries]);
 
   const centerLocation = useMemo(() => {
     const loc = locationData.find(loc => loc.country === topCountryName);
-    console.log('loc ', loc);
     if (!loc) return {};
     const [lat, lng] = JSON.parse(loc.ll);
     return { lat, lng };

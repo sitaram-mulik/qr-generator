@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Paper, useMediaQuery } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
-import theme from '../../theme';
+import theme, { BoxGrid } from '../../theme';
 
 const ScanCompletionPieChart = ({ counts }) => {
   const [series, setSeries] = useState([]);
@@ -20,18 +20,20 @@ const ScanCompletionPieChart = ({ counts }) => {
 
   return (
     counts.verifiedCount > 0 && (
-      <PieChart
-        height={300}
-        width={isMobile ? 200 : 420}
-        series={[
-          {
-            data: series,
-            innerRadius: '50%',
-            arcLabelMinAngle: 20
-          }
-        ]}
-        skipAnimation={false}
-      />
+      <BoxGrid size={{ xs: 12, md: 4 }}>
+        <PieChart
+          height={300}
+          width={isMobile ? 200 : 420}
+          series={[
+            {
+              data: series,
+              innerRadius: '50%',
+              arcLabelMinAngle: 20
+            }
+          ]}
+          skipAnimation={false}
+        />
+      </BoxGrid>
     )
   );
 };

@@ -103,14 +103,9 @@ const Dashboard = () => {
         <CampaignSelector setCampaignsData={setCampaignsData} />
       </Box>
       <Grid container spacing={4} sx={{ mt: 4 }}>
-        <BoxGrid size={{ xs: 12, md: 4 }}>
-          <ScanCompletionPieChart counts={counts} />
-        </BoxGrid>
+        <ScanCompletionPieChart counts={counts} />
 
-        <BoxGrid size={{ xs: 12, md: 8 }}>
-          <ScanChart selectedCampaign={selectedCampaign} />
-        </BoxGrid>
-
+        <ScanChart selectedCampaign={selectedCampaign} />
         <Locations selectedCampaign={selectedCampaign} counts={counts} />
       </Grid>
     </Container>
