@@ -136,7 +136,7 @@ const CreateCampaign = () => {
             ))}
           </TextField>
           <Alert severity="warning" sx={{ mt: 2 }}>
-            Note: Assets created under this campaign will be deleted automatically,{' '}
+            Note: Assets created under this campaign will be deleted automatically{' '}
             {user.gracePeriod} days after the Campaign validity ends.
           </Alert>
         </Box>

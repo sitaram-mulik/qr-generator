@@ -9,7 +9,9 @@ import {
   DialogContent,
   DialogActions,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Stack,
+  Typography
 } from '@mui/material';
 import axios from '../../utils/axiosInstance';
 import RestoreIcon from '@mui/icons-material/Restore';
@@ -58,9 +60,10 @@ const AssetFilters = ({ filters, onFilterChange, onFilterReset }) => {
         height: { md: '50px' }
       }}
     >
+      <Typography>Filter by</Typography>
       <TextField
         select
-        label="By Campaign"
+        label="Campaign"
         value={filters.campaign || ''}
         onChange={e => onFilterChange('campaign', e.target.value)}
         sx={{ minWidth: 200 }}
@@ -74,7 +77,7 @@ const AssetFilters = ({ filters, onFilterChange, onFilterReset }) => {
       </TextField>
       <TextField
         select
-        label="By Scan"
+        label="Scan"
         value={filters.verified || ''}
         onChange={e => onFilterChange('verified', e.target.value)}
         sx={{ minWidth: 200 }}
@@ -85,7 +88,7 @@ const AssetFilters = ({ filters, onFilterChange, onFilterReset }) => {
       </TextField>
       <TextField
         select
-        label="By Downloads"
+        label="Downloads"
         value={filters.downloaded || ''}
         onChange={e => onFilterChange('downloaded', e.target.value)}
         sx={{ minWidth: 200 }}
@@ -122,7 +125,6 @@ const AssetFilters = ({ filters, onFilterChange, onFilterReset }) => {
           Filters
         </Button>
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-          <DialogTitle>Filters</DialogTitle>
           <DialogContent>
             {filterContent}
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>

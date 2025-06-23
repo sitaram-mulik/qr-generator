@@ -25,7 +25,7 @@ const generate = async (req, res, next) => {
 
     if (count > 100 || count < 1) throw new ApiError('400', 'Count must be between 1 and 100');
 
-    if (size > 500 || size < 100) throw new ApiError('400', 'Size must be between 1 and 100');
+    if (size > 800 || size < 100) throw new ApiError('400', 'Size must be between 100 and 800');
 
     const generatedAssets = [];
     const baseDir = path.join(process.cwd(), 'storage', 'codes');

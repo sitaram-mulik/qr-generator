@@ -22,7 +22,7 @@ const patternTypes = ['geopattern', 'Polygons'];
 const CreateAssets = () => {
   const [count, setCount] = useState(1);
   const [patternType, setPatternType] = useState(patternTypes[0]);
-  const [size, setSize] = useState(200);
+  const [size, setSize] = useState(500);
   const [includePattern, setIncludePattern] = useState(true);
   const [codes, setCodes] = useState([]);
   const [error, setError] = useState('');
@@ -90,8 +90,8 @@ const CreateAssets = () => {
 
     const numberSize = parseInt(size);
 
-    if (numberSize < 100 || numberSize > 500) {
-      setError('Please enter size between 100 and 500');
+    if (numberSize < 100 || numberSize > 800) {
+      setError('Please enter size between 100 and 800');
       return;
     }
 
@@ -213,6 +213,7 @@ const CreateAssets = () => {
             <TextField
               type="number"
               id="count"
+              label="Count"
               value={count}
               onChange={e => setCount(e.target.value)}
               min="1"
@@ -261,11 +262,11 @@ const CreateAssets = () => {
               <Box sx={{ mt: 2, mb: 3 }}>
                 <TextField
                   type="number"
+                  label="Size in pixel"
                   id="size"
                   value={size}
                   onChange={e => setSize(e.target.value)}
                   slotProps={{ htmlInput: { min: 100, max: 500 } }}
-                  required
                   style={{ width: 300 }}
                 />
               </Box>
